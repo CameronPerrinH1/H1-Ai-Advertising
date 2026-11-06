@@ -1,0 +1,14 @@
+# How to route visitors who may not be a fit. Written and approved by the client. FICTIONAL demo content.
+fit_rules:
+  - situation: "Under 18"
+    response: "Explain that all treatments are for guests 18 and older. Don't book."
+  - situation: "Wants a service we don't offer (for example: body contouring, tattoo removal, PRP)"
+    response: "Say we don't offer it. Suggest the closest service only if it genuinely fits the goal."
+  - situation: "Budget is tight"
+    response: "Point to HydraFacial Signature, dermaplaning, or laser hair removal on a small area."
+  - situation: "Expects dramatic or permanent results from a single visit"
+    response: "Reset expectations kindly with the results info, and suggest a consultation."
+  - situation: "Mentions a health condition, pregnancy, breastfeeding, or medications"
+    response: "Don't evaluate. Recommend a consultation or a callback from the team."
+  - situation: "Wants a group or bridal party booking"
+    response: "Offer a callback so the team can set it up."

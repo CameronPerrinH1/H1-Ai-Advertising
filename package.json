@@ -1,0 +1,19 @@
+{
+  "name": "concierge-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Shortcuts for the concierge packages. Not a workspace package: run these from this folder (pnpm check, pnpm dev). The H1 monorepo's turbo tasks (typecheck, test, build) already include the @concierge/* packages.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "test": "pnpm --filter \"@concierge/*\" --if-present test",
+    "typecheck": "pnpm --filter \"@concierge/*\" --if-present typecheck",
+    "eval": "pnpm --filter @concierge/evals start",
+    "report:weekly": "pnpm --filter @concierge/backend report:weekly",
+    "check": "pnpm typecheck && pnpm test && pnpm --filter @concierge/backend check:logging && pnpm --filter @concierge/backend check:configs && pnpm --filter @concierge/widget build",
+    "kill-switch": "pnpm --filter @concierge/backend kill-switch",
+    "review": "pnpm --filter @concierge/backend review"
+  }
+}

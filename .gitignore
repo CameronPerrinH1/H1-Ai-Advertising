@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.outbox/
+.eval-results/
+*.log
+.DS_Store
+.env
+.env.*
+.local-data/
+cdk.out/

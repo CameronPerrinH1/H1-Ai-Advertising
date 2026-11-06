@@ -1,0 +1,32 @@
+# FICTIONAL providers for the demo spa.
+providers:
+  - id: maya-chen
+    name: Maya Chen
+    credentials: "MSN, FNP-C"
+    title: { en: "Nurse Practitioner and Lead Injector", es: "Enfermera practicante e inyectora principal" }
+    bio:
+      en: "Maya has eight years of aesthetic injecting experience and is known for natural, balanced results."
+      es: "Maya tiene ocho años de experiencia en inyectables estéticos y es conocida por sus resultados naturales y equilibrados."
+    specialties: [Botox and Dysport, lip filler, facial balancing]
+    services: [botox, dysport, lip-filler, injectable-consultation]
+    languages: [en]
+  - id: sofia-ramirez
+    name: Sofía Ramírez
+    credentials: "LE"
+    title: { en: "Licensed Esthetician", es: "Esteticista licenciada" }
+    bio:
+      en: "Sofía builds skin plans around real life, and she's the go-to for pre-event glow. She speaks English and Spanish."
+      es: "Sofía crea planes de cuidado de la piel pensados para la vida real y es la experta en luminosidad antes de eventos. Habla inglés y español."
+    specialties: [HydraFacial, chemical peels, dermaplaning, microneedling]
+    services: [hydrafacial, hydrafacial-deluxe, dermaplaning, chemical-peel, microneedling]
+    languages: [en, es]
+  - id: jordan-ellis
+    name: Jordan Ellis
+    credentials: "RN"
+    title: { en: "Registered Nurse and Laser Specialist", es: "Enfermero registrado y especialista en láser" }
+    bio:
+      en: "Jordan has performed thousands of laser treatments and makes first-timers feel at ease."
+      es: "Jordan ha realizado miles de tratamientos láser y hace que quienes vienen por primera vez se sientan cómodos."
+    specialties: [laser hair removal, IPL photofacials]
+    services: [laser-hair-removal, ipl-photofacial]
+    languages: [en]
