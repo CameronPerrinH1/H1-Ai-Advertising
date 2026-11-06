@@ -277,7 +277,7 @@ export function App() {
             <MessageList
               messages={messages}
               waiting={waiting}
-              initials={config.concierge.initials}
+              face={config.concierge}
               name={config.concierge.name}
               s={s}
               lang={lang}

@@ -231,7 +231,8 @@ export const configSchema = z
       .object({
         name: z.string(),
         // portrait: an AI-generated face from H1's approved set, always beside the AI label (D45).
-        avatar: z.object({ mode: z.enum(['portrait', 'illustrated', 'brand_mark', 'none']), id: z.string().optional() }).strict(),
+        // id: one of H1's portraits (widget/public/avatars/look-1.jpg to look-8.jpg) when mode is portrait.
+        avatar: z.object({ mode: z.enum(['portrait', 'illustrated', 'brand_mark', 'none']), id: z.string().regex(/^look-[1-8]$/).optional() }).strict(),
         greeting: langMap,
         disclosure_label: langMap,
         chat_notice: z.object({ version: z.string(), en: z.string(), es: z.string().optional() }).strict(),

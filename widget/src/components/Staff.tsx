@@ -10,6 +10,7 @@ import { saveCardImage } from '../saveImage';
 import { EndIcon, LockIcon } from '../icons';
 import { MessageList, type UiMessage } from './Chat';
 import { Composer, Unavailable } from './Chrome';
+import { Face } from './Face';
 
 let seq = 0;
 const uid = () => `s${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 10)}`;
@@ -124,7 +125,7 @@ export function StaffApp() {
         <header class="top">
           <div class="identity">
             <div class="avatar" aria-hidden="true">
-              {config.concierge.initials}
+              <Face c={config.concierge} />
             </div>
             <div>
               <p class="name">
@@ -162,7 +163,7 @@ export function StaffApp() {
             <MessageList
               messages={messages}
               waiting={waiting}
-              initials={config.concierge.initials}
+              face={config.concierge}
               name={config.concierge.name}
               s={s}
               lang={lang}
@@ -174,7 +175,7 @@ export function StaffApp() {
         ) : (
           <form class="welcome staff-login" onSubmit={enter}>
             <div class="avatar xl" aria-hidden="true">
-              {config.concierge.initials}
+              <Face c={config.concierge} />
             </div>
             <h1>{s.staffWelcome}</h1>
             <p class="sub">{s.staffSub}</p>

@@ -95,6 +95,7 @@ export class Orchestrator {
         name: c.concierge.name,
         initials: c.concierge.name.slice(0, 1).toUpperCase(),
         avatarMode: c.concierge.avatar.mode,
+        ...(c.concierge.avatar.mode === 'portrait' && c.concierge.avatar.id ? { avatarUrl: `/avatars/${c.concierge.avatar.id}.jpg` } : {}),
         disclosureLabel: both(c.concierge.disclosure_label),
       },
       notice: { version: c.concierge.chat_notice.version, text: both(c.concierge.chat_notice), privacyUrl: c.business.privacy_policy_url },

@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import type { DisplayMessage, Feedback, FeedbackReason, Lang } from '@concierge/shared';
+import type { DisplayMessage, Feedback, FeedbackReason, Lang, PublicConfig } from '@concierge/shared';
+import { Face } from './Face';
 import type { UiStrings } from '../i18n';
 import { CardView, type CardHandlers } from './Cards';
 import { ThumbDownIcon, ThumbUpIcon } from '../icons';
@@ -96,7 +97,7 @@ function Rate({ feedback, s, onRate }: { feedback?: Feedback; s: UiStrings; onRa
 interface ListProps {
   messages: UiMessage[];
   waiting: boolean;
-  initials: string;
+  face: PublicConfig['concierge'];
   name: string;
   s: UiStrings;
   lang: Lang;
@@ -105,7 +106,7 @@ interface ListProps {
   onRate?: (replyId: string, rating: 'up' | 'down', reason?: FeedbackReason) => void; // guest chats only
 }
 
-export function MessageList({ messages, waiting, initials, name, s, lang, handlers, onQuickReply, onRate }: ListProps) {
+export function MessageList({ messages, waiting, face, name, s, lang, handlers, onQuickReply, onRate }: ListProps) {
   const scroller = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set(messages.filter((m) => !m.animate).map((m) => m.id)));
   const stick = useRef(true);
@@ -155,7 +156,7 @@ export function MessageList({ messages, waiting, initials, name, s, lang, handle
         ) : (
           <div class="row assistant" key={m.id}>
             <div class="avatar sm" aria-hidden="true">
-              {initials}
+              <Face c={face} />
             </div>
             <div class="stack">
               {/* Urgent help never waits for the typing animation (D14). */}
@@ -208,7 +209,7 @@ export function MessageList({ messages, waiting, initials, name, s, lang, handle
       {waiting && (
         <div class="row assistant">
           <div class="avatar sm" aria-hidden="true">
-            {initials}
+            <Face c={face} />
           </div>
           <div class="bubble assistant typing">
             <span class="sr-only">{s.typing(name)}</span>

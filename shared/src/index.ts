@@ -154,8 +154,10 @@ export interface PublicConfig {
   concierge: {
     name: string;
     initials: string;
-    // 'portrait' shows initials until the widget ships H1's portrait set (D45); the AI label shows either way.
     avatarMode: 'portrait' | 'illustrated' | 'brand_mark' | 'none';
+    // A portrait from H1's set, served with the widget (/avatars/look-N.jpg; D45). Without one the
+    // avatar shows the initial. The AI label shows either way.
+    avatarUrl?: string;
     disclosureLabel: Record<Lang, string>;
   };
   notice: { version: string; text: Record<Lang, string>; privacyUrl: string };

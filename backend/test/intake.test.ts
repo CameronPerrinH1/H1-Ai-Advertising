@@ -4,7 +4,12 @@ import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
 import { CLIENTS_DIR, loadClient } from '../src/config/load.ts';
+import { Catalog } from '../src/catalog.ts';
+import { MemoryOutbox } from '../src/handoff/email.ts';
+import { Orchestrator } from '../src/orchestrator.ts';
+import { scriptedModel } from './helpers.ts';
 import { applyPlaybook, parseDiscount, PlaybookError, yearlyWindow } from '../src/intake/apply.ts';
 import { playbookSchema, type Playbook } from '../src/intake/playbook.ts';
 
@@ -106,5 +111,19 @@ describe('helpers', () => {
     expect(yearlyWindow(5, 7, '2026-11-06')).toEqual({ starts: '2027-05-01', ends: '2027-07-31' });
     expect(yearlyWindow(11, 12, '2026-11-06')).toEqual({ starts: '2026-11-01', ends: '2026-12-31' });
     expect(yearlyWindow(12, 2, '2027-01-10')).toEqual({ starts: '2026-12-01', ends: '2027-02-28' });
+  });
+});
+
+describe('the portrait the spa picked (D45)', () => {
+  it('reaches the widget as one of the portraits it ships', () => {
+    const orchestrator = new Orchestrator({ catalog: new Catalog(loadClient('lumen-aesthetics')), model: scriptedModel([]), outbox: new MemoryOutbox(), phoneKey: 'test' });
+    const url = orchestrator.publicConfig().concierge.avatarUrl;
+    expect(url).toBe('/avatars/look-3.jpg');
+    expect(existsSync(join(CLIENTS_DIR, '../widget/public', url!))).toBe(true);
+  });
+
+  it('a client with no portrait shows the initial', () => {
+    const orchestrator = new Orchestrator({ catalog: new Catalog(loadClient('glow-med-spa')), model: scriptedModel([]), outbox: new MemoryOutbox(), phoneKey: 'test' });
+    expect(orchestrator.publicConfig().concierge.avatarUrl).toBeUndefined();
   });
 });

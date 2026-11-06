@@ -4,6 +4,7 @@ import type { Lang, PublicConfig } from '@concierge/shared';
 import { shortDate, type UiStrings } from '../i18n';
 import { openStatus } from '../hours';
 import { CalendarIcon, ChatIcon, CloseIcon, EndIcon, ExpandIcon, PhoneIcon, SendIcon, SparkleIcon } from '../icons';
+import { Face } from './Face';
 
 interface HeaderProps {
   config: PublicConfig;
@@ -22,7 +23,7 @@ export function Header({ config, s, lang, setLang, active, mode, onEnd, onExpand
     <header class="top">
       <div class="identity">
         <div class="avatar" aria-hidden="true">
-          {config.concierge.initials}
+          <Face c={config.concierge} />
         </div>
         <div>
           <p class="name">
@@ -92,7 +93,7 @@ export function Welcome({ config, s, lang, suggestions, starting, onStart }: Wel
   return (
     <div class="welcome">
       <div class="avatar xl" aria-hidden="true">
-        {config.concierge.initials}
+        <Face c={config.concierge} />
       </div>
       <h1>{s.askAnything(config.concierge.name)}</h1>
       <p class="sub">{s.welcomeSub}</p>
