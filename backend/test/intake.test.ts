@@ -59,6 +59,14 @@ describe('importing the demo playbook', () => {
     expect(bundle.urgent.approved_by).toBe('NOT APPROVED: draft intake export');
     expect(warnings.join(' ')).toContain('must not go live');
   });
+
+  it('takes one sign-off from the spa as approval of everything, urgent lines included', () => {
+    const pb = playbook();
+    const { bundle, warnings } = importInto({ ...pb, approvals: [{ role: 'owner', name: 'Jordan Avery', credential: 'Owner and Medical Director', approvedOn: '2026-11-06' }] });
+    expect(bundle.config.compliance_profile.owner_approval?.approver).toBe('Jordan Avery, Owner and Medical Director');
+    expect(bundle.urgent.approved_by).toMatch(/^Jordan Avery, Owner and Medical Director, 2026-11-06/);
+    expect(warnings.join(' ')).not.toContain('must not go live');
+  });
 });
 
 describe('what the importer refuses', () => {

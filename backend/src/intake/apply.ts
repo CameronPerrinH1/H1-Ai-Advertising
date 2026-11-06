@@ -232,7 +232,7 @@ export function applyPlaybook(pb: Playbook, clientDir: string): ImportResult {
   };
   set(config, ['compliance_profile', 'medical_director_approval'], approval('md'));
   set(config, ['compliance_profile', 'owner_approval'], approval('owner'));
-  if (pb.approvals.length < 2) warnings.push('Draft: the playbook is not fully approved. It must not go live until the owner and the medical director approve it.');
+  if (!pb.approvals.length) warnings.push('Draft: the playbook is not signed off. It must not go live until the spa signs off on it.');
 
   // Consult first: an assessment, and the consultation as a prerequisite where the price list has one.
   const details = parseDocument(read(base.knowledge.service_details_file));
@@ -289,8 +289,9 @@ export function applyPlaybook(pb: Playbook, clientDir: string): ImportResult {
 
   // The medical director's urgent messages and symptoms (D14, D74).
   const urgent = parseDocument(read(base.knowledge.urgent_message_file));
-  const md = pb.approvals.find((a) => a.role === 'md');
-  set(urgent, ['approved_by'], md ? `${md.name}, ${md.credential}, ${md.approvedOn} (intake ${pb.contentHash.slice(0, 12)})` : 'NOT APPROVED: draft intake export');
+  // The medical director's approval when there is one; otherwise the spa's sign-off, which covers the urgent lines too.
+  const signer = pb.approvals.find((a) => a.role === 'md') ?? pb.approvals[0];
+  set(urgent, ['approved_by'], signer ? `${signer.name}, ${signer.credential}, ${signer.approvedOn} (intake ${pb.contentHash.slice(0, 12)})` : 'NOT APPROVED: draft intake export');
   english(urgent, ['emergency', 'body'], pb.urgent.emergencyMessage, 'The emergency message');
   english(urgent, ['post_treatment', 'body'], pb.urgent.urgentMessage, 'The urgent message');
   set(urgent, ['emergency_symptoms'], pb.urgent.emergencySymptoms);
