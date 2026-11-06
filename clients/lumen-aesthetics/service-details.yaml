@@ -1,0 +1,328 @@
+# Treatment details, keyed by service ID. FICTIONAL demo content; not medically reviewed.
+# In a real client this file needs medical director approval before launch (D38), including
+# the event timing (countdown planner) and the care guides.
+hydrafacial:
+  summary:
+    en: "A deep-cleansing, hydrating facial that leaves skin smooth and glowing the
+      same day."
+    es: "Un facial de limpieza profunda e hidratación que deja la piel suave y
+      luminosa el mismo día."
+  what_to_expect: "Cleansing, gentle exfoliation, painless extractions, then a
+    hydrating serum infusion. Most guests find it relaxing."
+  downtime: { en: "None", es: "Ninguno" }
+  results:
+    {
+      en: "Glow right away; lasts about a week",
+      es: "Luminosidad inmediata; dura cerca de una semana"
+    }
+  prep: "Skip retinoids and exfoliants for 2 days before."
+  aftercare: "Avoid heavy makeup for the rest of the day; wear sunscreen."
+  good_for: [ dull skin, congestion, dehydration, pre-event glow, sensitive skin ]
+  requires_assessment: false
+  image: /media/lumen-aesthetics/facial.svg
+  timing: { min_days_before_event: 1, ideal_days_before_event: 3 }
+  care:
+    before:
+      en:
+        [
+          "Skip retinoids and exfoliants for 2 days",
+          "Come with clean skin if you can"
+        ]
+      es:
+        [
+          "Evita retinoides y exfoliantes por 2 días",
+          "Si puedes, ven con la piel limpia"
+        ]
+    day_of:
+      en: [ "No downtime; go right back to your day" ]
+      es: [ "Sin recuperación; vuelve a tu día de inmediato" ]
+    after:
+      en:
+        [
+          "Skip heavy makeup for the rest of the day",
+          "Wear sunscreen",
+          "Hold off on exfoliants for 48 hours"
+        ]
+      es:
+        [
+          "Evita el maquillaje pesado el resto del día",
+          "Usa protector solar",
+          "No uses exfoliantes por 48 horas"
+        ]
+
+chemical-peel:
+  summary:
+    en: "A medium-depth peel that evens tone and smooths texture as old skin sheds."
+    es: "Un peeling de profundidad media que unifica el tono y suaviza la textura al
+      renovarse la piel."
+  what_to_expect: "A solution is applied in layers. Some warmth or tingling for a few minutes."
+  downtime: { en: "3 to 5 days of peeling", es: "De 3 a 5 días de descamación" }
+  results:
+    {
+      en: "Brighter, more even skin in about a week",
+      es: "Piel más luminosa y uniforme en una semana aproximadamente"
+    }
+  prep: "Stop retinoids 5 days before; no waxing on the face for a week."
+  aftercare: "Don't pick peeling skin; gentle cleanser, moisturizer, and sunscreen."
+  good_for: [ uneven tone, sun spots, texture, mild acne marks ]
+  requires_assessment: false
+  image: /media/lumen-aesthetics/peel.svg
+  timing: { min_days_before_event: 10, ideal_days_before_event: 21 }
+  care:
+    before:
+      en:
+        [
+          "Stop retinoids 5 days before",
+          "No facial waxing for a week",
+          "Avoid sunburn"
+        ]
+      es:
+        [
+          "Suspende los retinoides 5 días antes",
+          "Nada de cera en el rostro durante una semana",
+          "Evita quemaduras de sol"
+        ]
+    day_of:
+      en:
+        [
+          "Expect warmth or tingling for a few minutes",
+          "Skip makeup for the rest of the day"
+        ]
+      es:
+        [
+          "Puedes sentir calor u hormigueo por unos minutos",
+          "No te maquilles el resto del día"
+        ]
+    after:
+      en:
+        [
+          "Peeling usually starts on day 2 or 3",
+          "Don't pick or peel skin",
+          "Gentle cleanser, moisturizer, and sunscreen daily"
+        ]
+      es:
+        [
+          "La descamación suele empezar el día 2 o 3",
+          "No arranques la piel",
+          "Limpiador suave, hidratante y protector solar a diario"
+        ]
+
+microneedling:
+  summary:
+    en: "Tiny channels in the skin boost collagen to soften fine lines, scars, and
+      pores over a series."
+    es: "Microcanales en la piel estimulan el colágeno para suavizar líneas finas,
+      cicatrices y poros con varias sesiones."
+  what_to_expect: "Numbing cream first, then about 30 minutes of treatment.
+    Usually a series of 3."
+  downtime: { en: "1 to 3 days of redness", es: "De 1 a 3 días de enrojecimiento" }
+  results:
+    {
+      en: "Gradual improvement over 4 to 6 weeks",
+      es: "Mejora gradual en 4 a 6 semanas"
+    }
+  prep: "Stop retinoids 3 days before."
+  aftercare: "No makeup for 24 hours; gentle skincare and sunscreen."
+  good_for: [ fine lines, acne scars, texture, large pores ]
+  requires_assessment: false
+  image: /media/lumen-aesthetics/renewal.svg
+  timing: { min_days_before_event: 7, ideal_days_before_event: 28 }
+  care:
+    before:
+      en: [ "Stop retinoids 3 days before", "Avoid sunburn", "Arrive with clean skin" ]
+      es:
+        [
+          "Suspende los retinoides 3 días antes",
+          "Evita quemaduras de sol",
+          "Llega con la piel limpia"
+        ]
+    day_of:
+      en: [ "Skin will look pink, like a mild sunburn" ]
+      es: [ "La piel se verá rosada, como una quemadura de sol leve" ]
+    after:
+      en:
+        [
+          "No makeup for 24 hours",
+          "Skip workouts for 24 hours",
+          "Gentle skincare and sunscreen"
+        ]
+      es:
+        [
+          "No te maquilles durante 24 horas",
+          "Evita el ejercicio durante 24 horas",
+          "Cuidado suave y protector solar"
+        ]
+
+laser-hair-removal:
+  summary:
+    en: "Long-lasting hair reduction on almost any area, priced by area."
+    es: "Reducción duradera del vello en casi cualquier zona, con precio por zona."
+  what_to_expect: "A quick snap with cooling. Small areas take about 10 minutes. A
+    series of 6 to 8 sessions."
+  downtime:
+    {
+      en: "None to mild redness for a few hours",
+      es: "Ninguno o leve enrojecimiento por unas horas"
+    }
+  results:
+    {
+      en: "Noticeable reduction after 3 to 4 sessions",
+      es: "Reducción visible después de 3 a 4 sesiones"
+    }
+  prep: "Shave the area the day before; no tanning for 2 weeks."
+  aftercare: "Avoid sun and hot workouts for 24 hours."
+  good_for: [ unwanted hair, ingrown hairs, razor bumps ]
+  requires_assessment: false
+  image: /media/lumen-aesthetics/laser.svg
+  timing: { min_days_before_event: 2, ideal_days_before_event: 7 }
+  care:
+    before:
+      en: [ "Shave the area the day before", "No waxing or tanning for 2 weeks" ]
+      es: [ "Rasura la zona el día anterior", "Nada de cera ni bronceado por 2 semanas" ]
+    day_of:
+      en: [ "Mild redness for a few hours" ]
+      es: [ "Enrojecimiento leve por unas horas" ]
+    after:
+      en:
+        [
+          "Avoid sun and hot workouts for 24 hours",
+          "Shaving between sessions is fine"
+        ]
+      es:
+        [
+          "Evita el sol y el ejercicio intenso por 24 horas",
+          "Puedes rasurarte entre sesiones"
+        ]
+
+botox:
+  summary:
+    en: "Softens expression lines like forehead lines, frown lines, and crow's
+      feet."
+    es: "Suaviza las líneas de expresión de la frente, el entrecejo y las patas de
+      gallo."
+  what_to_expect: "A consultation with your injector, then a few quick injections.
+    About 15 minutes of treatment."
+  downtime:
+    {
+      en: "None; avoid lying down for 4 hours",
+      es: "Ninguno; evita acostarte durante 4 horas"
+    }
+  results:
+    {
+      en: "Results in 5 to 7 days; lasts 3 to 4 months",
+      es: "Resultados en 5 a 7 días; dura de 3 a 4 meses"
+    }
+  prep: "Your injector reviews your health history at the consultation."
+  aftercare: "No rubbing the area or strenuous exercise for 24 hours."
+  good_for: [ fine lines, forehead lines, frown lines, crow's feet ]
+  requires_assessment: true
+  image: /media/lumen-aesthetics/injectables.svg
+  timing: { min_days_before_event: 14, ideal_days_before_event: 21 }
+  care:
+    before:
+      en:
+        [
+          "Your injector reviews your health history at the consultation",
+          "Skip alcohol the day before to reduce bruising"
+        ]
+      es:
+        [
+          "Tu inyectora revisa tu historial de salud en la consulta",
+          "Evita el alcohol el día anterior para reducir moretones"
+        ]
+    day_of:
+      en: [ "Don't lie down for 4 hours", "Don't rub or massage the area" ]
+      es: [ "No te acuestes durante 4 horas", "No frotes ni masajees la zona" ]
+    after:
+      en:
+        [
+          "Skip strenuous exercise for 24 hours",
+          "Results show in 5 to 7 days",
+          "Full results at about 2 weeks"
+        ]
+      es:
+        [
+          "Evita el ejercicio intenso por 24 horas",
+          "Los resultados se ven en 5 a 7 días",
+          "Resultado completo a las 2 semanas aproximadamente"
+        ]
+
+lip-filler:
+  summary:
+    en: "Adds shape, balance, and hydration to the lips, from subtle to fuller."
+    es: "Da forma, equilibrio e hidratación a los labios, desde un resultado sutil
+      hasta más volumen."
+  what_to_expect: "A consultation, numbing, then precise injections. About 30 minutes."
+  downtime: { en: "1 to 3 days of swelling", es: "De 1 a 3 días de inflamación" }
+  results:
+    {
+      en: "Visible right away; settles in 2 weeks; lasts 6 to 12 months",
+      es: "Visible al instante; se asienta en 2 semanas; dura de 6 a 12 meses"
+    }
+  prep: "Your injector reviews your health history at the consultation."
+  aftercare: "Ice as needed; avoid heat and strenuous exercise for 24 hours."
+  good_for: [ thin lips, lip balance, lip lines ]
+  requires_assessment: true
+  image: /media/lumen-aesthetics/injectables.svg
+  timing: { min_days_before_event: 14, ideal_days_before_event: 28 }
+  care:
+    before:
+      en:
+        [
+          "Your injector reviews your health history at the consultation",
+          "Skip alcohol the day before to reduce bruising"
+        ]
+      es:
+        [
+          "Tu inyectora revisa tu historial de salud en la consulta",
+          "Evita el alcohol el día anterior para reducir moretones"
+        ]
+    day_of:
+      en: [ "Ice gently as needed", "Some swelling is normal" ]
+      es: [ "Aplica hielo suavemente si lo necesitas", "Es normal algo de inflamación" ]
+    after:
+      en:
+        [
+          "Swelling settles in 1 to 3 days",
+          "Avoid heat and strenuous exercise for 24 hours",
+          "Final shape settles in about 2 weeks"
+        ]
+      es:
+        [
+          "La inflamación baja en 1 a 3 días",
+          "Evita el calor y el ejercicio intenso por 24 horas",
+          "La forma final se asienta en unas 2 semanas"
+        ]
+
+injectable-consultation:
+  summary:
+    en: "A free one-on-one visit with our injector to talk through goals and build
+      your plan."
+    es: "Una visita gratuita con nuestra inyectora para hablar de tus objetivos y
+      crear tu plan."
+  what_to_expect: "About 20 minutes. You can often be treated the same day if it's a fit."
+  downtime: { en: "None", es: "Ninguno" }
+  results: { en: "A personal plan and pricing", es: "Un plan personalizado y su precio" }
+  prep: "Bring a list of any medications and past treatments."
+  aftercare: "None."
+  good_for: [ first-time injectables, planning, questions about candidacy ]
+  requires_assessment: false
+  image: /media/lumen-aesthetics/consult.svg
+  care:
+    before:
+      en:
+        [
+          "Bring a list of medications and past treatments",
+          "Think about the look you'd like"
+        ]
+      es:
+        [
+          "Trae una lista de medicamentos y tratamientos previos",
+          "Piensa en el resultado que te gustaría"
+        ]
+    day_of:
+      en: [ "About 20 minutes; you can often be treated the same day" ]
+      es: [ "Unos 20 minutos; muchas veces puedes tratarte el mismo día" ]
+    after:
+      en: [ "You'll leave with a personal plan and pricing" ]
+      es: [ "Te irás con un plan personalizado y su precio" ]

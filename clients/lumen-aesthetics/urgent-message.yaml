@@ -1,0 +1,39 @@
+# Fixed help messages shown by show_urgent_help (D14). Placeholders: {urgent_line}, {crisis_line}, {business_name}.
+# DEMO wording, replaced by the intake export. A real client's medical director must approve this file before launch (D38).
+approved_by: Dr. Sam Patel, MD, 2026-11-06 (intake demo)
+post_treatment:
+  title:
+    en: "Let's get you help right away"
+    es: "Vamos a conseguirte ayuda de inmediato"
+  body:
+    en: Please call our urgent line now at {urgent_line}. A member of our clinical
+      team will help you right away. If symptoms get worse or you have trouble
+      breathing, call 911.
+emergency:
+  title:
+    en: "This sounds like an emergency"
+    es: "Esto parece una emergencia"
+  body:
+    en: Please call 911 now or go to the nearest emergency room. These symptoms need
+      immediate medical care. Once you’re safe, let us know at {urgent_line}.
+crisis:
+  title:
+    en: "You don't have to go through this alone"
+    es: "No tienes que pasar por esto a solas"
+  body:
+    en: "You can call or text {crisis_line} any time to reach the Suicide and Crisis
+      Lifeline. If you're in immediate danger, call 911."
+    es: "Puedes llamar o enviar un mensaje de texto al {crisis_line} en cualquier
+      momento para comunicarte con la Línea de Prevención del Suicidio y Crisis.
+      Si estás en peligro inmediato, llama al 911."
+emergency_symptoms:
+  - Difficulty breathing
+  - Throat or tongue swelling
+  - Chest pain
+  - Fainting
+  - Sudden vision changes
+urgent_symptoms:
+  - Skin turning white, gray, or blue near an injection site
+  - Severe or worsening pain
+  - Signs of infection
+  - Unusual swelling

@@ -2,14 +2,17 @@
 //   pnpm eval                      every case on the client's configured model
 //   EVAL_MODEL=us.anthropic.claude-sonnet-5-5 pnpm eval     compare models (D3)
 //   EVAL_ONLY=crisis,dosage pnpm eval                        a subset
+//   EVAL_SUITE=playbook pnpm eval                             the intake playbook cases, on the demo spa set up from the wizard
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bedrockClient, Catalog, CLIENTS_DIR, createSession, FileSummaryRepo, insightsCard, loadClient, MemoryOutbox, Orchestrator, summarize, type ModelClient } from '@concierge/backend';
 import { CASES, type EvalCase, type RunResult } from './cases.ts';
+import { PLAYBOOK_CASES } from './playbook-cases.ts';
 
 process.env.CONCIERGE_SILENT = '1';
-const CLIENT = process.env.EVAL_CLIENT ?? 'glow-med-spa';
+const SUITE = process.env.EVAL_SUITE === 'playbook' ? 'playbook' : 'demo';
+const CLIENT = process.env.EVAL_CLIENT ?? (SUITE === 'playbook' ? 'lumen-aesthetics' : 'glow-med-spa');
 const ONLY = process.env.EVAL_ONLY?.split(',').map((s) => s.trim());
 const CONCURRENCY = Number(process.env.EVAL_CONCURRENCY ?? 4);
 
@@ -89,7 +92,7 @@ async function runCase(c: EvalCase): Promise<{ c: EvalCase; failures: string[]; 
 }
 
 async function main() {
-  const cases = CASES.filter((c) => !ONLY || ONLY.includes(c.id));
+  const cases = (SUITE === 'playbook' ? PLAYBOOK_CASES : CASES).filter((c) => !ONLY || ONLY.includes(c.id));
   console.log(`Running ${cases.length} cases on ${bundle.config.model.id} (client: ${CLIENT})\n`);
   const results: Awaited<ReturnType<typeof runCase>>[] = [];
   const queue = [...cases];
@@ -110,7 +113,7 @@ async function main() {
   const file = resolve(dir, `${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
   writeFileSync(
     file,
-    JSON.stringify({ model: bundle.config.model.id, client: CLIENT, results: results.map((r) => ({ id: r.c.id, failures: r.failures, ms: r.ms, error: r.error })) }, null, 2),
+    JSON.stringify({ model: bundle.config.model.id, client: CLIENT, suite: SUITE, results: results.map((r) => ({ id: r.c.id, failures: r.failures, ms: r.ms, error: r.error })) }, null, 2),
   );
   process.exitCode = failed.length ? 1 : 0;
 }

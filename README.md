@@ -55,6 +55,21 @@ scripts/    dev.mjs starts the API, widget, and demo site together
 
 `backend/src/app.ts` holds every API route. `server.ts` runs it locally; `lambda.ts` runs it on AWS, with the session sweep and weekly report as scheduled functions and the review function invoked directly. `runtime.ts` picks AWS services or the local stand-ins (in-memory sessions, `.local-data/`, `.outbox/`) from environment settings, so `pnpm dev` needs no AWS resources beyond Bedrock.
 
+## Setting up a spa from the intake wizard (09, Section 5)
+
+A spa's approved answers from the wizard on H1's site become its Sales Playbook here: voice, terminology, priorities and price display per treatment, pairings, concerns and the treatment finder, products, promotions and events, objection answers, tactics, handoff wording, and the medical director's urgent messages and symptoms.
+
+1. Start the client folder with H1's business facts: copy an existing client to `clients/<id>/` and set the price list (`services.yaml`, `products.yaml`), service details, providers, FAQs, hours, links, branding, and compliance settings.
+2. Export the approved answers (from the repo root): `pnpm --filter site-h1 export-playbook <spa id> <file>.json`. It refuses unless the owner and the medical director approved the answers as they are now; `--draft` exports anyway for a test drive and marks the result unapproved.
+3. Import from this folder: `pnpm import-playbook <file>.json <id>`. It matches treatments and products to the price list by name, fails with a list of what to fix (a treatment or product with no price, a promotion with no percent or dollar discount), and checks the result with the concierge's own loader before writing anything. It prints what to review.
+4. Run `pnpm check` and the evals, and review the change as a pull request.
+
+Re-importing is safe: the import only replaces the parts the wizard owns (see the top of `backend/src/intake/apply.ts`), and the folder keeps `intake-playbook.json`, the playbook exactly as approved.
+
+The demo spa **Lumen Aesthetics** (`clients/lumen-aesthetics/`) is set up this way, from the wizard's fixture (`apps/site-h1/src/onboarding/fixtures/lumen.ts`): `CLIENT_ID=lumen-aesthetics pnpm dev` to chat with it, and `EVAL_SUITE=playbook pnpm eval` for cases that check each playbook choice reaches the guest. Tests on both sides keep the export and the import in step.
+
+New config fields are all optional with defaults that keep earlier configs behaving as before: `sales.pricing`, `do_not_promote`, `pairings`, `growth`, `events`, `tactics`; `voice.emoji`, `exclamation`, `length`, `sign_off`; `handoff.wording`; `business.terminology.providers` and `booking`; `knowledge.concerns_file`; product priority and pairings; and the urgent file's `emergency_symptoms` (which also join the keyword net, D14) and `urgent_symptoms`.
+
 ## Reviewing flagged chats (D39, D69)
 
 ```bash
@@ -108,6 +123,7 @@ To try another spa, add `clients/<id>/` (copy `glow-med-spa`) and start with `CL
 | "Start chat" consent before anything is collected (D35) | `widget/src/components/Chrome.tsx`, `POST /api/session` |
 | No conversation text in logs (D34) | `backend/src/log.ts` (allowlisted fields) |
 | No third-party scripts or tracking (D53) | widget has no external requests; `loader.js` passes only UI events |
+| Prices the spa wants given at consultation never reach the guest, in replies, cards, or estimates (D72) | `displayPrice` in `backend/src/catalog.ts` |
 | Dates and totals computed in code, never by the model (D62) | `backend/src/planning.ts`, `Catalog.estimate`, `Catalog.membershipSavings` |
 | Saved images drawn on the device, nothing uploaded (D63) | `widget/src/saveImage.ts` |
 | Staff mode: own tools and prompt, no guest tools, not summarized (D64) | `STAFF_TOOLS`, `staffFixedBlock`, `POST /api/staff/session`, `widget/src/components/Staff.tsx` |

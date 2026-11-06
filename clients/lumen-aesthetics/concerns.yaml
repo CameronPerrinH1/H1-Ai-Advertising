@@ -1,0 +1,63 @@
+# Concerns guests describe, and the treatments to lead with. From the intake playbook demo (2026-11-06); edit in the wizard, not here.
+concerns:
+  - name: Acne and breakouts
+    services:
+      - hydrafacial
+      - chemical-peel
+    otherwise: consult
+  - name: Acne scars
+    services:
+      - microneedling
+      - chemical-peel
+    otherwise: consult
+  - name: Fine lines and wrinkles
+    services:
+      - botox
+      - microneedling
+    otherwise: consult
+  - name: Thin lips
+    services:
+      - lip-filler
+    otherwise: consult
+  - name: Hair thinning and loss
+    services: []
+    otherwise: front_desk
+  - name: Redness and pigmentation
+    services:
+      - hydrafacial
+    otherwise: consult
+  - name: Sun damage and dark spots
+    services:
+      - chemical-peel
+      - microneedling
+    otherwise: consult
+  - name: Texture and large pores
+    services:
+      - microneedling
+      - hydrafacial
+    otherwise: consult
+  - name: Dull skin
+    services:
+      - hydrafacial
+      - chemical-peel
+    otherwise: consult
+  - name: Unwanted hair
+    services:
+      - laser-hair-removal
+    otherwise: consult
+  - name: Under-eye hollows and dark circles
+    services: []
+    otherwise: consult
+  - name: Loose or sagging skin
+    services: []
+    otherwise: consult
+  - name: Active cold sore or infection
+    services: []
+    otherwise: consult
+  - name: Recent sun exposure or tanning
+    services: []
+    otherwise: consult
+pregnancy:
+  services:
+    - hydrafacial
+  otherwise: consult

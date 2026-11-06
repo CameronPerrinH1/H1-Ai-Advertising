@@ -1,0 +1,40 @@
+# Retail products: prices from H1's price list, the rest from the spa. From the intake playbook demo (2026-11-06); edit in the wizard, not here.
+products:
+  - name: C E Ferulic
+    price: 182
+    brand: SkinCeuticals
+    category: Serums
+    priority: high
+    after_services:
+      - microneedling
+    helps_with:
+      - Sun damage and dark spots
+    sold: both
+  - name: UV Clear SPF 46
+    price: 41
+    note: Our go-to daily sunscreen after treatments.
+    brand: EltaMD
+    category: Sunscreen
+    priority: normal
+    after_services:
+      - chemical-peel
+      - laser-hair-removal
+    helps_with:
+      - Redness and pigmentation
+    sold: both
+  - name: Restorative Skin Complex
+    price: 195
+    brand: Alastin
+    category: Serums
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Daily Power Defense
+    price: 140
+    brand: ZO Skin Health
+    category: Moisturizers
+    priority: none
+    after_services: []
+    helps_with: []
+    sold: in_store

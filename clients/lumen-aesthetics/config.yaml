@@ -1,0 +1,328 @@
+# Lumen Aesthetics: a FICTIONAL business, the intake wizard's demo spa. Business facts here are H1's;
+# the Sales Playbook parts come from the wizard (pnpm import-playbook clients/lumen-aesthetics/intake-playbook.json lumen-aesthetics).
+# Content is illustrative only and has not been reviewed by a medical director.
+# No secrets in this file. Shape follows ai-concierge-handoff/templates/client-config.example.yaml.
+client_id: lumen-aesthetics
+demo: true
+
+business:
+  name: Lumen Aesthetics
+  phone: "(720) 555-0100"
+  urgent_line: (720) 555-0142
+  crisis_line: "988"
+  privacy_policy_url: "https://lumenaesthetics.example/privacy"
+  consumer_health_privacy_policy_url: null
+  terminology:
+    clients: guests
+    services: treatments
+    providers: injectors
+    booking: book a consult
+  locations:
+    - id: loc-main
+      name: Lumen Aesthetics
+      address: "456 Example Ave, Denver, CO 80202"
+      timezone: America/Denver
+      hours:
+        tue: "09:00-18:00"
+        wed: "09:00-18:00"
+        thu: "09:00-19:00"
+        fri: "09:00-18:00"
+        sat: "09:00-16:00"
+
+booking_mode: link_handoff
+
+booking:
+  platform: unknown
+  direct_links:
+    default: https://book.lumenaesthetics.example
+    services:
+      hydrafacial: https://book.lumenaesthetics.example/services/hydrafacial
+      chemical-peel: https://book.lumenaesthetics.example/services/chemical-peel
+      microneedling: https://book.lumenaesthetics.example/services/microneedling
+      laser-hair-removal: https://book.lumenaesthetics.example/services/laser-hair-removal
+      injectable-consultation: https://book.lumenaesthetics.example/services/injectable-consultation
+    providers: {}
+  self_service_link: "https://book.lumenaesthetics.example/my-appointments"
+  rules:
+    min_notice_hours: 4
+    max_days_ahead: 90
+    prerequisites:
+      - service: botox
+        requires: injectable-consultation
+      - service: lip-filler
+        requires: injectable-consultation
+  allowed_phone_countries: [ US ]
+  limits:
+    max_bookings_per_session: 2
+    max_callbacks_per_session: 2
+
+knowledge:
+  service_details_file: service-details.yaml
+  services_file: services.yaml
+  faqs_file: faqs.yaml
+  products_file: products.yaml
+  providers_file: providers.yaml
+  objections_file: objections.yaml
+  urgent_message_file: urgent-message.yaml
+  policies:
+    cancellation: "Please give 24 hours notice to cancel or reschedule, or a $50 fee
+      applies."
+    late_arrival: "Arrivals 15 or more minutes late may need to reschedule."
+    age_minimum: "Guests must be 18 or older for all treatments."
+    payment: "We accept all major credit cards, HSA/FSA cards where eligible, and
+      Lumen gift cards."
+    urgent_line: The urgent line is answered 24/7. After hours, the urgent line
+      forwards to our on-call nurse.
+  concerns_file: concerns.yaml
+
+sales:
+  featured_services:
+    - botox
+    - hydrafacial
+  add_on_suggestions:
+    hydrafacial:
+      - led-light-therapy-add-on
+  promotions:
+    - id: fall-glow
+      description: "Fall Glow: 20% off any HydraFacial"
+      services:
+        - hydrafacial
+      percent_off: 20
+      starts: 2026-10-15
+      ends: 2026-11-30
+      third_party_funded: false
+    - id: open-house-special
+      description: "Open House Special: $50 off Botox"
+      services:
+        - botox
+      event: holiday-open-house
+      amount_off: 50
+      starts: 2026-11-20
+      ends: 2026-11-20
+      third_party_funded: false
+    - id: summer-smooth
+      description: "Summer Smooth: 15% off laser hair removal"
+      services:
+        - laser-hair-removal
+      percent_off: 15
+      starts: 2027-05-01
+      ends: 2027-07-31
+      third_party_funded: false
+  fit_rules_file: fit-rules.yaml
+  memberships:
+    - id: glow-membership
+      name: Glow Membership
+      monthly_price: 169
+      includes: { service_id: hydrafacial, per_month: 1 }
+      member_discount_percent: 10
+      terms: "12-month membership. Unused monthly facials roll over for 60 days."
+  do_not_promote:
+    - chemical-peel
+  pricing:
+    default: starting_at
+    services:
+      lip-filler: starting_at
+      laser-hair-removal: exact
+      chemical-peel: at_consult
+  pairings:
+    botox:
+      - hydrafacial
+    lip-filler:
+      - botox
+    microneedling:
+      - hydrafacial
+  growth:
+    packages:
+      - name: Glow Membership
+        why: A HydraFacial every month for less than booking each one
+      - name: Botox Bank
+        why: Prepay and save on every Botox visit
+    differentiators:
+      - Medical director credentials
+      - Natural-looking results
+    in_their_words: Family-owned since 2009, with a board-certified medical director on site.
+  events:
+    - id: holiday-open-house
+      name: Holiday Open House
+      date: 2026-11-20
+      time: 5 to 8 PM
+      location: Lumen Aesthetics
+      description: Treatment demos, sparkling cider, and raffle prizes.
+      audience: public
+      rsvp: link
+      rsvp_link: https://lumenaesthetics.example/open-house
+    - id: member-appreciation-night
+      name: Member Appreciation Night
+      month: 2
+      description: An evening to thank our members.
+      audience: members
+      rsvp: card
+  tactics:
+    promotions: on_hesitation
+    hesitation_promotion: fall-glow
+    offer_contact: after_first_answer
+    suggest_booking: after_educating
+    urgency: real_deadlines_only
+
+first_visit:
+  arrive_minutes_early: 10
+  parking:
+    en: Free parking in the lot behind the building.
+    es: Estacionamiento gratuito en el lote detrás del edificio.
+  bring:
+    en:
+      [
+        "A photo ID",
+        "A list of any medications and supplements",
+        "Any questions you'd like to ask"
+      ]
+    es:
+      [
+        "Una identificación con foto",
+        "Una lista de medicamentos y suplementos",
+        "Las preguntas que quieras hacer"
+      ]
+  intake_form_url: "https://lumenaesthetics.example/new-guest-form"
+  notes:
+    en:
+      [
+        "Wear something comfortable",
+        "For facials, come with a clean face if you can"
+      ]
+    es: [ "Usa ropa cómoda", "Para faciales, si puedes, ven con el rostro limpio" ]
+
+staff_mode:
+  enabled: true
+  suggested:
+    en:
+      - Practice a call with a nervous first-timer
+      - How should I answer 'Does it hurt?'
+      - What's our aftercare for microneedling?
+    es:
+      - Practicar una llamada con alguien nervioso
+      - ¿Cómo respondo a '¿Duele?'?
+      - ¿Cuál es el cuidado posterior del microneedling?
+
+voice:
+  tone: 'Warm and relaxed, while still clear and professional. For example: "Great
+    question! Most guests feel a quick pinch, and treatment only takes a few
+    minutes. Would you like help to book a consult?"'
+  dos:
+    - Use brand names, like Botox, when guests do.
+    - Leave guests feeling calm, cared for, in expert hands.
+  donts:
+    - Never guarantee results
+    - Never say “painless” or “no pain”
+    - Never mention competitor names
+    - Never make FDA claims for uses a product isn’t approved for
+    - Never say “cheap” or “discount”
+    - Never say anything that sounds like a diagnosis
+    - Never ask a patient’s medical history
+    - Never call a treatment a “quick fix”
+    - Never mention other med spas by name, including Radiance Med Spa
+  examples_file: voice-examples.md
+  emoji: never
+  exclamation: sparingly
+  length: short
+  sign_off: Talk soon!
+
+concierge:
+  name: Mia
+  avatar:
+    mode: portrait
+    id: look-3
+  greeting:
+    en: Welcome to Lumen Aesthetics! I’m Mia, your AI Treatment Coordinator. Ask me
+      anything about our treatments, pricing, or booking.
+  disclosure_label:
+    en: AI Treatment Coordinator
+  chat_notice:
+    version: 2026-11-06.2
+    en: You're chatting with Mia, Lumen Aesthetics' AI assistant. This chat is
+      recorded to help us respond.
+    es: Estás conversando con Mia, la asistente de IA de Lumen Aesthetics. Este chat
+      se graba para ayudarnos a responder.
+
+branding:
+  colors: { primary: "#9A6B6C", secondary: "#F6EFEA", accent: "#2F2A28" }
+  fonts:
+    heading: "'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia,
+      serif"
+    body: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    license: "System fallbacks in local development; self-host licensed files before
+      staff preview (D53)"
+
+display:
+  modes: [ inline, fullscreen, launcher ]
+  nudge_delay_seconds: 20
+  suggested_questions:
+    default:
+      en:
+        - Help me find the right treatment
+        - What's good for fine lines?
+        - Any specials right now?
+      es:
+        - Ayúdame a elegir un tratamiento
+        - ¿Qué recomiendan para las líneas finas?
+        - ¿Tienen promociones?
+
+handoff:
+  email_from: "concierge@lumenaesthetics.example"
+  email_to: "front-desk@lumenaesthetics.example"
+  email_provider_baa_confirmed: true
+  callback_response_time: { en: "within one business day", es: "dentro de un día hábil" }
+  categories: [ medical_question, reschedule, cancel, complaint, other ]
+  extra_handoff_topics: [ "pricing negotiations", "group or bridal party bookings" ]
+  wording:
+    cant_answer: I don’t have that answer, but our team does. Would you like them to
+      follow up?
+    medical: That’s a great question for one of our injectors, and I want to make
+      sure you get the right answer. Can I have someone from our clinical team
+      follow up within {response_time}?
+    not_offered: That’s not something we offer right now, but our team can talk
+      through options that might help. Can I have someone reach out to you?
+    consult_required: Great choice! For this treatment, we start with a quick
+      consult so your injector can create the right plan for you. Would you like
+      to book a consult?
+    callback: Absolutely. Share your number and a good time below, and our team will
+      call within {response_time}.
+    complaint: I’m so sorry to hear that. I’m sharing this with our practice
+      manager, who will reach out within {response_time} to make it right.
+
+security:
+  allowed_domains:
+    - lumenaesthetics.example
+    - www.lumenaesthetics.example
+    - book.lumenaesthetics.example
+  widget_subdomain: chat.lumenaesthetics.example
+
+languages:
+  - en
+
+model:
+  id: us.anthropic.claude-haiku-5-5
+  summarizer_id: us.anthropic.claude-haiku-5-5
+  max_output_tokens: 2048 # includes the model's hidden reasoning; reply length is capped by the output checks
+  use_prompt_cache: true
+
+retention:
+  transcripts_days: 30
+  flagged_transcripts_days: 90
+  summaries_months: 13
+
+compliance_profile:
+  hipaa_covered_entity: false
+  status_questionnaire: { completed_on: null, warranty_signed: false, next_review: null }
+  state: CO
+  state_laws: []
+  agreements: []
+  call_recording_consent: one-party
+  pilot_review_consent: { granted: false, expires: null }
+  medical_director_approval:
+    approver: Dr. Sam Patel, MD
+    approved_on: 2026-11-06
+    content_hash: demo
+  owner_approval:
+    approver: Jordan Avery, Owner
+    approved_on: 2026-11-06
+    content_hash: demo

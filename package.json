@@ -14,6 +14,7 @@
     "report:weekly": "pnpm --filter @concierge/backend report:weekly",
     "check": "pnpm typecheck && pnpm test && pnpm --filter @concierge/backend check:logging && pnpm --filter @concierge/backend check:configs && pnpm --filter @concierge/widget build",
     "kill-switch": "pnpm --filter @concierge/backend kill-switch",
-    "review": "pnpm --filter @concierge/backend review"
+    "review": "pnpm --filter @concierge/backend review",
+    "import-playbook": "pnpm --filter @concierge/backend import-playbook"
   }
 }
