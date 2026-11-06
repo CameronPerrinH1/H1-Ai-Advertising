@@ -258,7 +258,7 @@ export class Orchestrator {
       }
 
       // Keyword safety net (D14): show help numbers even if the model didn't.
-      const net = detectSafetyNet(clean);
+      const net = detectSafetyNet(clean, this.catalog.bundle.urgent.emergency_symptoms);
       if (net && !final.urgent) {
         reply.cards.unshift(urgentCard(net, this.catalog, lang));
         session.outcomes.add('urgent_redirect');
@@ -270,7 +270,7 @@ export class Orchestrator {
       // Local development only: Bedrock validation messages describe request structure, not content.
       if (process.env.CONCIERGE_DEBUG === '1') console.error('[debug]', (err as Error)?.message); // log-guard: allow (local debug only; the Lambda handler never sets CONCIERGE_DEBUG)
       reply = this.fallback(lang);
-      const net = detectSafetyNet(clean);
+      const net = detectSafetyNet(clean, this.catalog.bundle.urgent.emergency_symptoms);
       if (net) reply.cards.unshift(urgentCard(net, this.catalog, lang));
       stored = [...turnMessages, { role: 'assistant', content: [{ text: reply.text }] }];
     }

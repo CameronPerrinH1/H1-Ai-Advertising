@@ -620,6 +620,8 @@ function LinkCard({ card, s }: Props & { card: Extract<Card, { type: 'booking_li
   const label =
     card.purpose === 'manage'
       ? s.manage
+      : card.purpose === 'rsvp'
+        ? s.rsvpFor(card.eventName ?? '')
       : card.consult && card.serviceName
         ? s.bookConsultFor(card.serviceName)
         : card.serviceName

@@ -21,6 +21,8 @@ const promotion = z
     id,
     description: z.string(),
     services: z.array(id).min(1),
+    // Only for guests at this event (sales.events), when set.
+    event: id.optional(),
     percent_off: z.number().positive().max(100).optional(),
     amount_off: z.number().positive().optional(),
     starts: date,
@@ -32,6 +34,49 @@ const promotion = z
   .refine((p) => (p.percent_off === undefined) !== (p.amount_off === undefined), {
     message: 'set exactly one of percent_off or amount_off',
   });
+
+// The intake wizard's Sales Playbook (09-intake-wizard.md, Section 5). Every field is optional or
+// defaulted, so a config written by hand before the export still loads unchanged.
+export const PRICE_MODES = ['exact', 'starting_at', 'at_consult'] as const;
+export type PriceMode = (typeof PRICE_MODES)[number];
+
+const event = z
+  .object({
+    id,
+    name: z.string(),
+    // A dated event, or one that recurs every year in a month (1 to 12) with no date set yet.
+    date: date.optional(),
+    month: z.number().int().min(1).max(12).optional(),
+    time: z.string().optional(),
+    location: z.string().optional(),
+    description: z.string(),
+    audience: z.enum(['public', 'members', 'invite']).default('public'),
+    // RSVPs: on a callback card in the chat (D52), at a link, or none.
+    rsvp: z.enum(['card', 'link', 'none']).default('none'),
+    rsvp_link: z.string().url().optional(),
+  })
+  .strict()
+  .refine((e) => (e.date === undefined) !== (e.month === undefined), { message: 'set exactly one of date or month' })
+  .refine((e) => e.rsvp !== 'link' || e.rsvp_link !== undefined, { message: 'rsvp: link needs rsvp_link' });
+
+const tactics = z
+  .object({
+    // Promotions only ever come from sales.promotions (D13, D18).
+    promotions: z.enum(['never', 'when_asked', 'when_relevant', 'on_hesitation']).default('when_relevant'),
+    hesitation_promotion: id.optional(),
+    // When to offer an appointment request or callback card (D35, D52).
+    offer_contact: z.enum(['early', 'after_first_answer', 'when_asked']).default('after_first_answer'),
+    suggest_booking: z.enum(['most_replies', 'after_educating', 'when_asked']).default('after_educating'),
+    // No invented scarcity either way (D17); 'never' also keeps real end dates out of the pitch.
+    urgency: z.enum(['never', 'real_deadlines_only']).default('real_deadlines_only'),
+  })
+  .strict()
+  .refine((t) => t.promotions !== 'on_hesitation' || t.hesitation_promotion !== undefined, {
+    message: 'promotions: on_hesitation needs hesitation_promotion',
+  });
+
+// Approved wording for each kind of handoff; {response_time} is filled from handoff.callback_response_time.
+export const HANDOFF_WORDING_KEYS = ['cant_answer', 'medical', 'not_offered', 'consult_required', 'callback', 'complaint'] as const;
 
 const questions = z.object({ en: z.array(z.string()), es: z.array(z.string()).optional() }).strict();
 
@@ -47,7 +92,9 @@ export const configSchema = z
         crisis_line: z.string().default('988'),
         privacy_policy_url: z.string().url(),
         consumer_health_privacy_policy_url: z.string().url().nullable().default(null),
-        terminology: z.object({ clients: z.string(), services: z.string() }).strict(),
+        terminology: z
+          .object({ clients: z.string(), services: z.string(), providers: z.string().optional(), booking: z.string().optional() })
+          .strict(),
         locations: z
           .array(
             z
@@ -108,6 +155,7 @@ export const configSchema = z
         products_file: z.string().optional(),
         providers_file: z.string(),
         objections_file: z.string().optional(),
+        concerns_file: z.string().optional(),
         urgent_message_file: z.string(),
         policies: z.record(z.string(), z.string()),
       })
@@ -132,6 +180,25 @@ export const configSchema = z
               .strict(),
           )
           .default([]),
+        // Per-service price display (D72): exact from the price list, "starting at", or at consultation.
+        pricing: z
+          .object({ default: z.enum(PRICE_MODES).default('exact'), services: z.record(z.string(), z.enum(PRICE_MODES)).default({}) })
+          .strict()
+          .prefault({}),
+        // Never recommended unprompted; answered if a guest asks.
+        do_not_promote: z.array(id).default([]),
+        // Other treatments worth suggesting with a treatment.
+        pairings: z.record(z.string(), z.array(id)).default({}),
+        growth: z
+          .object({
+            packages: z.array(z.object({ name: z.string(), why: z.string() }).strict()).default([]),
+            differentiators: z.array(z.string()).default([]),
+            in_their_words: z.string().optional(),
+          })
+          .strict()
+          .prefault({}),
+        events: z.array(event).default([]),
+        tactics: tactics.prefault({}),
       })
       .strict(),
     first_visit: z
@@ -154,12 +221,17 @@ export const configSchema = z
         dos: z.array(z.string()).default([]),
         donts: z.array(z.string()).default([]),
         examples_file: z.string().optional(),
+        emoji: z.enum(['never', 'occasionally']).default('never'),
+        exclamation: z.enum(['yes', 'sparingly', 'never']).default('sparingly'),
+        length: z.enum(['short', 'detail']).default('short'),
+        sign_off: z.string().optional(),
       })
       .strict(),
     concierge: z
       .object({
         name: z.string(),
-        avatar: z.object({ mode: z.enum(['illustrated', 'brand_mark', 'none']), id: z.string().optional() }).strict(),
+        // portrait: an AI-generated face from H1's approved set, always beside the AI label (D45).
+        avatar: z.object({ mode: z.enum(['portrait', 'illustrated', 'brand_mark', 'none']), id: z.string().optional() }).strict(),
         greeting: langMap,
         disclosure_label: langMap,
         chat_notice: z.object({ version: z.string(), en: z.string(), es: z.string().optional() }).strict(),
@@ -191,6 +263,7 @@ export const configSchema = z
         callback_response_time: langMap,
         categories: z.array(z.string()).min(1),
         extra_handoff_topics: z.array(z.string()).default([]),
+        wording: z.partialRecord(z.enum(HANDOFF_WORDING_KEYS), localized).default({}),
       })
       .strict(),
     security: z.object({ allowed_domains: z.array(z.string()).min(1), widget_subdomain: z.string() }).strict(),
@@ -226,6 +299,11 @@ export const configSchema = z
         medical_director_approval: z
           .object({ approver: z.string().nullable(), approved_on: date.nullable(), content_hash: z.string().nullable() })
           .strict(),
+        // The owner's approval of the same intake answers (D83), when the content came from the wizard.
+        owner_approval: z
+          .object({ approver: z.string().nullable(), approved_on: date.nullable(), content_hash: z.string().nullable() })
+          .strict()
+          .optional(),
       })
       .strict(),
   })
@@ -311,11 +389,47 @@ export const fitRulesFileSchema = z
   .object({ fit_rules: z.array(z.object({ situation: z.string(), response: z.string() }).strict()) })
   .strict();
 export const productsFileSchema = z
-  .object({ products: z.array(z.object({ name: z.string(), price: z.number().nonnegative(), note: z.string().optional() }).strict()) })
+  .object({
+    products: z.array(
+      z
+        .object({
+          name: z.string(),
+          price: z.number().nonnegative(),
+          note: z.string().optional(),
+          brand: z.string().optional(),
+          category: z.string().optional(),
+          priority: z.enum(['high', 'normal', 'none']).default('normal'),
+          after_services: z.array(id).default([]), // suggested after these treatments
+          helps_with: z.array(z.string()).default([]), // concerns, as named in concerns.yaml
+          sold: z.enum(['both', 'in_store', 'online']).default('both'),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+// What guests describe and the treatments to lead with (feeds the treatment finder). With no
+// matching treatment, `otherwise` says whether to offer a consultation or the front desk.
+const fallback = z.enum(['consult', 'front_desk']);
+export const concernsFileSchema = z
+  .object({
+    concerns: z.array(z.object({ name: z.string(), services: z.array(id).default([]), otherwise: fallback.default('consult') }).strict()),
+    // Pregnant or nursing guests: treatments the spa offers them (medical director approved).
+    pregnancy: z.object({ services: z.array(id).default([]), otherwise: fallback.default('consult') }).strict().optional(),
+  })
   .strict();
 
 const helpMessage = z.object({ title: langMap, body: langMap }).strict();
 export const urgentFileSchema = z
-  .object({ approved_by: z.string(), post_treatment: helpMessage, emergency: helpMessage, crisis: helpMessage })
+  .object({
+    approved_by: z.string(),
+    post_treatment: helpMessage,
+    emergency: helpMessage,
+    crisis: helpMessage,
+    // The spa's own symptom lists (wizard, medical director approved): emergency means 911,
+    // urgent means the urgent line. Emergency ones also join the keyword net (D14).
+    emergency_symptoms: z.array(z.string()).default([]),
+    urgent_symptoms: z.array(z.string()).default([]),
+  })
   .strict();
 export type UrgentMessages = z.infer<typeof urgentFileSchema>;

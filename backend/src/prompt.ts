@@ -22,6 +22,23 @@ function hoursText(range: string): string {
   return `${to12h(a)} to ${to12h(b)}`;
 }
 
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const HANDOFF_LABELS: Record<string, string> = {
+  cant_answer: "A question you can't answer",
+  medical: 'A medical question',
+  not_offered: "A treatment the spa doesn't offer, or a concern with no matching treatment",
+  consult_required: 'A treatment that needs a consultation first',
+  callback: 'A callback request',
+  complaint: 'A complaint',
+};
+
+function addDays(iso: string, days: number): string {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 function longDate(iso: string): string {
   const d = new Date(`${iso}T12:00:00Z`);
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
@@ -55,7 +72,25 @@ function knowledge(catalog: Catalog): string[] {
   if (fv) {
     L.push(`- First visit: arrive ${fv.arrive_minutes_early} minutes early.${fv.parking ? ` Parking: ${pick(fv.parking, 'en')}` : ''} Bring: ${pickList(fv.bring, 'en').join('; ')}.${fv.intake_form_url ? ' New guests can fill out the intake form ahead of time (the first-visit card has the button).' : ''}`);
   }
-  if (b.products.length) L.push(`- Products sold: ${b.products.map((p) => `${p.name} (${money(p.price)})${p.note ? `: ${p.note}` : ''}`).join('; ')}`);
+  if (b.products.length) {
+    L.push('- Products sold:');
+    for (const p of b.products) {
+      const after = p.after_services.map((sid) => catalog.services.get(sid)?.name).filter(Boolean);
+      const bits = [
+        p.note,
+        p.helps_with.length ? `helps with ${p.helps_with.join(', ').toLowerCase()}` : '',
+        after.length ? `suggest after ${after.join(', ')}` : '',
+        p.sold === 'in_store' ? 'sold in the spa only' : p.sold === 'online' ? 'sold online only' : '',
+        p.priority === 'high' ? 'one the spa likes to recommend' : p.priority === 'none' ? "don't recommend it unless asked" : '',
+      ].filter(Boolean);
+      L.push(`  - ${p.brand ? `${p.brand} ` : ''}${p.name} (${money(p.price)})${bits.length ? `: ${bits.join('; ')}` : ''}`);
+    }
+  }
+  const g = c.sales.growth;
+  if (g.in_their_words || g.differentiators.length) {
+    const valued = g.differentiators.length ? `Guests value its ${g.differentiators.map((d) => d.toLowerCase()).join(', ')}.` : '';
+    L.push(`- What sets the spa apart: ${[g.in_their_words, valued].filter(Boolean).join(' ')}`);
+  }
   L.push('');
   L.push('# Treatments');
   for (const s of catalog.services.values()) {
@@ -82,6 +117,27 @@ function knowledge(catalog: Catalog): string[] {
   L.push('');
   L.push('# Frequently asked questions');
   for (const f of b.faqs) L.push(`- Q: ${f.q}\n  A: ${f.a}`);
+  const concerns = b.concerns;
+  if (concerns.concerns.length || concerns.pregnancy) {
+    L.push('');
+    L.push('# Concerns guests describe (use these in the treatment finder)');
+    const fallbackText = (f: string) => (f === 'front_desk' ? 'offer a callback from the team' : 'suggest a consultation');
+    // A treatment the spa doesn't promote isn't led with, even where a concern lists it.
+    const hidden = new Set(c.sales.do_not_promote);
+    for (const con of concerns.concerns) {
+      const names = con.services.filter((sid) => !hidden.has(sid)).map((sid) => catalog.services.get(sid)?.name).filter(Boolean);
+      L.push(names.length ? `- ${con.name}: lead with ${names.join(', ')}.` : `- ${con.name}: no treatment here is the answer; ${fallbackText(con.otherwise)}.`);
+    }
+    const preg = concerns.pregnancy;
+    if (preg) {
+      const names = preg.services.map((sid) => catalog.services.get(sid)?.name).filter(Boolean);
+      L.push(
+        names.length
+          ? `- Pregnant or nursing (only if the guest brings it up): the spa offers ${names.join(', ')} to guests who are pregnant or nursing. Never call any treatment safe; their provider confirms everything at the visit.`
+          : `- Pregnant or nursing (only if the guest brings it up): don't suggest treatments; ${fallbackText(preg.otherwise)}. Never call any treatment safe.`,
+      );
+    }
+  }
   if (b.objections.length) {
     L.push('');
     L.push('# Approved answers to common hesitations');
@@ -94,6 +150,15 @@ function knowledge(catalog: Catalog): string[] {
     L.push("- Never decline anyone on medical grounds or because of who they are; medical suitability is the provider's call.");
   }
   if (c.handoff.extra_handoff_topics.length) L.push(`- Always offer a callback for: ${c.handoff.extra_handoff_topics.join(', ')}.`);
+  const wording = Object.entries(c.handoff.wording);
+  if (wording.length) {
+    L.push('');
+    L.push("# Approved handoff wording (adapt it lightly to fit the conversation; keep its meaning and any response time it promises)");
+    // The response time reads "within one business day", so "within {response_time}" mustn't double it.
+    const responseTime = pick(c.handoff.callback_response_time, 'en');
+    const fill = (s: string) => (/^within\b/i.test(responseTime) ? s.replace(/\bwithin \{response_time\}/g, '{response_time}') : s).replaceAll('{response_time}', responseTime);
+    for (const [key, text] of wording) L.push(`- ${HANDOFF_LABELS[key] ?? key}: "${fill(pick(text, 'en'))}"`);
+  }
   return L;
 }
 
@@ -102,8 +167,24 @@ function voice(catalog: Catalog): string[] {
   const L = ['# Voice', `- Tone: ${c.voice.tone}`];
   for (const d of c.voice.dos) L.push(`- Do: ${d}`);
   for (const d of c.voice.donts) L.push(`- Don't: ${d}`);
-  L.push(`- Call clients "${c.business.terminology.clients}" and services "${c.business.terminology.services}".`);
-  L.push('- Keep replies short: usually one to three sentences. Plain text only: no markdown headings, tables, bold, or links. A short list is fine when it really helps.');
+  const t = c.business.terminology;
+  L.push(`- Call clients "${t.clients}" and services "${t.services}"${t.providers ? `, and the people who treat them "${t.providers}"` : ''}.`);
+  if (t.booking) L.push(`- When inviting a booking, say it the spa's way: "${t.booking}".`);
+  L.push(
+    c.voice.length === 'detail'
+      ? '- Keep replies brief: usually two to four sentences, with a little more detail when it helps.'
+      : '- Keep replies short: usually one to three sentences.',
+  );
+  L.push('- Plain text only: no markdown headings, tables, bold, or links. A short list is fine when it really helps.');
+  L.push(c.voice.emoji === 'occasionally' ? '- An emoji now and then is fine (at most one per reply), never on a serious or medical topic.' : '- No emoji.');
+  L.push(
+    c.voice.exclamation === 'yes'
+      ? '- Exclamation points are fine where they feel natural.'
+      : c.voice.exclamation === 'never'
+        ? '- Never use exclamation points.'
+        : '- Use at most one exclamation point in a reply.',
+  );
+  if (c.voice.sign_off) L.push(`- When the guest is wrapping up, you can close with something like: "${c.voice.sign_off}"`);
   L.push("- Cards carry the details (prices, downtime, dates, buttons). Introduce a card in one sentence; don't repeat what it shows. Cards appear below your text, so if you refer to one, say 'below'.");
   if (catalog.bundle.voiceExamples.trim()) {
     L.push('- Examples of the voice:');
@@ -130,6 +211,9 @@ export function fixedBlock(catalog: Catalog): string {
   L.push('# Hard rules');
   L.push('- No medical advice: candidacy, safety, contraindications, results for a specific person, dosage, or number of units. Offer a consultation or a callback instead. For treatments that need an assessment, say a provider assesses at the consultation.');
   L.push("- If a guest describes a possible problem after a treatment, an emergency, or thoughts of self-harm or crisis, call show_urgent_help with the right kind immediately. Don't book, offer booking, or take a callback in that reply. In a crisis, don't counsel; be kind and brief and let the message give the numbers.");
+  const urgent = catalog.bundle.urgent;
+  if (urgent.emergency_symptoms.length) L.push(`- The spa's medical director treats these as emergencies (show_urgent_help, kind emergency): ${urgent.emergency_symptoms.join('; ')}.`);
+  if (urgent.urgent_symptoms.length) L.push(`- And these as urgent problems after a treatment (kind post_treatment): ${urgent.urgent_symptoms.join('; ')}.`);
   L.push('- Quote only prices that appear in this prompt or come back from a tool. Never add prices, calculate totals or savings, or work out unit counts yourself: use estimate_visit or show_membership_savings, which compute in code. Promotion prices are already worked out below.');
   L.push("- Estimates are rough, not quotes. Always say the final price is confirmed at the visit.");
   L.push('- Mention only promotions listed as active below. Never invent discounts, deadlines, or scarcity.');
@@ -222,18 +306,78 @@ export function catalogBlock(catalog: Catalog, today: string): string {
     const names = addOns.map((a) => catalog.addOns.get(a)).filter(Boolean).map((a) => `${a!.name} (${priceText(a!.price)})`);
     if (s && names.length) L.push(`- Pairs well with ${s.name}: ${names.join(', ')}.`);
   }
+  const names = (ids: string[]) => ids.map((id) => catalog.services.get(id)?.name).filter(Boolean).join(', ');
+  for (const [sid, others] of Object.entries(c.sales.pairings)) {
+    const s = catalog.services.get(sid);
+    if (s && others.length) L.push(`- Worth suggesting with ${s.name}: ${names(others)}.`);
+  }
+  if (c.sales.do_not_promote.length) L.push(`- Don't recommend these unless the guest asks about them: ${names(c.sales.do_not_promote)}.`);
+  const atConsult = [...catalog.services.values()].filter((s) => s.price.consult).map((s) => s.name);
+  if (atConsult.length) L.push(`- Priced at consultation: ${atConsult.join(', ')}. Never give or estimate a price for these; the provider gives an exact quote at the consultation.`);
+  const packages = c.sales.growth.packages;
+  if (packages.length) L.push(`- Packages and memberships to mention when they fit: ${packages.map((p) => `${p.name} (${p.why})`).join('; ')}.`);
   L.push('- Suggest at most one add-on or upgrade per booking conversation. If the guest says no, drop it.');
+  const t = c.sales.tactics;
+  L.push(
+    t.offer_contact === 'early'
+      ? '- Offer an appointment request or a callback early, once you know what the guest is interested in.'
+      : t.offer_contact === 'when_asked'
+        ? '- Offer an appointment request or a callback only when the guest asks to book or to talk to someone.'
+        : "- Offer an appointment request or a callback after you've answered the guest's first question.",
+  );
+  L.push(
+    t.suggest_booking === 'most_replies'
+      ? '- Briefly invite the guest to book in most replies.'
+      : t.suggest_booking === 'when_asked'
+        ? '- Suggest booking only when the guest asks about it.'
+        : "- Educate first; suggest booking once the guest's questions are answered.",
+  );
+
   const promos = catalog.activePromotions(today);
-  if (promos.length === 0) {
+  const eventName = (id?: string) => c.sales.events.find((e) => e.id === id)?.name;
+  if (t.promotions === 'never') {
+    L.push("- Don't bring up promotions or specials, even if asked; say the team can tell them about current offers.");
+  } else if (promos.length === 0) {
     L.push("- There are no active promotions. Don't mention any.");
   } else {
     L.push('- Active promotions (the only ones that exist):');
     for (const p of promos) {
       const prices = p.prices.map((pr) => `${catalog.services.get(pr.serviceId)?.name}: ${money(pr.was)} → ${money(pr.now)}`).join('; ');
-      L.push(`  - ${p.description}. ${prices}. Ends ${longDate(p.ends)}.${p.terms ? ` Terms: ${p.terms}` : ''}`);
+      const only = p.event ? ` Only for guests at ${eventName(p.event) ?? 'an event'}.` : '';
+      L.push(`  - ${p.description}.${prices ? ` ${prices}.` : ''} Ends ${longDate(p.ends)}.${only}${p.terms ? ` Terms: ${p.terms}` : ''}`);
+    }
+    const hesitate = promos.find((p) => p.id === t.hesitation_promotion);
+    L.push(
+      t.promotions === 'when_asked'
+        ? '- Mention promotions only when the guest asks about specials, offers, or prices.'
+        : t.promotions === 'on_hesitation'
+          ? `- Mention promotions when the guest asks.${hesitate ? ` If they hesitate over price, you may offer this one: ${hesitate.description}.` : ''}`
+          : '- Mention a promotion when it fits what the guest is interested in.',
+    );
+  }
+  L.push(
+    t.urgency === 'never'
+      ? "- Don't use urgency, not even real end dates; share an end date only if the guest asks."
+      : '- Create urgency only from a real promotion end date.',
+  );
+
+  // Events: dated ones from today through the next four months, and yearly ones without a date yet.
+  const horizon = addDays(today, 120);
+  const events = c.sales.events.filter((e) => (e.date ? today <= e.date && e.date <= horizon : true));
+  if (events.length) {
+    L.push('- Events (mention when they fit, or when asked):');
+    for (const e of events) {
+      const when = e.date ? longDate(e.date) : `usually in ${MONTHS[(e.month ?? 1) - 1]}; this year's date isn't set yet`;
+      const who = e.audience === 'members' ? ' For members only.' : e.audience === 'invite' ? ' By invitation only.' : '';
+      const rsvp =
+        e.rsvp === 'card'
+          ? ' To RSVP, offer a callback request (request_callback, category other) so the team can add them.'
+          : e.rsvp === 'link'
+            ? ` To RSVP, show the button: get_booking_link with purpose rsvp and event_id ${e.id}.`
+            : '';
+      L.push(`  - ${e.name} (id: ${e.id}): ${when}${e.time ? `, ${e.time}` : ''}${e.location ? `, at ${e.location}` : ''}. ${e.description}${who}${rsvp}`);
     }
   }
-  L.push('- Create urgency only from a real promotion end date.');
   return L.join('\n');
 }
 

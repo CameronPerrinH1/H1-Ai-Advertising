@@ -34,8 +34,14 @@ const EMERGENCY = [
 
 export type SafetyNetKind = 'crisis' | 'emergency';
 
-export function detectSafetyNet(text: string): SafetyNetKind | null {
+const normalize = (s: string) => ` ${s.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
+
+// extraEmergency: the spa's own emergency symptoms (urgent-message.yaml, approved by its medical
+// director), matched as whole phrases. They only add to the built-in patterns, never replace them.
+export function detectSafetyNet(text: string, extraEmergency: readonly string[] = []): SafetyNetKind | null {
   if (CRISIS.some((r) => r.test(text))) return 'crisis';
   if (EMERGENCY.some((r) => r.test(text))) return 'emergency';
+  const t = normalize(text);
+  if (extraEmergency.some((p) => normalize(p).trim().length >= 4 && t.includes(normalize(p)))) return 'emergency';
   return null;
 }

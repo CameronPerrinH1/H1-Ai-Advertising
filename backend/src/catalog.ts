@@ -1,7 +1,7 @@
 // The client's catalog: menu, details, providers, promotions, and the facts cards and checks rely on.
 import type { EstimateView, Lang, Price, ProviderView, ServiceView } from '@concierge/shared';
 import type { ClientBundle } from './config/load.ts';
-import type { Localized, LocalizedList } from './config/schema.ts';
+import type { Localized, LocalizedList, PriceMode } from './config/schema.ts';
 
 export function pick(value: Localized | undefined, lang: Lang): string {
   if (value === undefined) return '';
@@ -22,6 +22,7 @@ export function money(amount: number): string {
 const UNIT_LABEL: Record<Price['unit'], string> = { session: 'per session', unit: 'per unit', syringe: 'per syringe', area: 'per area' };
 
 export function priceText(p: Price): string {
+  if (p.consult) return 'priced at consultation';
   if (p.amount === 0) return 'free';
   return `${p.from ? 'from ' : ''}${money(p.amount)} ${UNIT_LABEL[p.unit]}`;
 }
@@ -74,7 +75,9 @@ export interface ServiceEntry {
   id: string;
   name: string;
   category: string;
-  price: Price;
+  price: Price; // as guests see it, after the spa's price display choice
+  listPrice: Price; // from the price list, for promotion math only
+  priceMode: PriceMode;
   durationMinutes: number;
   lastVerified: string;
   details: ClientBundle['details'][string];
@@ -88,6 +91,7 @@ export interface ActivePromo {
   percentOff?: number;
   amountOff?: number;
   thirdPartyFunded: boolean;
+  event?: string; // only for guests at this event
   prices: { serviceId: string; was: number; now: number }[];
 }
 
@@ -100,11 +104,14 @@ export class Catalog {
     for (const s of bundle.services.services) {
       const details = bundle.details[s.id];
       if (!details) continue; // loader guarantees this exists
+      const priceMode = bundle.config.sales.pricing.services[s.id] ?? bundle.config.sales.pricing.default;
       this.services.set(s.id, {
         id: s.id,
         name: s.name,
         category: s.category,
-        price: s.price,
+        price: displayPrice(s.price, priceMode),
+        listPrice: s.price,
+        priceMode,
         durationMinutes: s.duration_minutes,
         lastVerified: s.last_verified,
         details,
@@ -135,11 +142,14 @@ export class Catalog {
         percentOff: p.percent_off,
         amountOff: p.amount_off,
         thirdPartyFunded: p.third_party_funded,
+        event: p.event,
+        // A treatment priced at consultation keeps its price private even on promotion.
         prices: p.services.flatMap((sid) => {
           const s = this.services.get(sid);
-          if (!s) return [];
-          const now = p.percent_off !== undefined ? s.price.amount * (1 - p.percent_off / 100) : s.price.amount - (p.amount_off ?? 0);
-          return [{ serviceId: sid, was: s.price.amount, now: Math.max(0, Math.round(now * 100) / 100) }];
+          if (!s || s.price.consult) return [];
+          const list = s.listPrice.amount;
+          const now = p.percent_off !== undefined ? list * (1 - p.percent_off / 100) : list - (p.amount_off ?? 0);
+          return [{ serviceId: sid, was: list, now: Math.max(0, Math.round(now * 100) / 100) }];
         }),
       }));
   }
@@ -179,7 +189,7 @@ export class Catalog {
       const s = this.services.get(id);
       if (!s) continue;
       const promoPrice = promos.flatMap((p) => p.prices).find((pr) => pr.serviceId === id)?.now;
-      const counted = s.price.unit === 'session' || s.price.unit === 'area';
+      const counted = !s.price.consult && (s.price.unit === 'session' || s.price.unit === 'area');
       if (counted) {
         total += promoPrice ?? s.price.amount;
         if (s.price.from) totalIsFrom = true;
@@ -202,7 +212,7 @@ export class Catalog {
     const m = membershipId ? this.config.sales.memberships.find((x) => x.id === membershipId) : this.config.sales.memberships[0];
     if (!m) return undefined;
     const service = this.services.get(m.includes.service_id);
-    if (!service) return undefined;
+    if (!service || service.price.consult) return undefined;
     const price = service.price.amount;
     const included = 12 * m.includes.per_month;
     const extra = Math.max(0, visitsPerYear - included);
@@ -221,6 +231,7 @@ export class Catalog {
       this.config.business.privacy_policy_url,
       this.config.business.consumer_health_privacy_policy_url,
       this.config.first_visit?.intake_form_url,
+      ...this.config.sales.events.map((e) => e.rsvp_link),
     ].filter((u): u is string => typeof u === 'string');
   }
 
@@ -318,6 +329,13 @@ export class Catalog {
     }
     return undefined;
   }
+}
+
+// How a price is shown: "starting at" marks it as a from-price; at consultation hides the amount.
+function displayPrice(p: Price, mode: PriceMode): Price {
+  if (mode === 'at_consult') return { amount: 0, unit: p.unit, from: false, consult: true };
+  if (mode === 'starting_at') return { ...p, from: true };
+  return p;
 }
 
 function toMinutes(hhmm: string): number {

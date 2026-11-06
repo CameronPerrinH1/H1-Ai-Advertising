@@ -65,11 +65,12 @@ export const LINK_HANDOFF_TOOLS: Tool[] = [
   ),
   tool(
     'get_booking_link',
-    "Show a button to the business's online booking page, for a specific treatment or provider when possible. Use purpose 'manage' when the guest wants to reschedule or cancel an existing appointment. Never paste links in your text; this button is how guests get links.",
+    "Show a button to the business's online booking page, for a specific treatment or provider when possible. Use purpose 'manage' when the guest wants to reschedule or cancel an existing appointment, and purpose 'rsvp' with event_id for an event whose RSVP is online. Never paste links in your text; this button is how guests get links.",
     {
       service_id: { ...serviceId, description: 'Optional. Service ID from the catalog.' },
       staff_id: { ...staffId, description: 'Optional. Provider ID.' },
-      purpose: { type: 'string', enum: ['book', 'manage'], description: "'book' (default) or 'manage' for reschedule and cancel." },
+      purpose: { type: 'string', enum: ['book', 'manage', 'rsvp'], description: "'book' (default), 'manage' for reschedule and cancel, or 'rsvp' for an event." },
+      event_id: { type: 'string', description: "With purpose 'rsvp': the event's id from the prompt." },
     },
   ),
   tool(

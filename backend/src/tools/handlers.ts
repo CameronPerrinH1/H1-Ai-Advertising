@@ -69,7 +69,8 @@ const schemas = {
   get_booking_link: z.object({
     service_id: z.string().optional(),
     staff_id: z.string().optional(),
-    purpose: z.enum(['book', 'manage']).optional(),
+    purpose: z.enum(['book', 'manage', 'rsvp']).optional(),
+    event_id: z.string().optional(),
   }),
   request_callback: z.object({
     first_name: z.string().trim().min(1).max(50),
@@ -201,6 +202,12 @@ const handlers: Record<string, Handler> = {
     if (p.data.purpose === 'manage') {
       const url = catalog.config.booking.self_service_link ?? catalog.config.booking.direct_links.default;
       return { result: { shown: true, purpose: 'manage' }, cards: [{ type: 'booking_link', purpose: 'manage', url }] };
+    }
+    if (p.data.purpose === 'rsvp') {
+      const event = catalog.config.sales.events.find((e) => e.id === p.data.event_id);
+      if (!event) return fail(`Unknown event_id "${p.data.event_id ?? ''}".`);
+      if (event.rsvp !== 'link' || !event.rsvp_link) return fail(`${event.name} has no RSVP link.${event.rsvp === 'card' ? ' Use request_callback with category other.' : ''}`);
+      return { result: { shown: true, purpose: 'rsvp' }, cards: [{ type: 'booking_link', purpose: 'rsvp', url: event.rsvp_link, eventName: event.name }] };
     }
     const service = p.data.service_id ? catalog.services.get(p.data.service_id) : undefined;
     if (p.data.service_id && !service) return fail(`Unknown service_id "${p.data.service_id}".`);

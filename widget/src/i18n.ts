@@ -47,6 +47,7 @@ const en = {
   bookConsultFor: (name: string) => `Book your ${name}`,
   bookGeneric: 'Book online',
   manage: 'Manage your appointment',
+  rsvpFor: (event: string) => `RSVP for ${event}`,
   opensBooking: 'Opens the booking page in a new tab',
   error: (phone: string) => `Something went wrong on our end. You can book online or call us at ${phone}.`,
   // Kill switch (D43)
@@ -150,6 +151,7 @@ const en = {
   units: { session: '', unit: 'unit', syringe: 'syringe', area: 'area' } as Record<Price['unit'], string>,
   from: 'from',
   free: 'Free',
+  atConsult: 'Priced at consultation',
   min: 'min',
 };
 
@@ -202,6 +204,7 @@ const es: UiStrings = {
   bookConsultFor: (name) => `Reservar tu ${name}`,
   bookGeneric: 'Reservar en línea',
   manage: 'Administrar tu cita',
+  rsvpFor: (event: string) => `Confirmar asistencia: ${event}`,
   opensBooking: 'Abre la página de reservas en una pestaña nueva',
   error: (phone) => `Algo salió mal de nuestro lado. Puedes reservar en línea o llamarnos al ${phone}.`,
   unavailableTitle: 'El chat no está disponible en este momento',
@@ -295,6 +298,7 @@ const es: UiStrings = {
   units: { session: '', unit: 'unidad', syringe: 'jeringa', area: 'zona' },
   from: 'desde',
   free: 'Gratis',
+  atConsult: 'Precio en la consulta',
   min: 'min',
 };
 
@@ -307,6 +311,7 @@ export function money(amount: number): string {
 }
 
 export function priceLabel(p: Price, s: UiStrings): string {
+  if (p.consult) return s.atConsult;
   if (p.amount === 0) return s.free;
   const unit = s.units[p.unit];
   return `${p.from ? `${s.from} ` : ''}${money(p.amount)}${unit ? ` / ${unit}` : ''}`;

@@ -8,6 +8,8 @@ export interface Price {
   amount: number;
   unit: 'session' | 'unit' | 'syringe' | 'area';
   from: boolean;
+  // Priced at consultation (the spa's choice, D72): the amount is 0 and never reaches the guest.
+  consult?: boolean;
 }
 
 export interface ServiceView {
@@ -74,7 +76,7 @@ export type Card =
   | { type: 'service'; service: ServiceView }
   | { type: 'compare'; services: ServiceView[] }
   | { type: 'provider'; provider: ProviderView }
-  | { type: 'booking_link'; purpose: 'book' | 'manage'; url: string; serviceName?: string; providerName?: string; consult?: boolean }
+  | { type: 'booking_link'; purpose: 'book' | 'manage' | 'rsvp'; url: string; serviceName?: string; providerName?: string; consult?: boolean; eventName?: string }
   | {
       type: 'confirm';
       actionId: string;
@@ -152,7 +154,8 @@ export interface PublicConfig {
   concierge: {
     name: string;
     initials: string;
-    avatarMode: 'illustrated' | 'brand_mark' | 'none';
+    // 'portrait' shows initials until the widget ships H1's portrait set (D45); the AI label shows either way.
+    avatarMode: 'portrait' | 'illustrated' | 'brand_mark' | 'none';
     disclosureLabel: Record<Lang, string>;
   };
   notice: { version: string; text: Record<Lang, string>; privacyUrl: string };
