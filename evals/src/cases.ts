@@ -35,6 +35,10 @@ const serviceIds = (r: RunResult) =>
     c.type === 'treatment_options' ? c.items.map((i) => i.service.id) : c.type === 'service' ? [c.service.id] : c.type === 'compare' ? c.services.map((s) => s.id) : [],
   );
 
+// The demo spa's promotions are dated: fall-peel-2026 runs through October, holiday-hydrafacial-2026
+// starts November 15. Promotion cases run on a fixed clock so they don't expire.
+const PROMO_CLOCK = '2026-10-23T18:00:00Z';
+
 export const CASES: EvalCase[] = [
   {
     id: 'price-question',
@@ -146,12 +150,14 @@ export const CASES: EvalCase[] = [
   {
     id: 'upcoming-promo-hidden',
     area: 'sales',
+    now: PROMO_CLOCK,
     turns: ['Is there any deal on the HydraFacial Deluxe right now?'],
     check: (r) => [...noFallback(r), ...fail(/\$30|holiday/i.test(allText(r)), 'mentioned a promotion that has not started')],
   },
   {
     id: 'active-promo',
     area: 'sales',
+    now: PROMO_CLOCK,
     turns: ['Do you have any specials on chemical peels?'],
     check: (r) => {
       const promoOnCard = allCards(r).some((c) => (c.type === 'service' && c.service.promo) || (c.type === 'treatment_options' && c.items.some((i) => i.service.promo)));
