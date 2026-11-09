@@ -1,0 +1,27 @@
+# Fixed help messages shown by show_urgent_help (D14). Placeholders: {urgent_line}, {crisis_line}, {business_name}.
+# PLACEHOLDER: replaced by the intake import with the wording Plumb + Pine signs off. Not approved for launch (D38).
+approved_by: "NOT APPROVED: placeholder before the intake import"
+post_treatment:
+  title: 
+    en: "Let's get you help right away"
+  body: 
+    en: Please text Jen now at {urgent_line}. If symptoms get worse or you have trouble breathing, call 911.
+emergency:
+  title: 
+    en: "This sounds like an emergency"
+  body: 
+    en: Please call 911 now or go to the nearest emergency room. These symptoms need immediate medical care. Once you're safe, let us know at {urgent_line}.
+crisis:
+  title: 
+    en: "You don't have to go through this alone"
+  body: 
+    en: "You can call or text {crisis_line} any time to reach the Suicide and Crisis Lifeline. If you're in immediate danger, call 911."
+emergency_symptoms:
+  - Difficulty breathing
+  - Throat or tongue swelling
+  - Chest pain
+  - Fainting
+urgent_symptoms:
+  - Severe or worsening pain
+  - Signs of infection
+  - Unusual swelling

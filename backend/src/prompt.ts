@@ -56,7 +56,8 @@ function knowledge(catalog: Catalog): string[] {
   L.push(`- Urgent line for post-treatment concerns: ${c.business.urgent_line}`);
   const open = Object.entries(loc.hours).map(([day, range]) => `${DAY_NAMES[day]} ${hoursText(range)}`);
   const closed = Object.keys(DAY_NAMES).filter((d) => !(d in loc.hours)).map((d) => DAY_NAMES[d]);
-  L.push(`- Hours (${loc.timezone}): ${open.join('; ')}. Closed ${closed.join(' and ')}.`);
+  if (loc.by_appointment) L.push("- Hours: by appointment only, on days and times that vary. Never say the spa is open or closed; guests book online or ask the team for a time.");
+  else L.push(`- Hours (${loc.timezone}): ${open.join('; ')}. Closed ${closed.join(' and ')}.`);
   for (const [key, text] of Object.entries(c.knowledge.policies)) L.push(`- Policy (${key.replaceAll('_', ' ')}): ${text}`);
   L.push(`- Booking: guests can book online through the booking buttons, or request an appointment that the team books. Minimum notice is ${c.booking.rules.min_notice_hours} hours; guests can book up to ${c.booking.rules.max_days_ahead} days ahead.`);
   for (const pr of c.booking.rules.prerequisites) {
@@ -394,7 +395,9 @@ export function requestBlock(catalog: Catalog, ctx: RequestContext): string {
   const c = catalog.config;
   const status = catalog.openStatus(ctx.clock);
   let openText: string;
-  if (status.open) {
+  if (catalog.byAppointment) {
+    openText = 'open by appointment only (days and times vary)';
+  } else if (status.open) {
     openText = `open now (today's hours: ${hoursText(status.todayHours!)})`;
   } else {
     const next = catalog.nextOpening(ctx.clock);

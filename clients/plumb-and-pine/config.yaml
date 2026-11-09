@@ -1,0 +1,153 @@
+# Plumb + Pine (Jen Jeffers, Reno NV). Business facts are H1's, from her Jotform (2026-10-29),
+# website, and Vagaro (2026-11-09). The Sales Playbook parts come from the intake wizard:
+#   pnpm import-playbook <playbook.json> plumb-and-pine
+# Values marked PLACEHOLDER are replaced by that import; values marked CONFIRM need checking before launch.
+# No secrets in this file. Shape follows ai-concierge-handoff/templates/client-config.example.yaml.
+client_id: plumb-and-pine
+
+business:
+  name: Plumb + Pine
+  phone: "(775) 409-2640"
+  urgent_line: "(775) 409-2640" # Jen, by text; replaced by the wizard's urgent line
+  crisis_line: "988"
+  privacy_policy_url: "https://www.plumbandpine.com/privacy-policy"
+  consumer_health_privacy_policy_url: null
+  terminology: # PLACEHOLDER
+    clients: guests
+    services: treatments
+    providers: esthetician
+    booking: book an appointment
+  locations:
+    - id: loc-main
+      name: Plumb + Pine
+      address: "538 W Plumb Ln, Suite B, Reno, NV 89509"
+      timezone: America/Los_Angeles
+      by_appointment: true
+      hours: {}
+
+booking_mode: link_handoff
+
+booking:
+  platform: vagaro
+  direct_links:
+    default: https://www.vagaro.com/plumandpine/services
+    services: {}
+    providers: {}
+  self_service_link: "https://www.vagaro.com/plumandpine"
+  rules:
+    min_notice_hours: 24
+    max_days_ahead: 180
+    prerequisites: []
+  allowed_phone_countries: [ US ]
+  limits:
+    max_bookings_per_session: 2
+    max_callbacks_per_session: 2
+
+knowledge:
+  service_details_file: service-details.yaml
+  services_file: services.yaml
+  faqs_file: faqs.yaml
+  products_file: products.yaml
+  providers_file: providers.yaml
+  objections_file: objections.yaml
+  urgent_message_file: urgent-message.yaml
+  concerns_file: concerns.yaml
+  policies:
+    hours: "By appointment only; days and times vary. There's no front desk: Jen lets guests in for their appointment."
+    cancellation: "Cancel at least 24 hours ahead and there's no charge. Same-day cancellations are charged 100% of the service to the card on file."
+    no_show: "No-shows are charged 100% of the missed service by invoice or the card on file, and the balance must be paid before future appointments."
+    late_arrival: "Guests running late should let Jen know. Arriving more than 15 minutes late may mean rescheduling."
+    refunds: "No refunds on services or products. Unopened products can be returned within 10 days of purchase."
+    age_minimum: "Guests must be 16 or older. Guests under 18 can be treated with a parent or guardian present."
+    payment: "Cash, credit and debit cards, HSA and FSA cards, and Apple Pay or Google Pay. No financing, gift cards, or memberships."
+    deposit: "No deposit is needed to book. Bookings need 24 hours notice and can be made up to 6 months ahead."
+    before_facials: "No Botox or filler within 14 days before a facial."
+
+sales:
+  featured_services: [] # PLACEHOLDER
+  fit_rules_file: fit-rules.yaml
+  memberships: []
+
+first_visit:
+  arrive_minutes_early: 5 # CONFIRM
+  parking: "Easy parking at the Plumgate Shopping Center, near Starbucks and across the lot from Butcher Boy. There's no front desk; Jen will let you in."
+  bring:
+    - "A list of your current prescriptions"
+    - "A list of the skincare products you use at home"
+  notes:
+    - "Please don't have Botox or filler within 14 days before a facial"
+
+voice: # PLACEHOLDER
+  tone: "Warm, knowledgeable, and personal."
+  examples_file: voice-examples.md
+
+concierge: # PLACEHOLDER apart from chat_notice
+  name: Plumb + Pine AI
+  avatar:
+    mode: none
+  greeting:
+    en: Hi! I'm Plumb + Pine's AI Treatment Coordinator. How can I help?
+  disclosure_label:
+    en: AI Treatment Coordinator
+  chat_notice:
+    version: 2026-11-09.1
+    en: You're chatting with Plumb + Pine's AI assistant. This chat is recorded to help us respond.
+
+branding: # CONFIRM: from her website's colors and fonts before launch
+  colors: { primary: "#5B3A55", secondary: "#F4F1EC", accent: "#2F4A3A" }
+  fonts:
+    heading: "Georgia, 'Times New Roman', serif"
+    body: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    license: "System fonts until her site's fonts are confirmed (D53)"
+
+display:
+  modes: [ inline, fullscreen, launcher ]
+  nudge_delay_seconds: 20
+  suggested_questions:
+    default:
+      en:
+        - Help me find the right facial
+        - What helps with thinning hair?
+        - What should I know before my first visit?
+
+handoff:
+  email_from: "concierge@h1aiconsulting.com" # CONFIRM: the sending address H1 sets up
+  # DECISION NEEDED (D36): handoffs must go to an address on her own domain; her Jotform gave plumbandpine@gmail.com.
+  email_to: "confirm-before-launch@plumbandpine.com"
+  email_provider_baa_confirmed: false
+  callback_response_time: { en: "within 2 business days" }
+  categories: [ reschedule, cancel, complaint, other ]
+  extra_handoff_topics: [ "group bookings" ]
+
+security:
+  allowed_domains:
+    - plumbandpine.com
+    - www.plumbandpine.com
+  widget_subdomain: chat.plumbandpine.com # CONFIRM
+
+languages:
+  - en
+
+model:
+  id: us.anthropic.claude-haiku-5-5
+  summarizer_id: us.anthropic.claude-haiku-5-5
+  max_output_tokens: 2048 # includes the model's hidden reasoning; reply length is capped by the output checks
+  use_prompt_cache: true
+
+retention:
+  transcripts_days: 30
+  flagged_transcripts_days: 90
+  summaries_months: 13
+
+compliance_profile:
+  hipaa_covered_entity: false # CONFIRM with Jen
+  status_questionnaire: { completed_on: null, warranty_signed: false, next_review: null }
+  state: NV
+  state_laws: []
+  agreements: []
+  call_recording_consent: one-party # CONFIRM for Nevada
+  pilot_review_consent: { granted: false, expires: null }
+  medical_director_approval: # PLACEHOLDER: set by the import
+    approver: null
+    approved_on: null
+    content_hash: null

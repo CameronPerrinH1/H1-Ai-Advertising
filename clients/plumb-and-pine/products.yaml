@@ -1,0 +1,277 @@
+# Retail products: prices from Vagaro (2026-11-09). Priorities, pairings and concerns come from the intake playbook.
+products:
+  - name: "ÂN-Gloss Ceramide Lip Treatment"
+    price: 45
+    brand: "Anfisa Skin"
+    category: "Lip care"
+    sold: in_store
+  - name: "Color Balm"
+    price: 42
+    brand: "Colorescience"
+    category: "Makeup and tint"
+    sold: in_store
+  - name: "Skin Zyme"
+    price: 83
+    brand: "Jan Marini"
+    category: "Treatments"
+    sold: in_store
+  - name: "Daily Shield Tinted SPF 50"
+    price: 46
+    brand: "Epionce"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "Gentle Foaming Cleanser"
+    price: 40
+    brand: "Epionce"
+    category: "Cleansers"
+    sold: in_store
+  - name: "Intense Defense Serum"
+    price: 165
+    brand: "Epionce"
+    category: "Serums"
+    sold: in_store
+  - name: "Intensive Nourishing Cream"
+    price: 132
+    brand: "Epionce"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Lite Lytic Tx"
+    price: 60
+    brand: "Epionce"
+    category: "Treatments"
+    sold: in_store
+  - name: "Lytic Gel Cleanser"
+    price: 44
+    brand: "Epionce"
+    category: "Cleansers"
+    sold: in_store
+  - name: "Lytic Plus Tx"
+    price: 60
+    brand: "Epionce"
+    category: "Treatments"
+    sold: in_store
+  - name: "Lytic Tx"
+    price: 60
+    brand: "Epionce"
+    category: "Treatments"
+    sold: in_store
+  - name: "Milky Lotion Cleanser"
+    price: 40
+    brand: "Epionce"
+    category: "Cleansers"
+    sold: in_store
+  - name: "Purifying Spot Gel"
+    price: 46
+    brand: "Epionce"
+    category: "Treatments"
+    sold: in_store
+  - name: "Renewal Eye Cream"
+    price: 86
+    brand: "Epionce"
+    category: "Eye care"
+    sold: in_store
+  - name: "Renewal Facial Cream"
+    price: 112
+    brand: "Epionce"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Renewal Facial Lotion"
+    price: 112
+    brand: "Epionce"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Renewal Lite Facial Lotion"
+    price: 112
+    brand: "Epionce"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Face Shield - Glow"
+    price: 52
+    brand: "Colorescience"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "Face Shield FLEX"
+    price: 58
+    brand: "Colorescience"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "Lip Shine"
+    price: 42
+    brand: "Colorescience"
+    category: "Lip care"
+    sold: in_store
+  - name: "Total Eye Treatment"
+    price: 79
+    brand: "Colorescience"
+    category: "Eye care"
+    sold: in_store
+  - name: "Antioxidant Peptide Serum"
+    price: 56
+    brand: "Face Reality"
+    category: "Serums"
+    sold: in_store
+  - name: "Clear Skin Balance"
+    price: 44
+    brand: "Face Reality"
+    category: "Treatments"
+    sold: in_store
+  - name: "Clear Skin Restore"
+    price: 36
+    brand: "Face Reality"
+    category: "Treatments"
+    sold: in_store
+  - name: "Cran-Peptide Cream"
+    price: 33
+    brand: "Face Reality"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Daily SPF 30 Lotion"
+    price: 36
+    brand: "Face Reality"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "HydraCalm Mask"
+    price: 42
+    brand: "Face Reality"
+    category: "Masks"
+    sold: in_store
+  - name: "Mineral Matte SPF28"
+    price: 36
+    brand: "Face Reality"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "Travel Moisture Balance Toner"
+    price: 14
+    brand: "Face Reality"
+    category: "Toners"
+    sold: in_store
+  - name: "Travel Ultra Gentle Gel Cleanser"
+    price: 14
+    brand: "Face Reality"
+    category: "Cleansers"
+    sold: in_store
+  - name: "Ultra Gentle Cleanser"
+    price: 33
+    brand: "Face Reality"
+    category: "Cleansers"
+    sold: in_store
+  - name: "Arctigenin Brightening Treatment"
+    price: 175
+    brand: "Epicutis"
+    category: "Treatments"
+    sold: in_store
+  - name: "Cleansing Essentials Set"
+    price: 105
+    brand: "Epicutis"
+    category: "Sets and kits"
+    sold: in_store
+  - name: "Epicutis Post Treatment Set"
+    price: 75
+    brand: "Epicutis"
+    category: "Sets and kits"
+    sold: in_store
+  - name: "Hyvia Creme"
+    price: 195
+    brand: "Epicutis"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Lipid Body Treatment"
+    price: 225
+    brand: "Epicutis"
+    category: "Body care"
+    sold: in_store
+  - name: "Lipid Recovery Mask"
+    price: 125
+    brand: "Epicutis"
+    category: "Masks"
+    sold: in_store
+  - name: "Lipid Serum"
+    price: 250
+    brand: "Epicutis"
+    category: "Serums"
+    sold: in_store
+  - name: "Luxury Skincare Set"
+    price: 395
+    brand: "Epicutis"
+    category: "Sets and kits"
+    sold: in_store
+  - name: "Oil Cleanser"
+    price: 85
+    brand: "Epicutis"
+    category: "Cleansers"
+    sold: in_store
+  - name: "Travel Lipid Body Treatment"
+    price: 75
+    brand: "Epicutis"
+    category: "Body care"
+    sold: in_store
+  - name: "Age Intervention Face Cream"
+    price: 135
+    brand: "Jan Marini"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Antioxidant Daily Face Protectant"
+    price: 63
+    brand: "Jan Marini"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "Bioclear Face Cream"
+    price: 103
+    brand: "Jan Marini"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Bioglycolic Face Cleanser"
+    price: 46
+    brand: "Jan Marini"
+    category: "Cleansers"
+    sold: in_store
+  - name: "C-Esta Face Cream"
+    price: 145
+    brand: "Jan Marini"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "C-Esta Face Serum"
+    price: 145
+    brand: "Jan Marini"
+    category: "Serums"
+    sold: in_store
+  - name: "Clean Zyme 6oz"
+    price: 63
+    brand: "Jan Marini"
+    category: "Cleansers"
+    sold: in_store
+  - name: "HYLA3D Face Mask"
+    price: 123
+    brand: "Jan Marini"
+    category: "Masks"
+    sold: in_store
+  - name: "Hyla3D Face Serum"
+    price: 125
+    brand: "Jan Marini"
+    category: "Serums"
+    sold: in_store
+  - name: "Marini Clear Multi-Acid Corrective Pads"
+    price: 100
+    brand: "Jan Marini"
+    category: "Treatments"
+    sold: in_store
+  - name: "Marini Luminate Face Lotion"
+    price: 120
+    brand: "Jan Marini"
+    category: "Moisturizers"
+    sold: in_store
+  - name: "Skin Care Management System"
+    price: 360
+    brand: "Jan Marini"
+    category: "Sets and kits"
+    sold: in_store
+  - name: "No-Show Mineral Sunscreen"
+    price: 48
+    brand: "Colorescience"
+    category: "Sunscreen"
+    sold: in_store
+  - name: "Hydrobiome Mist"
+    price: 75
+    brand: "Epicutis"
+    category: "Toners"
+    sold: in_store

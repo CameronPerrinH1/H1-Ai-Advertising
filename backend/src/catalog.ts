@@ -305,6 +305,11 @@ export class Catalog {
     };
   }
 
+  // By appointment only: no set hours, so never "open" or "closed".
+  get byAppointment(): boolean {
+    return !!this.config.business.locations[0]?.by_appointment;
+  }
+
   openStatus(clock: LocalClock): { open: boolean; todayHours?: string } {
     const location = this.config.business.locations[0];
     const today = location?.hours[clock.dayKey];
@@ -314,6 +319,7 @@ export class Catalog {
   }
 
   isOpenDay(isoDate: string): boolean {
+    if (this.byAppointment) return true;
     const key = DAY_KEYS[new Date(`${isoDate}T12:00:00Z`).getUTCDay()] ?? 'sun';
     return !!this.config.business.locations[0]?.hours[key];
   }

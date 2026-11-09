@@ -107,6 +107,8 @@ export const configSchema = z
                 address: z.string(),
                 timezone: z.string(),
                 hours,
+                // No set hours: appointments only, on days and times that vary. hours stays empty.
+                by_appointment: z.boolean().default(false),
               })
               .strict(),
           )

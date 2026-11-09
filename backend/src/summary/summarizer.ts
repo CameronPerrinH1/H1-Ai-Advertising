@@ -165,7 +165,7 @@ export async function summarize(session: Session, catalog: Catalog, model: Model
     month: start.date.slice(0, 7),
     day_of_week: start.dayKey,
     local_hour: Math.floor(start.minutes / 60),
-    after_hours: !catalog.openStatus(start).open,
+    after_hours: !catalog.byAppointment && !catalog.openStatus(start).open,
     language: fields.language,
     display_mode: session.displayMode ?? 'inline',
     booking_mode: c.booking_mode,

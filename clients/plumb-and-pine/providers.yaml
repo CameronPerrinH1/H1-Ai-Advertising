@@ -1,0 +1,33 @@
+# From Plumb + Pine's website (Our Team) and Jotform, 2026-11-09. Jen performs every service.
+providers:
+  - id: jen-jeffers
+    name: Jen Jeffers
+    credentials: Licensed Cosmetologist and Advanced Esthetician
+    title: Owner and Advanced Esthetician
+    bio: Jen believes skincare should feel as good as it works. She customizes every treatment to what your skin needs that day, and specializes in scalp restoration for men and women and in age-management facials for women in perimenopause and menopause.
+    specialties:
+      - scalp restoration
+      - age-management facials
+      - perimenopause and menopause skin
+    services:
+      - skin-consultation
+      - sugar-plumb-express-facial
+      - the-miracle-facial
+      - lift-and-restore
+      - custom-infusion-facial
+      - the-ageless-facial
+      - oxygen-facial-glo2
+      - dermaplane-facial
+      - platinum-hydrafacial
+      - deluxe-hydrafacial
+      - express-hydrafacial
+      - back-hydrafacial
+      - hair-scalp-consultation
+      - hair-restoration-microchanneling
+      - hydrascalp-keravive-full-scalp
+      - hydrascalp-keravive-partial-scalp
+      - microchanneling
+      - dmk-enzyme-therapy
+      - dmk-muscle-banding
+    languages:
+      - en
