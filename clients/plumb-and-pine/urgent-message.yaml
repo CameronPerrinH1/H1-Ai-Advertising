@@ -1,27 +1,33 @@
 # Fixed help messages shown by show_urgent_help (D14). Placeholders: {urgent_line}, {crisis_line}, {business_name}.
 # PLACEHOLDER: replaced by the intake import with the wording Plumb + Pine signs off. Not approved for launch (D38).
-approved_by: "NOT APPROVED: placeholder before the intake import"
+approved_by: Erin Silva, Owner, 2026-11-09 (intake 6ab580b0b67d)
 post_treatment:
-  title: 
+  title:
     en: "Let's get you help right away"
-  body: 
-    en: Please text Jen now at {urgent_line}. If symptoms get worse or you have trouble breathing, call 911.
+  body:
+    en: Please call our urgent line now at {urgent_line}. A member of our clinical
+      team will help you right away. If symptoms get worse or you have trouble
+      breathing, call 911.
 emergency:
-  title: 
+  title:
     en: "This sounds like an emergency"
-  body: 
-    en: Please call 911 now or go to the nearest emergency room. These symptoms need immediate medical care. Once you're safe, let us know at {urgent_line}.
+  body:
+    en: Please call 911 now or go to the nearest emergency room. These symptoms need
+      immediate medical care. Once you’re safe, let us know at {urgent_line}.
 crisis:
-  title: 
+  title:
     en: "You don't have to go through this alone"
-  body: 
-    en: "You can call or text {crisis_line} any time to reach the Suicide and Crisis Lifeline. If you're in immediate danger, call 911."
+  body:
+    en: "You can call or text {crisis_line} any time to reach the Suicide and Crisis
+      Lifeline. If you're in immediate danger, call 911."
 emergency_symptoms:
   - Difficulty breathing
   - Throat or tongue swelling
   - Chest pain
   - Fainting
+  - Sudden vision changes
 urgent_symptoms:
+  - Skin turning white, gray, or blue near an injection site
   - Severe or worsening pain
   - Signs of infection
   - Unusual swelling

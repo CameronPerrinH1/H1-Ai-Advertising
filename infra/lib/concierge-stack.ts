@@ -48,7 +48,7 @@ export interface ConciergeStackProps extends StackProps {
   monthlyBudgetUsd?: number;
   audit: { days: number; mode: 'compliance' | 'governance' }; // production: 6 years, compliance (D54)
   sesIdentity?: { domain: string } | { email: string };
-  handoffOverride?: { from: string; to: string }; // staging only, demo configs only
+  handoffOverride?: { from: string; to: string }; // staging only: handoffs go to a test inbox
 }
 
 export class ConciergeStack extends Stack {
@@ -208,9 +208,10 @@ export class ConciergeStack extends Stack {
           commandHooks: {
             beforeBundling: () => [],
             beforeInstall: () => [],
-            // The client's config and knowledge files ship inside the function (12.3).
-            afterBundling: (inputDir: string, outputDir: string) => [
-              `mkdir -p "${outputDir}/clients" && cp -R "${inputDir}/clients/${clientId}" "${outputDir}/clients/${clientId}"`,
+            // The client's config and knowledge files ship inside the function (12.3). The input dir
+            // is the monorepo root (projectRoot), so the clients folder is under concierge/.
+            afterBundling: (_inputDir: string, outputDir: string) => [
+              `mkdir -p "${outputDir}/clients" && cp -R "${join(props.repoRoot, 'clients', clientId)}" "${outputDir}/clients/${clientId}"`,
             ],
           },
         },

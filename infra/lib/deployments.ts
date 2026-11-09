@@ -19,4 +19,13 @@ export const DEPLOYMENTS: Record<string, Deployment> = {
     alarmEmail: 'cameron@h1webdev.com',
     audit: { days: 7, mode: 'governance' },
   },
+  // Plumb + Pine's test stack in H1's account, before her own account exists. Synthetic chats only
+  // (D29): its handoffs go to a test inbox (-c handoffEmail=…), never to the spa.
+  'plumb-and-pine-staging': {
+    clientId: 'plumb-and-pine',
+    stage: 'staging',
+    alarmEmail: 'cameron@h1webdev.com',
+    monthlyBudgetUsd: 25,
+    audit: { days: 7, mode: 'governance' },
+  },
 };

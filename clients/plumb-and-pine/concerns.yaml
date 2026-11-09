@@ -1,2 +1,51 @@
-# PLACEHOLDER: rewritten by the intake import.
-concerns: []
+# Concerns guests describe, and the treatments to lead with. From the intake playbook 6ab580b0b67d (2026-11-09); edit in the wizard, not here.
+concerns:
+  - name: Acne and breakouts
+    services:
+      - platinum-hydrafacial
+    otherwise: consult
+  - name: Acne scars
+    services: []
+    otherwise: consult
+  - name: Fine lines and wrinkles
+    services: []
+    otherwise: consult
+  - name: Thin lips
+    services: []
+    otherwise: consult
+  - name: Hair thinning and loss
+    services: []
+    otherwise: consult
+  - name: Redness and pigmentation
+    services:
+      - platinum-hydrafacial
+    otherwise: consult
+  - name: Sun damage and dark spots
+    services: []
+    otherwise: consult
+  - name: Texture and large pores
+    services:
+      - platinum-hydrafacial
+    otherwise: consult
+  - name: Dull skin
+    services:
+      - platinum-hydrafacial
+    otherwise: consult
+  - name: Unwanted hair
+    services: []
+    otherwise: consult
+  - name: Under-eye hollows and dark circles
+    services: []
+    otherwise: consult
+  - name: Loose or sagging skin
+    services: []
+    otherwise: consult
+  - name: Active cold sore or infection
+    services: []
+    otherwise: consult
+  - name: Recent sun exposure or tanning
+    services: []
+    otherwise: consult
+pregnancy:
+  services: []
+  otherwise: consult
