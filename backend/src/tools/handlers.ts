@@ -35,6 +35,17 @@ export interface ToolOutcome {
 const fail = (error: string): ToolOutcome => ({ result: { error }, isError: true });
 const NAME = /^[\p{L}][\p{L}\p{M}' .-]{0,49}$/u;
 
+// A chip that states something only the guest can know (Plumb + Pine test, Nov 9: "My last name is Lee").
+const PERSONAL = [
+  /\bmy\s+(?:first\s+|last\s+|full\s+|middle\s+)?name\b/i,
+  /\bmy\s+(?:phone|number|cell|mobile|email|e-mail|address|birthday|date of birth|dob|insurance)\b/i,
+  /\b(?:i'?m|i am)\s+\d{1,3}\b/i, // an age
+  /\b(?:i'?m|i am)\s+(?:pregnant|allergic|breastfeeding)\b/i,
+  /\bmi\s+(?:nombre|apellido|tel[eé]fono|n[uú]mero|correo)\b/i,
+  /@|\d{3}[\s.-]?\d{3,4}/, // an email or a phone number
+];
+export const speaksForGuest = (r: string) => PERSONAL.some((re) => re.test(r));
+
 function badText(text: string, ctx: ToolContext, max: number): string | null {
   const r = checkText(text, ctx.catalog, ctx.today, max);
   return r.ok ? null : r.problems.join('; ');
@@ -186,10 +197,12 @@ const handlers: Record<string, Handler> = {
   },
 
   suggest_replies(input, ctx) {
+    // A chip is sent as if the guest typed it, so it must never put words about themselves in
+    // their mouth: a made-up name, number, email, birthday, or health detail.
     const p = parse(schemas.suggest_replies, input);
     if (!p.ok) return fail(p.error);
     const replies = [...new Set(p.data.replies.map((r) => r.trim()).filter((r) => r.length > 0 && r.length <= 40))].filter(
-      (r) => badText(r, ctx, 40) === null,
+      (r) => badText(r, ctx, 40) === null && !speaksForGuest(r),
     );
     return { result: { shown: replies.length > 0, count: replies.length }, quickReplies: replies };
   },
