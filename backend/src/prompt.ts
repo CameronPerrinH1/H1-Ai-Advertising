@@ -99,7 +99,7 @@ function knowledge(catalog: Catalog): string[] {
     L.push(`## ${s.name} (id: ${s.id})`);
     L.push(`- About: ${pick(d.summary, 'en')}`);
     L.push(`- What to expect: ${pick(d.what_to_expect, 'en')}`);
-    L.push(`- Downtime: ${pick(d.downtime, 'en')}`);
+    L.push(d.downtime ? `- Downtime: ${pick(d.downtime, 'en')}` : "- Downtime: not listed. Don't state any; offer to have the team answer.");
     if (d.results) L.push(`- Results: ${pick(d.results, 'en')}`);
     if (d.prep) L.push(`- Prep: ${pick(d.prep, 'en')}`);
     if (d.aftercare) L.push(`- Aftercare: ${pick(d.aftercare, 'en')}`);
@@ -291,7 +291,7 @@ export function staffFixedBlock(catalog: Catalog): string {
 export function catalogBlock(catalog: Catalog, today: string): string {
   const c = catalog.config;
   const L: string[] = ['# Catalog (prices and durations)'];
-  for (const s of catalog.services.values()) L.push(`- ${s.name} (id: ${s.id}): ${priceText(s.price)}, ${s.durationMinutes} minutes`);
+  for (const s of catalog.services.values()) L.push(`- ${s.name} (id: ${s.id}): ${priceText(s.price)}, ${s.durationMinutes ? `${s.durationMinutes} minutes` : "length not listed (don't state one)"}`);
   if (catalog.addOns.size) {
     L.push('Add-ons (only with a treatment):');
     for (const a of catalog.addOns.values()) L.push(`- ${a.name} (id: ${a.id}): ${priceText(a.price)}, ${a.durationMinutes} minutes`);

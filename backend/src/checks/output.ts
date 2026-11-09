@@ -1,5 +1,5 @@
 // Output checks (D13): every reply, card reason, and chip is checked in code before it's shown.
-import { type Catalog, money } from '../catalog.ts';
+import { type Catalog, minutesOf, money, TIME_SPAN } from '../catalog.ts';
 import { containsCardNumber } from '../safety/cardNumbers.ts';
 
 export interface CheckResult {
@@ -53,6 +53,18 @@ export function checkText(
     }
     const ok = allowedUrls.some((a) => url === a || url.startsWith(`${a}/`)) || allowedDomains.has(host);
     if (!ok) problems.push(`the link ${raw} isn't one of the business's links`);
+  }
+
+  // A length of time must come from the spa's own data, never a guess. In a sentence that names a
+  // treatment, it must be that treatment's own length (or a time in its own details).
+  const anyMinutes = catalog.allowedMinutes();
+  const services = [...catalog.services.values()];
+  for (const sentence of guest ? text.split(/(?<=[.!?])\s+|\n+/) : []) {
+    const named = services.filter((s) => sentence.toLowerCase().includes(s.name.toLowerCase()));
+    const allowed = named.length ? new Set(named.flatMap((s) => [...catalog.minutesFor(s.id)])) : anyMinutes;
+    for (const m of sentence.matchAll(TIME_SPAN)) {
+      if (!allowed.has(minutesOf(m))) problems.push(`"${m[0]}" isn't a length of time the spa gave${named.length ? ` for ${named.map((s) => s.name).join(' or ')}` : ''}; leave the length out or offer to have the team answer`);
+    }
   }
 
   const phones = catalog.allowedPhoneDigits();

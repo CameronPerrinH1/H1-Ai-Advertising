@@ -78,7 +78,7 @@ export interface ServiceEntry {
   price: Price; // as guests see it, after the spa's price display choice
   listPrice: Price; // from the price list, for promotion math only
   priceMode: PriceMode;
-  durationMinutes: number;
+  durationMinutes?: number; // none: the spa hasn't given it
   lastVerified: string;
   details: ClientBundle['details'][string];
 }
@@ -95,6 +95,10 @@ export interface ActivePromo {
   event?: string; // only for guests at this event
   prices: { serviceId: string; was: number; now: number }[];
 }
+
+// "45 minutes", "90-minute", "24 hours", "2 hrs" → minutes. Shared with the output checks.
+export const TIME_SPAN = /(\d+(?:\.\d+)?)\s?-?\s?(minutes?|mins?|hours?|hrs?)\b/gi;
+export const minutesOf = (m: RegExpMatchArray) => Number(m[1]) * (/^h/i.test(m[2] ?? '') ? 60 : 1);
 
 export class Catalog {
   readonly services = new Map<string, ServiceEntry>();
@@ -171,6 +175,31 @@ export class Catalog {
     }
     for (const m of this.config.sales.memberships) amounts.add(m.monthly_price);
     return amounts;
+  }
+
+  // Lengths of time, in minutes, the chat may state: service and add-on lengths, the arrival and
+  // notice times, and any time written in the spa's own approved text (details, FAQs, policies,
+  // fit rules). Nothing else, so the chat can't guess how long something takes.
+  allowedMinutes(): Set<number> {
+    const out = new Set<number>();
+    for (const s of this.services.values()) if (s.durationMinutes) out.add(s.durationMinutes);
+    for (const a of this.addOns.values()) out.add(a.durationMinutes);
+    const c = this.config;
+    if (c.first_visit) out.add(c.first_visit.arrive_minutes_early);
+    out.add(c.booking.rules.min_notice_hours * 60);
+    const texts: unknown[] = [Object.values(c.knowledge.policies), this.bundle.faqs, this.bundle.details, this.bundle.fitRules, c.first_visit];
+    for (const m of JSON.stringify(texts).matchAll(TIME_SPAN)) out.add(minutesOf(m));
+    return out;
+  }
+
+  // The lengths one service may be described with: its own length and any time in its own details.
+  minutesFor(serviceId: string): Set<number> {
+    const s = this.services.get(serviceId);
+    const out = new Set<number>();
+    if (!s) return out;
+    if (s.durationMinutes) out.add(s.durationMinutes);
+    for (const m of JSON.stringify(s.details).matchAll(TIME_SPAN)) out.add(minutesOf(m));
+    return out;
   }
 
   allowedPercents(today: string): Set<number> {
@@ -272,7 +301,7 @@ export class Catalog {
       price: s.price,
       promo: promo && promoPrice ? { id: promo.id, label: promo.description, price: promoPrice.now, ends: promo.ends } : undefined,
       durationMinutes: s.durationMinutes,
-      downtime: pick(d.downtime, lang),
+      downtime: d.downtime ? pick(d.downtime, lang) : undefined,
       results: d.results ? pick(d.results, lang) : undefined,
       summary: pick(d.summary, lang),
       image: d.image,

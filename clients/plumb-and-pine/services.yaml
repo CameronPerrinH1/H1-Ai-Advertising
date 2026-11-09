@@ -1,6 +1,6 @@
 # Plumb + Pine price list: names, categories and prices from Vagaro (pasted by Cameron, 2026-11-09).
 # Durations aren't on Vagaro. Sugar Plumb Express (30), The Ageless Facial (90), Platinum (75) and Deluxe (60) Hydrafacial
-# come from her own descriptions; every other duration is H1's estimate. CONFIRM WITH JEN before launch.
+# come from her own descriptions. The rest are left out until Jen gives them; the chat states no length for those.
 services:
   - id: skin-consultation
     name: "Skin Consultation"
@@ -9,7 +9,6 @@ services:
       amount: 40
       unit: session
       from: false
-    duration_minutes: 30  # estimate
     last_verified: 2026-11-09
   - id: sugar-plumb-express-facial
     name: "Sugar Plumb Express Facial"
@@ -27,7 +26,6 @@ services:
       amount: 140
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: lift-and-restore
     name: "Lift + Restore"
@@ -36,7 +34,6 @@ services:
       amount: 225
       unit: session
       from: false
-    duration_minutes: 75  # estimate
     last_verified: 2026-11-09
   - id: custom-infusion-facial
     name: "Custom Infusion Facial"
@@ -45,7 +42,6 @@ services:
       amount: 180
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: the-ageless-facial
     name: "The Ageless Facial"
@@ -63,7 +59,6 @@ services:
       amount: 225
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: dermaplane-facial
     name: "Dermaplane Facial"
@@ -72,7 +67,6 @@ services:
       amount: 185
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: platinum-hydrafacial
     name: "Platinum Hydrafacial"
@@ -99,7 +93,6 @@ services:
       amount: 185
       unit: session
       from: false
-    duration_minutes: 30  # estimate
     last_verified: 2026-11-09
   - id: back-hydrafacial
     name: "Back HydraFacial"
@@ -108,7 +101,6 @@ services:
       amount: 275
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: hair-scalp-consultation
     name: "Hair / Scalp Consultation"
@@ -117,7 +109,6 @@ services:
       amount: 25
       unit: session
       from: false
-    duration_minutes: 30  # estimate
     last_verified: 2026-11-09
   - id: hair-restoration-microchanneling
     name: "Hair Restoration Microchanneling"
@@ -126,7 +117,6 @@ services:
       amount: 250
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: hydrascalp-keravive-full-scalp
     name: "HydraScalp Keravive, full scalp"
@@ -135,7 +125,6 @@ services:
       amount: 440
       unit: session
       from: false
-    duration_minutes: 75  # estimate
     last_verified: 2026-11-09
   - id: hydrascalp-keravive-partial-scalp
     name: "HydraScalp Keravive, partial scalp"
@@ -144,7 +133,6 @@ services:
       amount: 340
       unit: session
       from: false
-    duration_minutes: 60  # estimate
     last_verified: 2026-11-09
   - id: microchanneling
     name: "Microchanneling"
@@ -153,7 +141,6 @@ services:
       amount: 399
       unit: session
       from: false
-    duration_minutes: 75  # estimate
     last_verified: 2026-11-09
   - id: dmk-enzyme-therapy
     name: "DMK Enzyme Therapy"
@@ -162,7 +149,6 @@ services:
       amount: 275
       unit: session
       from: false
-    duration_minutes: 75  # estimate
     last_verified: 2026-11-09
   - id: dmk-muscle-banding
     name: "DMK Muscle Banding"
@@ -171,5 +157,4 @@ services:
       amount: 325
       unit: session
       from: false
-    duration_minutes: 75  # estimate
     last_verified: 2026-11-09

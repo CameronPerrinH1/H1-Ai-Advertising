@@ -18,8 +18,8 @@ export interface ServiceView {
   category: string;
   price: Price;
   promo?: { id: string; label: string; price: number; ends?: string }; // no ends: evergreen
-  durationMinutes: number;
-  downtime: string;
+  durationMinutes?: number; // none: not given yet, so not shown
+  downtime?: string; // none: not given yet, so not shown
   results?: string;
   summary: string;
   image?: string;

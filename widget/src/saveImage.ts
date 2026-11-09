@@ -32,7 +32,7 @@ export function sheetFromCard(card: Card, s: UiStrings, lang: Lang, config: Publ
         rows: card.items.map((i) => ({
           left: i.service.name,
           right: i.service.promo ? money(i.service.promo.price) : priceLabel(i.service.price, s),
-          sub: `${i.reason} · ${s.downtime}: ${i.service.downtime}`,
+          sub: i.service.downtime ? `${i.reason} · ${s.downtime}: ${i.service.downtime}` : i.reason,
         })),
         notes: [s.optionsNote],
       };
@@ -45,7 +45,7 @@ export function sheetFromCard(card: Card, s: UiStrings, lang: Lang, config: Publ
           ...card.items.map((i) => ({
             left: dayDate(i.date, lang),
             right: i.service.name,
-            sub: `${s.daysBefore(i.daysBefore)} · ${s.downtime}: ${i.service.downtime}`,
+            sub: i.service.downtime ? `${s.daysBefore(i.daysBefore)} · ${s.downtime}: ${i.service.downtime}` : s.daysBefore(i.daysBefore),
           })),
           { left: dayDate(card.eventDate, lang), right: s.theDay },
         ],

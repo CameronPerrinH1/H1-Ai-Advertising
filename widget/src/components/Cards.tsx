@@ -112,9 +112,11 @@ function OptionsCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
       <ol class="option-list">
         {card.items.map(({ service, reason }, i) => (
           <li class="option" style={{ '--i': i }} key={service.id}>
-            <div class="option-thumb">
-              <Thumb service={service} />
-            </div>
+            {service.image && (
+              <div class="option-thumb">
+                <Thumb service={service} />
+              </div>
+            )}
             <div class="option-body">
               <h4>{service.name}</h4>
               <p class="reason">{reason}</p>
@@ -122,10 +124,12 @@ function OptionsCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
                 <span class="price">
                   <PriceLine service={service} s={s} />
                 </span>
-                <span class="pill">
-                  <ClockIcon size={13} />
-                  {service.downtime}
-                </span>
+                {service.downtime && (
+                  <span class="pill">
+                    <ClockIcon size={13} />
+                    {s.downtime}: {service.downtime}
+                  </span>
+                )}
                 {service.requiresAssessment && <span class="pill soft">{s.needsConsult}</span>}
               </div>
               <Promo service={service} s={s} lang={lang} />
@@ -172,9 +176,11 @@ function EventPlanCard({ card, s, lang, h }: Props & { card: Extract<Card, { typ
             </div>
             <div class="tl-body">
               <h4>{i.service.name}</h4>
-              <p class="muted small">
-                {s.downtime}: {i.service.downtime}
-              </p>
+              {i.service.downtime && (
+                <p class="muted small">
+                  {s.downtime}: {i.service.downtime}
+                </p>
+              )}
               <div class="meta">
                 <span class="price">
                   <PriceLine service={i.service} s={s} />
@@ -499,16 +505,20 @@ function ServiceCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
               <PriceLine service={sv} s={s} />
             </dd>
           </div>
-          <div>
-            <dt>{s.duration}</dt>
-            <dd>
-              {sv.durationMinutes} {s.min}
-            </dd>
-          </div>
-          <div>
-            <dt>{s.downtime}</dt>
-            <dd>{sv.downtime}</dd>
-          </div>
+          {sv.durationMinutes && (
+            <div>
+              <dt>{s.duration}</dt>
+              <dd>
+                {sv.durationMinutes} {s.min}
+              </dd>
+            </div>
+          )}
+          {sv.downtime && (
+            <div>
+              <dt>{s.downtime}</dt>
+              <dd>{sv.downtime}</dd>
+            </div>
+          )}
           {sv.results && (
             <div>
               <dt>{s.results}</dt>
@@ -537,8 +547,8 @@ function ServiceCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
 function CompareCard({ card, s }: Props & { card: Extract<Card, { type: 'compare' }> }) {
   const rows: [string, (sv: ServiceView) => preact.ComponentChildren][] = [
     [s.price, (sv) => <PriceLine service={sv} s={s} />],
-    [s.duration, (sv) => `${sv.durationMinutes} ${s.min}`],
-    [s.downtime, (sv) => sv.downtime],
+    [s.duration, (sv) => (sv.durationMinutes ? `${sv.durationMinutes} ${s.min}` : '–')],
+    [s.downtime, (sv) => sv.downtime ?? '–'],
     [s.results, (sv) => sv.results ?? '–'],
     [s.consult, (sv) => (sv.requiresAssessment ? s.yes : s.no)],
   ];

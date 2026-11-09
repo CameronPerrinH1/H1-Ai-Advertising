@@ -53,6 +53,22 @@ interface TurnResult {
   endsWithAssistant: boolean;
 }
 
+// The model often writes its answer, calls a tool (a card, a contact form), then writes the answer
+// again in other words. Keep the later version of any part that a later part repeats, so the guest
+// reads it once; parts that say different things are all kept.
+const words = (t: string) => new Set(t.toLowerCase().match(/[a-z0-9']+/g) ?? []);
+function similar(a: string, b: string): boolean {
+  const x = words(a), y = words(b);
+  if (!x.size || !y.size) return false;
+  let both = 0;
+  for (const w of x) if (y.has(w)) both++;
+  return both / Math.min(x.size, y.size) >= 0.6;
+}
+export function joinReplies(texts: string[]): string {
+  const parts = texts.filter(Boolean);
+  return parts.filter((t, i) => !parts.slice(i + 1).some((later) => similar(t, later))).join('\n\n');
+}
+
 export class Orchestrator {
   private readonly fixed: string;
   private readonly staffFixed: string;
@@ -326,7 +342,7 @@ export class Orchestrator {
         if (cutOff) msg.content = (msg.content ?? []).filter((b) => !b.toolUse);
         const empty = !(msg.content ?? []).some((b) => b.text?.trim() || b.toolUse);
         if (empty) added.pop();
-        return { added, text: texts.filter(Boolean).join('\n\n'), cards, quickReplies, urgent, completed: !cutOff, endsWithAssistant: !empty };
+        return { added, text: joinReplies(texts), cards, quickReplies, urgent, completed: !cutOff, endsWithAssistant: !empty };
       }
 
       const results: ContentBlock[] = [];

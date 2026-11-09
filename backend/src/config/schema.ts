@@ -339,7 +339,8 @@ export const servicesFileSchema = z
   .object({
     services: z.array(
       z
-        .object({ id, name: z.string(), category: id, price, duration_minutes: z.number().int().positive(), last_verified: date })
+        // duration_minutes: optional until the spa gives it; the chat never states one it doesn't have.
+        .object({ id, name: z.string(), category: id, price, duration_minutes: z.number().int().positive().optional(), last_verified: date })
         .strict(),
     ),
     add_ons: z
@@ -354,7 +355,7 @@ export const serviceDetailsSchema = z.record(
     .object({
       summary: localized,
       what_to_expect: localized,
-      downtime: localized,
+      downtime: localized.optional(), // left out until the spa gives it; never guessed
       results: localized.optional(),
       prep: localized.optional(),
       aftercare: localized.optional(),
