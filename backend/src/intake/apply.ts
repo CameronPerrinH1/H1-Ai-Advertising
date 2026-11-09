@@ -232,7 +232,10 @@ export function applyPlaybook(pb: Playbook, clientDir: string): ImportResult {
     const a = pb.approvals.find((x) => x.role === role);
     return a ? { approver: `${a.name}, ${a.credential}`, approved_on: a.approvedOn, content_hash: pb.contentHash } : { approver: null, approved_on: null, content_hash: null };
   };
-  set(config, ['compliance_profile', 'medical_director_approval'], approval('md'));
+  // With no medical director (an esthetician's studio), the spa's own sign-off covers the
+  // medical and safety sections too (Cameron, Nov 9): its attestation includes them.
+  const md = pb.approvals.some((x) => x.role === 'md') ? approval('md') : approval('owner');
+  set(config, ['compliance_profile', 'medical_director_approval'], md);
   set(config, ['compliance_profile', 'owner_approval'], approval('owner'));
   if (!pb.approvals.length) warnings.push('Draft: the playbook is not signed off. It must not go live until the spa signs off on it.');
 
