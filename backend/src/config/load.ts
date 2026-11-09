@@ -99,7 +99,7 @@ function crossCheck(b: ClientBundle): void {
   }
   for (const promo of b.config.sales.promotions) {
     for (const sid of promo.services) expect(serviceIds.has(sid), `promotion ${promo.id}: unknown service ${sid}`);
-    expect(promo.starts <= promo.ends, `promotion ${promo.id}: starts after it ends`);
+    expect(!promo.ends || promo.starts <= promo.ends, `promotion ${promo.id}: starts after it ends`);
   }
   for (const p of b.providers) for (const sid of p.services) expect(serviceIds.has(sid), `provider ${p.id}: unknown service ${sid}`);
   for (const m of b.config.sales.memberships) expect(serviceIds.has(m.includes.service_id), `membership ${m.id}: unknown service ${m.includes.service_id}`);

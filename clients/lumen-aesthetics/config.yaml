@@ -83,6 +83,20 @@ sales:
     hydrafacial:
       - led-light-therapy-add-on
   promotions:
+    - id: first-visit-welcome
+      description: "First-Visit Welcome: 10% off your first treatment"
+      services:
+        - hydrafacial
+        - chemical-peel
+        - microneedling
+        - laser-hair-removal
+        - botox
+        - lip-filler
+        - injectable-consultation
+      eligibility: First-time guests
+      percent_off: 10
+      starts: 2026-11-06
+      third_party_funded: false
     - id: fall-glow
       description: "Fall Glow: 20% off any HydraFacial"
       services:

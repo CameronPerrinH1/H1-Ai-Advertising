@@ -76,7 +76,8 @@ function Promo({ service, s, lang }: { service: ServiceView; s: UiStrings; lang:
     <p class="promo">
       <SparkleIcon size={14} />
       <span>
-        {service.promo.label} · {s.promoUntil(shortDate(service.promo.ends, lang))}
+        {service.promo.label}
+        {service.promo.ends && ` · ${s.promoUntil(shortDate(service.promo.ends, lang))}`}
       </span>
     </p>
   );

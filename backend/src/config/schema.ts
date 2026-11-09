@@ -26,7 +26,10 @@ const promotion = z
     percent_off: z.number().positive().max(100).optional(),
     amount_off: z.number().positive().optional(),
     starts: date,
-    ends: date,
+    // No end date: evergreen, always running.
+    ends: date.optional(),
+    // Who qualifies, like "First-time guests".
+    eligibility: z.string().optional(),
     terms: z.string().optional(),
     third_party_funded: z.boolean().default(false),
   })

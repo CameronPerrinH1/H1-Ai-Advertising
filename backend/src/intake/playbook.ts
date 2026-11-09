@@ -84,12 +84,15 @@ export const playbookSchema = z
           ends: day.optional(),
           startMonth: month.optional(),
           endMonth: month.optional(),
+          // Always running, no dates; eligibility says who it's for ("First-time guests").
+          evergreen: z.literal(true).optional(),
+          eligibility: text.optional(),
           services: names,
           everything: z.boolean(),
           event: key.optional(),
         })
         .strict()
-        .refine((p) => (p.starts && p.ends) || (p.startMonth && p.endMonth), { message: 'needs dates or months' }),
+        .refine((p) => p.evergreen || (p.starts && p.ends) || (p.startMonth && p.endMonth), { message: 'needs dates, months, or evergreen' }),
     ),
     events: z.array(
       z

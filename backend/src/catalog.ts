@@ -87,7 +87,8 @@ export interface ActivePromo {
   id: string;
   description: string;
   terms?: string;
-  ends: string;
+  ends?: string; // none: evergreen
+  eligibility?: string;
   percentOff?: number;
   amountOff?: number;
   thirdPartyFunded: boolean;
@@ -127,18 +128,19 @@ export class Catalog {
     return this.bundle.config;
   }
 
-  // Active means today's local date is within the promotion's dates. For covered entities,
+  // Active means today's local date is within the promotion's dates (no end date: always, once started). For covered entities,
   // third-party-funded promotions stay out unless approved (D58); the pilot has no approvals yet.
   activePromotions(today: string): ActivePromo[] {
     const covered = this.config.compliance_profile.hipaa_covered_entity;
     return this.config.sales.promotions
-      .filter((p) => p.starts <= today && today <= p.ends)
+      .filter((p) => p.starts <= today && (!p.ends || today <= p.ends))
       .filter((p) => !(covered && p.third_party_funded))
       .map((p) => ({
         id: p.id,
         description: p.description,
         terms: p.terms,
         ends: p.ends,
+        eligibility: p.eligibility,
         percentOff: p.percent_off,
         amountOff: p.amount_off,
         thirdPartyFunded: p.third_party_funded,
@@ -259,7 +261,8 @@ export class Catalog {
     const s = this.services.get(id);
     if (!s) return undefined;
     const d = s.details;
-    const promo = this.activePromotions(today).find((p) => p.prices.some((pr) => pr.serviceId === id));
+    // A promotion only some guests qualify for (first-time guests) stays off the card, which every guest sees.
+    const promo = this.activePromotions(today).find((p) => !p.eligibility && p.prices.some((pr) => pr.serviceId === id));
     const promoPrice = promo?.prices.find((pr) => pr.serviceId === id);
     const consult = d.requires_assessment ? this.consultFor(id) : undefined;
     return {

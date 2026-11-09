@@ -12,6 +12,7 @@ import { Orchestrator } from '../src/orchestrator.ts';
 import { scriptedModel } from './helpers.ts';
 import { applyPlaybook, parseDiscount, PlaybookError, yearlyWindow } from '../src/intake/apply.ts';
 import { playbookSchema, type Playbook } from '../src/intake/playbook.ts';
+import { catalogBlock } from '../src/prompt.ts';
 
 const DIR = join(CLIENTS_DIR, 'lumen-aesthetics');
 const playbook = (): Playbook => playbookSchema.parse(JSON.parse(readFileSync(join(DIR, 'intake-playbook.json'), 'utf8')));
@@ -56,6 +57,21 @@ describe('importing the demo playbook', () => {
     expect(promos.find((p) => p.id === 'open-house-special')).toMatchObject({ amount_off: 50, event: 'holiday-open-house' });
     // Yearly, May to July: next year's run, since this year's ended before the export.
     expect(promos.find((p) => p.id === 'summer-smooth')).toMatchObject({ percent_off: 15, starts: '2027-05-01', ends: '2027-07-31' });
+  });
+
+  it('keeps an evergreen promotion on with no end date, for the guests it names', () => {
+    const { bundle } = importInto(playbook());
+    expect(bundle.config.sales.promotions.find((p) => p.id === 'first-visit-welcome')).toMatchObject({ percent_off: 10, eligibility: 'First-time guests', starts: '2026-11-06' });
+    expect(bundle.config.sales.promotions.find((p) => p.id === 'first-visit-welcome')).not.toHaveProperty('ends');
+    const catalog = new Catalog(bundle);
+    expect(catalog.activePromotions('2031-01-01').map((p) => p.id)).toContain('first-visit-welcome');
+    const block = catalogBlock(catalog, '2026-11-09');
+    expect(block).toContain('First-Visit Welcome: 10% off your first treatment');
+    expect(block).toContain('no end date');
+    expect(block).toContain('Only for: First-time guests');
+    // Not every guest qualifies, so it stays off the price card (Fall Glow shows there instead).
+    expect(catalog.serviceView('hydrafacial', 'en', '2026-11-09')?.promo?.id).toBe('fall-glow');
+    expect(catalog.serviceView('botox', 'en', '2026-11-09')?.promo).toBeUndefined();
   });
 
   it('marks a draft as unapproved', () => {

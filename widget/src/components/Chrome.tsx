@@ -116,7 +116,8 @@ export function Welcome({ config, s, lang, suggestions, starting, onStart }: Wel
           {config.promotions.map((p) => (
             <button type="button" class="promo-pill" key={p.id} disabled={starting} onClick={() => onStart(s.promoAsk(p.label))}>
               <SparkleIcon size={14} />
-              {p.label} · {s.promoUntil(shortDate(p.ends, lang))}
+              {p.label}
+              {p.ends && ` · ${s.promoUntil(shortDate(p.ends, lang))}`}
             </button>
           ))}
         </div>

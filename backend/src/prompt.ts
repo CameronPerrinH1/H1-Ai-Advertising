@@ -344,7 +344,9 @@ export function catalogBlock(catalog: Catalog, today: string): string {
     for (const p of promos) {
       const prices = p.prices.map((pr) => `${catalog.services.get(pr.serviceId)?.name}: ${money(pr.was)} → ${money(pr.now)}`).join('; ');
       const only = p.event ? ` Only for guests at ${eventName(p.event) ?? 'an event'}.` : '';
-      L.push(`  - ${p.description}.${prices ? ` ${prices}.` : ''} Ends ${longDate(p.ends)}.${only}${p.terms ? ` Terms: ${p.terms}` : ''}`);
+      const when = p.ends ? ` Ends ${longDate(p.ends)}.` : " Always running, with no end date: never give one or say it's ending.";
+      const who = p.eligibility ? ` Only for: ${p.eligibility}.` : '';
+      L.push(`  - ${p.description}.${prices ? ` ${prices}.` : ''}${when}${who}${only}${p.terms ? ` Terms: ${p.terms}` : ''}`);
     }
     const hesitate = promos.find((p) => p.id === t.hesitation_promotion);
     L.push(

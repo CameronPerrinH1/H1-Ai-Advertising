@@ -376,6 +376,17 @@
   },
   "promotions": [
     {
+      "key": "first-visit-welcome",
+      "name": "First-Visit Welcome",
+      "terms": "10% off your first treatment",
+      "evergreen": true,
+      "eligibility": "First-time guests",
+      "services": [
+        "All services"
+      ],
+      "everything": false
+    },
+    {
       "key": "fall-glow",
       "name": "Fall Glow",
       "terms": "20% off any HydraFacial",

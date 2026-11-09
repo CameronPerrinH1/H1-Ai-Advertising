@@ -196,14 +196,16 @@ export function applyPlaybook(pb: Playbook, clientDir: string): ImportResult {
       warnings.push(`Promotion "${p.name}" applies to no treatment on the price list, so it was left out.`);
       return [];
     }
-    const dates = p.starts && p.ends ? { starts: p.starts, ends: p.ends } : yearlyWindow(p.startMonth!, p.endMonth!, pb.exportedOn);
-    if (dates.ends < pb.exportedOn) {
+    // Evergreen: on from the export date, with no end.
+    const dates: { starts: string; ends?: string } = p.evergreen ? { starts: pb.exportedOn }
+      : p.starts && p.ends ? { starts: p.starts, ends: p.ends } : yearlyWindow(p.startMonth!, p.endMonth!, pb.exportedOn);
+    if (dates.ends && dates.ends < pb.exportedOn) {
       warnings.push(`Promotion "${p.name}" ended on ${dates.ends}, so it was left out.`);
       return [];
     }
     if (p.event && !eventKeys.has(p.event)) problems.push(`Promotion "${p.name}": unknown event ${p.event}.`);
     kept.add(p.key);
-    return [{ id: p.key, description: `${p.name}: ${p.terms}`, services: applies, ...(p.event ? { event: p.event } : {}), ...discount, ...dates, third_party_funded: false }];
+    return [{ id: p.key, description: `${p.name}: ${p.terms}`, services: applies, ...(p.event ? { event: p.event } : {}), ...(p.eligibility ? { eligibility: p.eligibility } : {}), ...discount, ...dates, third_party_funded: false }];
   });
   set(config, ['sales', 'promotions'], promotions);
 

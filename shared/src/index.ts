@@ -17,7 +17,7 @@ export interface ServiceView {
   name: string;
   category: string;
   price: Price;
-  promo?: { id: string; label: string; price: number; ends: string };
+  promo?: { id: string; label: string; price: number; ends?: string }; // no ends: evergreen
   durationMinutes: number;
   downtime: string;
   results?: string;
@@ -168,7 +168,7 @@ export interface PublicConfig {
   languages: Lang[];
   suggested: { default: Record<Lang, string[]>; pages: Record<string, Record<Lang, string[]>> };
   display: { modes: DisplayMode[]; nudgeDelaySeconds?: number };
-  promotions: { id: string; label: string; ends: string }[]; // active today
+  promotions: { id: string; label: string; ends?: string }[]; // active today; no ends: evergreen
   hours: Record<string, string>; // e.g. { tue: '09:00-18:00' }
   timezone: string;
   staff?: { enabled: boolean; suggested: Record<Lang, string[]> };
