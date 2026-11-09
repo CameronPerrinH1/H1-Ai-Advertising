@@ -8,15 +8,15 @@ client_id: plumb-and-pine
 business:
   name: Plumb + Pine
   phone: "(775) 409-2640"
-  urgent_line: "(775) 409-2640" # Jen, by text; replaced by the wizard's urgent line
+  urgent_line: (775) 409-2640
   crisis_line: "988"
   privacy_policy_url: "https://www.plumbandpine.com/privacy-policy"
   consumer_health_privacy_policy_url: null
-  terminology: # PLACEHOLDER
-    clients: guests
-    services: treatments
-    providers: esthetician
-    booking: book an appointment
+  terminology:
+    clients: patients
+    services: procedures
+    providers: injectors
+    booking: schedule a visit
   locations:
     - id: loc-main
       name: Plumb + Pine
@@ -37,7 +37,9 @@ booking:
   rules:
     min_notice_hours: 24
     max_days_ahead: 180
-    prerequisites: []
+    prerequisites:
+      - service: sugar-plumb-express-facial
+        requires: skin-consultation
   allowed_phone_countries: [ US ]
   limits:
     max_bookings_per_session: 2
@@ -53,47 +55,101 @@ knowledge:
   urgent_message_file: urgent-message.yaml
   concerns_file: concerns.yaml
   policies:
-    hours: "By appointment only; days and times vary. There's no front desk: Jen lets guests in for their appointment."
-    cancellation: "Cancel at least 24 hours ahead and there's no charge. Same-day cancellations are charged 100% of the service to the card on file."
-    no_show: "No-shows are charged 100% of the missed service by invoice or the card on file, and the balance must be paid before future appointments."
-    late_arrival: "Guests running late should let Jen know. Arriving more than 15 minutes late may mean rescheduling."
-    refunds: "No refunds on services or products. Unopened products can be returned within 10 days of purchase."
-    age_minimum: "Guests must be 16 or older. Guests under 18 can be treated with a parent or guardian present."
-    payment: "Cash, credit and debit cards, HSA and FSA cards, and Apple Pay or Google Pay. No financing, gift cards, or memberships."
-    deposit: "No deposit is needed to book. Bookings need 24 hours notice and can be made up to 6 months ahead."
+    hours: "By appointment only; days and times vary. There's no front desk: Jen
+      lets guests in for their appointment."
+    cancellation: "Cancel at least 24 hours ahead and there's no charge. Same-day
+      cancellations are charged 100% of the service to the card on file."
+    no_show: "No-shows are charged 100% of the missed service by invoice or the card
+      on file, and the balance must be paid before future appointments."
+    late_arrival: "Guests running late should let Jen know. Arriving more than 15
+      minutes late may mean rescheduling."
+    refunds: "No refunds on services or products. Unopened products can be returned
+      within 10 days of purchase."
+    age_minimum: "Guests must be 16 or older. Guests under 18 can be treated with a
+      parent or guardian present."
+    payment: "Cash, credit and debit cards, HSA and FSA cards, and Apple Pay or
+      Google Pay. No financing, gift cards, or memberships."
+    deposit: "No deposit is needed to book. Bookings need 24 hours notice and can be
+      made up to 6 months ahead."
     before_facials: "No Botox or filler within 14 days before a facial."
+    urgent_line: The urgent line is answered 24/7.
 
 sales:
-  featured_services: [] # PLACEHOLDER
+  featured_services: []
   fit_rules_file: fit-rules.yaml
   memberships: []
+  do_not_promote: []
+  pricing:
+    default: exact
+    services:
+      sugar-plumb-express-facial: exact
+  pairings: {}
+  add_on_suggestions: {}
+  growth:
+    packages: []
+    differentiators: []
+    in_their_words: Science-backed, personalized skincare from Jen Jeffers, a
+      licensed cosmetologist and advanced esthetician. Every treatment is built
+      around what your skin needs that day, with a focus on scalp restoration
+      and age-management facials for perimenopause and menopause.
+  events: []
+  promotions: []
+  tactics:
+    promotions: never
+    offer_contact: early
+    suggest_booking: most_replies
+    urgency: never
 
 first_visit:
   arrive_minutes_early: 5 # CONFIRM
-  parking: "Easy parking at the Plumgate Shopping Center, near Starbucks and across the lot from Butcher Boy. There's no front desk; Jen will let you in."
+  parking: "Easy parking at the Plumgate Shopping Center, near Starbucks and
+    across the lot from Butcher Boy. There's no front desk; Jen will let you
+    in."
   bring:
     - "A list of your current prescriptions"
     - "A list of the skincare products you use at home"
   notes:
     - "Please don't have Botox or filler within 14 days before a facial"
 
-voice: # PLACEHOLDER
-  tone: "Warm, knowledgeable, and personal."
+voice:
+  tone: 'Balanced: friendly, clear, and professional. For example: "Good question.
+    Most patients feel a brief pinch, and treatment takes just a few minutes.
+    Would you like help to schedule a visit?"'
+  dos:
+    - Say the treatment type (for example, neurotoxin) rather than brand names.
+    - Leave guests feeling confident, excited, like talking to a doctor.
+  donts:
+    - Never guarantee results
+    - Never say “painless” or “no pain”
+    - Never mention competitor names
+    - Never make FDA claims for uses a product isn’t approved for
+    - Never say “cheap” or “discount”
+    - Never say anything that sounds like a diagnosis
+    - Never ask a patient’s medical history
   examples_file: voice-examples.md
+  emoji: occasionally
+  exclamation: yes
+  length: short
+  sign_off: We can’t wait to see you!
 
-concierge: # PLACEHOLDER apart from chat_notice
-  name: Plumb + Pine AI
+concierge:
+  # PLACEHOLDER apart from chat_notice
+  name: Mila
   avatar:
-    mode: none
+    mode: portrait
+    id: look-4
   greeting:
-    en: Hi! I'm Plumb + Pine's AI Treatment Coordinator. How can I help?
+    en: Welcome to Plumb + Pine! 😊 I’m Mila, your AI Treatment Coordinator. Ask me
+      anything about our procedures, pricing, or booking.
   disclosure_label:
     en: AI Treatment Coordinator
   chat_notice:
-    version: 2026-11-09.1
-    en: You're chatting with Plumb + Pine's AI assistant. This chat is recorded to help us respond.
+    version: 2026-11-09.2
+    en: You're chatting with Plumb + Pine's AI assistant. This chat is recorded to
+      help us respond.
 
-branding: # CONFIRM: from her website's colors and fonts before launch
+branding:
+  # CONFIRM: from her website's colors and fonts before launch
   colors: { primary: "#5B3A55", secondary: "#F4F1EC", accent: "#2F4A3A" }
   fonts:
     heading: "Georgia, 'Times New Roman', serif"
@@ -118,6 +174,21 @@ handoff:
   callback_response_time: { en: "within 2 business days" }
   categories: [ reschedule, cancel, complaint, other ]
   extra_handoff_topics: [ "group bookings" ]
+  wording:
+    cant_answer: I’d rather get you the right answer than guess. Can I have our team
+      follow up with you?
+    medical: I’m not able to give medical advice, but our injectors can answer that
+      at a consult or by phone. Would you like them to reach out within
+      {response_time}?
+    not_offered: We don’t offer that here, but I’d love to connect you with our team
+      to find the best fit for your goals. Would you like them to follow up?
+    consult_required: We always begin with a consult for this one, so your injector
+      can make sure it’s the right fit. Would you like me to help you schedule a
+      visit?
+    callback: Happy to set that up. Our team will call you back within {response_time}.
+    complaint: Thank you for telling us. This deserves a real person’s attention, so
+      I’m sharing it with our team now. Expect to hear back within
+      {response_time}.
 
 security:
   allowed_domains:
@@ -147,7 +218,11 @@ compliance_profile:
   agreements: []
   call_recording_consent: one-party # CONFIRM for Nevada
   pilot_review_consent: { granted: false, expires: null }
-  medical_director_approval: # PLACEHOLDER: set by the import
-    approver: null
-    approved_on: null
-    content_hash: null
+  medical_director_approval:
+    approver: Erin Silva, Owner
+    approved_on: 2026-11-09
+    content_hash: 6ab580b0b67dcbc7917d71554d7734943af2096c19a282b25e2a2fb37646644c
+  owner_approval:
+    approver: Erin Silva, Owner
+    approved_on: 2026-11-09
+    content_hash: 6ab580b0b67dcbc7917d71554d7734943af2096c19a282b25e2a2fb37646644c
