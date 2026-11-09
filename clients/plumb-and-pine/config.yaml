@@ -112,8 +112,12 @@ display:
 
 handoff:
   email_from: "concierge@h1aiconsulting.com" # CONFIRM: the sending address H1 sets up
-  # DECISION NEEDED (D36): handoffs must go to an address on her own domain; her Jotform gave plumbandpine@gmail.com.
-  email_to: "confirm-before-launch@plumbandpine.com"
+  email_to: "plumbandpine@gmail.com"
+  email_to_exception: # D87: off her domain, approved by H1
+    address: plumbandpine@gmail.com
+    approved_by: Cameron Perrin, H1
+    approved_on: 2026-11-09
+    reason: Solo owner with no email on her own domain; the address is from her Jotform.
   email_provider_baa_confirmed: false
   callback_response_time: { en: "within 2 business days" }
   categories: [ reschedule, cancel, complaint, other ]

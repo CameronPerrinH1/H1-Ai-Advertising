@@ -265,6 +265,12 @@ export const configSchema = z
       .object({
         email_from: z.string().email(),
         email_to: z.string().email(),
+        // D87: H1's recorded exception to D36 for one exact address off the client's domain
+        // (a solo owner's Gmail). It covers that address only, so a typo still fails.
+        email_to_exception: z
+          .object({ address: z.string().email(), approved_by: z.string(), approved_on: date, reason: z.string() })
+          .strict()
+          .optional(),
         email_provider_baa_confirmed: z.boolean(),
         callback_response_time: langMap,
         categories: z.array(z.string()).min(1),
@@ -315,9 +321,11 @@ export const configSchema = z
   })
   .strict()
   .superRefine((c, ctx) => {
-    // D36: handoff emails only go to the client's own domain.
+    // D36: handoff emails only go to the client's own domain, unless H1 recorded an exception
+    // for that exact address (D87).
     const domain = c.handoff.email_to.split('@')[1] ?? '';
-    if (!c.security.allowed_domains.includes(domain)) {
+    const excepted = c.handoff.email_to_exception?.address.toLowerCase() === c.handoff.email_to.toLowerCase();
+    if (!excepted && !c.security.allowed_domains.includes(domain)) {
       ctx.addIssue({ code: 'custom', path: ['handoff', 'email_to'], message: `must be on one of security.allowed_domains (got ${domain})` });
     }
   });

@@ -44,6 +44,17 @@ describe('config validation', () => {
     expect(r.success).toBe(false);
   });
 
+  it('sends handoffs off the client domain only to an address H1 recorded an exception for (D36, D87)', () => {
+    const base = structuredClone(catalog.bundle.config);
+    const gmail = { ...base, handoff: { ...base.handoff, email_to: 'owner@gmail.com' } };
+    expect(configSchema.safeParse(gmail).success).toBe(false);
+    const exception = { address: 'owner@gmail.com', approved_by: 'H1', approved_on: '2026-11-09', reason: 'Solo owner' };
+    expect(configSchema.safeParse({ ...gmail, handoff: { ...gmail.handoff, email_to_exception: exception } }).success).toBe(true);
+    // A typo of the excepted address still fails.
+    const typo = { ...gmail, handoff: { ...gmail.handoff, email_to: 'owner@gmial.com', email_to_exception: exception } };
+    expect(configSchema.safeParse(typo).success).toBe(false);
+  });
+
   it('rejects unknown fields', () => {
     const bad = { ...structuredClone(catalog.bundle.config), surprise: true };
     expect(configSchema.safeParse(bad).success).toBe(false);
