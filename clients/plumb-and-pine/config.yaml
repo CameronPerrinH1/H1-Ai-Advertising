@@ -83,7 +83,12 @@ sales:
     default: exact
     services:
       sugar-plumb-express-facial: exact
-  pairings: {}
+  # TEST pairings for trying the upsell on staging (Nov 10). Jen's form answers replace them on import.
+  pairings:
+    deluxe-hydrafacial:
+      - dmk-enzyme-therapy
+    hydrascalp-keravive-full-scalp:
+      - hair-restoration-microchanneling
   add_on_suggestions: {}
   growth:
     packages: []

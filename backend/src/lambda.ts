@@ -52,6 +52,7 @@ export async function api(event: ProxyEvent): Promise<ProxyResult> {
   app ??= createApp(rt, {
     allowedOrigins: new Set((process.env.WIDGET_ORIGINS ?? '').split(',').filter(Boolean)),
     secureCookie: true,
+    crossSiteCookie: process.env.CROSS_SITE_COOKIE === '1',
     trustViewerHost: true,
   });
   const body = event.body ? (event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : event.body) : undefined;

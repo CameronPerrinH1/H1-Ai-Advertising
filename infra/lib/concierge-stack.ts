@@ -170,6 +170,8 @@ export class ConciergeStack extends Stack {
     const environment: Record<string, string> = {
       CLIENT_ID: clientId,
       CONCIERGE_CLIENTS_DIR: '/var/task/clients',
+      // Staging's CloudFront address is a different site from the spa's page (see app.ts).
+      ...(props.stage === 'staging' ? { CROSS_SITE_COOKIE: '1' } : {}),
       CONCIERGE_SESSIONS_TABLE: sessions.tableName,
       CONCIERGE_RECORDS_TABLE: records.tableName,
       SES_CONFIGURATION_SET: email.configurationSetName,

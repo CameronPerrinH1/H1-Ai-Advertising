@@ -24,6 +24,10 @@ export interface ApiResponse {
 export interface AppOptions {
   allowedOrigins: Set<string>;
   secureCookie: boolean; // production: a __Host- cookie, which requires HTTPS
+  // Staging only: the chat runs on a CloudFront address, a different site from the spa's page, so
+  // its frame's cookie is third-party. A partitioned SameSite=None cookie still works there, keyed
+  // to the embedding site. Production lives on chat.<spa domain>, the same site, and keeps Lax (D7).
+  crossSiteCookie?: boolean;
   // Deployed: CloudFront sets x-viewer-host to the address the visitor used, so the chat's own
   // origin is allowed without listing it (the stack can't know its CloudFront domain in advance).
   trustViewerHost?: boolean;
@@ -72,8 +76,10 @@ export function createApp(rt: Runtime, opts: AppOptions) {
   };
 
   const cookie = (token: string, clear = false): string => {
-    const attrs = [`${cookieName}=${clear ? '' : encodeURIComponent(token)}`, 'Path=/', 'HttpOnly', 'SameSite=Lax'];
+    const cross = opts.crossSiteCookie && opts.secureCookie;
+    const attrs = [`${cookieName}=${clear ? '' : encodeURIComponent(token)}`, 'Path=/', 'HttpOnly', cross ? 'SameSite=None' : 'SameSite=Lax'];
     if (opts.secureCookie) attrs.push('Secure');
+    if (cross) attrs.push('Partitioned');
     if (clear) attrs.push('Max-Age=0');
     return attrs.join('; ');
   };
