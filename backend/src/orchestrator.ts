@@ -15,7 +15,7 @@ import type {
 } from '@concierge/shared';
 import { copyForPage, forPage } from '@concierge/shared';
 import { type Catalog, localClock, pick } from './catalog.ts';
-import { checkText } from './checks/output.ts';
+import { checkText, PHONE } from './checks/output.ts';
 import { redactCardNumbers } from './safety/cardNumbers.ts';
 import { detectSafetyNet } from './safety/emergency.ts';
 import { MAX_REPLY_CHARS } from './checks/output.ts';
@@ -98,7 +98,7 @@ export class Orchestrator {
   }
 
   private check(text: string, today: string, ctx: ToolContext) {
-    return checkText(text, this.catalog, today, MAX_REPLY_CHARS, ctx.extraAmounts, ctx.session.audience);
+    return checkText(text, this.catalog, today, MAX_REPLY_CHARS, ctx.extraAmounts, ctx.session.audience, ctx.guestPhones);
   }
 
   private get catalog() {
@@ -278,6 +278,7 @@ export class Orchestrator {
       today: clock.date,
       phoneKey: this.deps.phoneKey,
       extraAmounts: new Set(),
+      guestPhones: guestPhones([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       insights: report ? () => report : undefined,
     };
 
@@ -453,6 +454,13 @@ export class Orchestrator {
     session.display.push({ role: 'assistant', ...reply });
     return { actionId, status: 'confirmed', reply };
   }
+}
+
+// The phone numbers a guest typed, as 10 digits, so a reply may read their own number back.
+function guestPhones(texts: string[]): Set<string> {
+  const out = new Set<string>();
+  for (const t of texts) for (const m of t.matchAll(PHONE)) out.add(m[0].replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''));
+  return out;
 }
 
 const newReplyId = () => randomUUID().replace(/-/g, '').slice(0, 16);

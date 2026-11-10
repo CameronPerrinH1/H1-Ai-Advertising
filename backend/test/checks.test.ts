@@ -69,7 +69,8 @@ describe('output checks: facts the spa did not give', () => {
   const okPP = (t: string) => checkText(t, pp, TODAY).ok;
   it('blocks downtime claims unless that treatment lists its downtime', () => {
     expect(okPP('The Platinum Hydrafacial has no downtime, so it fits before your wedding.')).toBe(false);
-    expect(okPP('Most facials have minimal downtime.')).toBe(false);
+    expect(okPP('Great choice, the Platinum Hydrafacial. It has no downtime.')).toBe(false);
+    expect(okPP('The Sugar Plumb Express Facial is quick. It has no downtime, so you can go right back to your day.')).toBe(true);
     expect(okPP('The Sugar Plumb Express Facial has no downtime.')).toBe(true);
     expect(okPP('Jen will walk you through downtime at your visit.')).toBe(true);
   });

@@ -20,6 +20,8 @@ export interface ToolContext {
   phoneKey: string;
   // Amounts a planning tool computed this turn; the reply may repeat them (D13).
   extraAmounts: Set<number>;
+  // Phone numbers the guest typed in this chat (digits only); the reply may read them back.
+  guestPhones?: Set<string>;
   // Staff mode only: this month's report of what visitors asked (D65).
   insights?: () => Card;
 }

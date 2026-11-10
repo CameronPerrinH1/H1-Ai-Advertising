@@ -291,9 +291,9 @@ export const configSchema = z
         summarizer_id: z.string().optional(),
         max_output_tokens: z.number().int().positive().default(2048),
         use_prompt_cache: z.boolean().default(true),
-        // How hard the model thinks before replying. Guest chat is short and latency-sensitive, so
-        // "low" by default (Claude 5.5 models otherwise default to "medium").
-        effort: z.enum(['low', 'medium', 'high']).default('low'),
+        // How hard the model thinks before replying. "medium" follows the selling rules noticeably
+        // better than "low" for about 0.2 s more per reply (sales review, Nov 10 2026).
+        effort: z.enum(['low', 'medium', 'high']).default('medium'),
         // "off" skips the hidden reasoning entirely (faster; Haiku and Sonnet only, not Opus 5.5).
         thinking: z.enum(['adaptive', 'off']).default('adaptive'),
       })

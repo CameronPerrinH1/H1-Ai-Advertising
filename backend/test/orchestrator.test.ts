@@ -100,6 +100,18 @@ describe('conversation loop', () => {
     expect(session.events.join(' ')).toContain('booking button');
   });
 
+  it("lets a reply read back the guest's own phone number, but no other", async () => {
+    const model = scriptedModel([{ content: [text('Thanks! Is 503-555-0142 the best number to reach you?')] }]);
+    const session = newSession();
+    const { reply } = await orchestrator(model).handleMessage(session, { id: 'm1-xxxxxxxx', text: 'You can reach me at (503) 555-0142', lang: 'en' });
+    expect(reply.text).toContain('503-555-0142');
+    expect(session.counts.fallbacks).toBe(0);
+    const other = scriptedModel([{ content: [text('Call 503-555-0199 instead.')] }, { content: [text('Call 503-555-0199 instead.')] }]);
+    const s2 = newSession();
+    await orchestrator(other).handleMessage(s2, { id: 'm1-xxxxxxxx', text: 'My number is 503-555-0142', lang: 'en' });
+    expect(s2.counts.fallbacks).toBe(1);
+  });
+
   it('leaves a booking chip alone when the treatment is unclear', async () => {
     const model = scriptedModel([
       { content: [text('Happy to help you choose. What would you like to improve most?'), toolUse('suggest_replies', { replies: ['Glow', 'Book a visit'] })], stop: 'tool_use' },

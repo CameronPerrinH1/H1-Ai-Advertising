@@ -11,7 +11,7 @@ export interface CheckResult {
 const PRICE = /\$\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d{1,2}))?/g;
 const PERCENT = /(\d{1,3}(?:\.\d+)?)\s?(?:%|percent\b|por ciento\b)/gi;
 const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"'()[\]]+/gi;
-const PHONE = /(?<!\d)(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?!\d)/g;
+export const PHONE = /(?<!\d)(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?!\d)/g;
 export const MAX_REPLY_CHARS = 1500;
 const DOWNTIME_CLAIM = /\b(?:no|zero|minimal|little(?: to no)?|without(?: any)?|hardly any|almost no)\s+(?:real\s+)?downtime\b|\bno recovery time\b|\bback to (?:your )?(?:normal|day|routine) (?:right away|immediately|the same day)\b/i;
 const FREE_CONSULT = /\b(?:free|complimentary|no[- ]cost|no[- ]charge)\b[^.!?\n]{0,25}\bconsult|\bconsult(?:ation)?s?\b[^.!?\n]{0,20}\b(?:is|are)\s+(?:always\s+)?(?:free|complimentary|no[- ]cost)\b/i;
@@ -26,6 +26,7 @@ export function checkText(
   maxLength = MAX_REPLY_CHARS,
   extraAmounts?: Set<number>,
   audience: 'guest' | 'staff' = 'guest',
+  guestPhones?: Set<string>,
 ): CheckResult {
   const problems: string[] = [];
   const guest = audience === 'guest';
@@ -70,13 +71,14 @@ export function checkText(
   }
 
   // Downtime is said only for treatments whose downtime the spa gave (never "no downtime" by default).
+  // A sentence is judged by the treatments it names, else by those named anywhere in the reply
+  // ("It has no downtime."); with none named at all, the prompt rule covers it.
+  const inReply = services.filter((s) => text.toLowerCase().includes(s.name.toLowerCase()));
   for (const sentence of guest ? text.split(/(?<=[.!?])\s+|\n+/) : []) {
     if (!DOWNTIME_CLAIM.test(sentence)) continue;
-    const named = services.filter((s) => sentence.toLowerCase().includes(s.name.toLowerCase()));
-    const unknown = named.length ? named.filter((s) => !s.details.downtime) : [];
-    if (!named.length || unknown.length) {
-      problems.push(`it describes downtime${unknown.length ? ` for ${unknown.map((s) => s.name).join(' and ')}` : ''}, which the spa hasn't listed; leave it out or offer to have the team answer`);
-    }
+    const inSentence = services.filter((s) => sentence.toLowerCase().includes(s.name.toLowerCase()));
+    const unknown = (inSentence.length ? inSentence : inReply).filter((s) => !s.details.downtime);
+    if (unknown.length) problems.push(`it describes downtime for ${unknown.map((s) => s.name).join(' and ')}, which the spa hasn't listed; leave it out or offer to have the team answer`);
   }
 
   // A consultation is free only if the spa lists it at $0.
@@ -95,7 +97,7 @@ export function checkText(
   const phones = catalog.allowedPhoneDigits();
   for (const m of guest ? text.matchAll(PHONE) : []) {
     const digits = m[0].replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
-    if (!phones.has(digits)) problems.push(`the phone number ${m[0].trim()} isn't the business phone or urgent line`);
+    if (!phones.has(digits) && !guestPhones?.has(digits)) problems.push(`the phone number ${m[0].trim()} isn't the business phone or urgent line`);
   }
 
   if (containsCardNumber(text)) problems.push('it contains a card number');
