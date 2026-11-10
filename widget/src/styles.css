@@ -1804,6 +1804,39 @@ html.askbar-mode #app {
   animation-delay: calc(110ms + var(--i, 0) * 70ms);
 }
 
+/* Reopened: the greeting and questions come back together in one quick fade, not one by one. */
+@keyframes askbar-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.askbar-intro.still {
+  animation: askbar-fade 0.18s ease-out both;
+}
+
+.askbar-intro.still .askbar-hello,
+.askbar-intro.still .askbar-chips .chip,
+.row.still,
+.row.still .bubble,
+.row.still .card-wrap {
+  animation: none;
+}
+
+/* The X: the greeting and questions sink back into the bar. */
+@keyframes askbar-sink {
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+}
+
+.askbar-intro.closing .askbar-hello,
+.askbar-intro.closing .askbar-chips .chip {
+  animation: askbar-sink 0.2s ease-in both;
+  animation-delay: 0s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .askbar-hello,
   .askbar-chips .chip,
@@ -1825,6 +1858,7 @@ html.askbar-mode #app {
 }
 
 .askbar-bubble {
+  position: relative;
   max-width: 100%;
   background: #fff;
   border: 1px solid var(--line);
@@ -1833,8 +1867,35 @@ html.askbar-mode #app {
   box-shadow: 0 6px 18px rgba(31, 27, 26, 0.08);
 }
 
+.askbar-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.askbar-close:hover {
+  background: var(--line);
+  color: inherit;
+}
+
+.askbar-close:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 1px;
+}
+
 .askbar-greeting {
   margin: 0;
+  padding-right: 20px;
   font-size: 14px;
   line-height: 1.5;
 }

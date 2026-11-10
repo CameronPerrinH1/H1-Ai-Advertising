@@ -8,6 +8,8 @@ import { ThumbDownIcon, ThumbUpIcon } from '../icons';
 export interface UiMessage extends DisplayMessage {
   id: string;
   animate?: boolean;
+  // Already seen (the ask bar card was minimized and reopened): shown in place, without rising in again.
+  shown?: boolean;
 }
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -150,11 +152,11 @@ export function MessageList({ messages, waiting, face, name, s, lang, handlers, 
     <div class="messages" ref={scroller} onScroll={onScroll} role="log" aria-live="polite" aria-relevant="additions">
       {messages.map((m) =>
         m.role === 'guest' ? (
-          <div class="row guest" key={m.id}>
+          <div class={`row guest${m.shown ? ' still' : ''}`} key={m.id}>
             <div class="bubble guest">{m.text}</div>
           </div>
         ) : (
-          <div class="row assistant" key={m.id}>
+          <div class={`row assistant${m.shown ? ' still' : ''}`} key={m.id}>
             <div class="avatar sm" aria-hidden="true">
               <Face c={face} />
             </div>

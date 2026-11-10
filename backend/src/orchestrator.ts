@@ -31,6 +31,19 @@ import { log } from './log.ts';
 export const MAX_MESSAGES = 30;
 export const MAX_INPUT_CHARS = 2000;
 const MAX_TOOL_ROUNDS = 4;
+// Tools that only put a card or chips on screen. When the model has already written its reply and
+// calls only these, the turn ends there: asking it to go on after the results makes it write the
+// same point again in other words.
+const DISPLAY_ONLY = new Set([
+  'show_treatment_options',
+  'show_service_card',
+  'compare_services',
+  'show_provider',
+  'suggest_replies',
+  'get_booking_link',
+  'show_care_guide',
+  'show_first_visit',
+]);
 const ACTION_TTL_MS = 30 * 60 * 1000;
 
 export interface OrchestratorDeps {
@@ -369,6 +382,7 @@ export class Orchestrator {
       }
 
       const results: ContentBlock[] = [];
+      let displayOnly = true;
       for (const block of msg.content ?? []) {
         const use = block.toolUse;
         if (!use?.toolUseId || !use.name) continue;
@@ -379,11 +393,18 @@ export class Orchestrator {
         if (outcome.cards) cards.push(...outcome.cards);
         if (outcome.quickReplies?.length) quickReplies = outcome.quickReplies;
         if (outcome.urgent) urgent = true;
+        if (outcome.isError || !DISPLAY_ONLY.has(use.name)) displayOnly = false;
         results.push({
           toolResult: { toolUseId: use.toolUseId, content: [{ json: outcome.result as never }], status: outcome.isError ? 'error' : 'success' },
         });
       }
       added.push({ role: 'user', content: results });
+      // The reply is written and the tools only showed things: stop, if the text passes its checks.
+      // History ends on the tool results; the guest's next message joins that message.
+      const written = joinReplies(texts);
+      if (displayOnly && written.length >= 40 && this.check(written, ctx.today, ctx).ok) {
+        return { added, text: written, cards, quickReplies, urgent, completed: true, endsWithAssistant: false };
+      }
     }
     // Still asking for tools after the limit: close the history with a placeholder and let the caller fall back.
     added.push({ role: 'assistant', content: [{ text: '...' }] });

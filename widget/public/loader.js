@@ -153,8 +153,12 @@
     var s = box.style;
     s.position = 'fixed';
     s.left = '50%';
-    s.transform = 'translateX(-50%)';
     s.bottom = '0';
+    // Hidden until it rises in, about 3 seconds after the page loads; it can't be clicked before then.
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    s.transform = still ? 'translateX(-50%)' : 'translateX(-50%) translateY(40px)';
+    s.opacity = '0';
+    s.pointerEvents = 'none';
     s.width = 'min(724px, 100vw)'; // the bar is 680px; the rest is room for its shadow
     s.zIndex = '2147483645';
     var f = makeFrame(frameUrl('askbar'), 'Chat with our virtual concierge');
@@ -171,6 +175,27 @@
     };
     f.addEventListener('load', tell);
     window.addEventListener('resize', tell);
+    var frameReady = false;
+    var timeUp = false;
+    var reveal = function () {
+      if (!frameReady || !timeUp) return;
+      s.transition = still
+        ? 'opacity 0.3s ease'
+        : 'opacity 0.35s ease, transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15)';
+      requestAnimationFrame(function () {
+        s.opacity = '1';
+        s.transform = 'translateX(-50%)';
+        s.pointerEvents = '';
+      });
+    };
+    f.addEventListener('load', function () {
+      frameReady = true;
+      reveal();
+    }, { once: true });
+    setTimeout(function () {
+      timeUp = true;
+      reveal();
+    }, Math.max(0, 3000 - (performance.now() - loadedAt)));
   }
 
   // Inline chats load once the page is idle, so they never compete with the client's own page
@@ -182,6 +207,14 @@
     };
     if (document.readyState === 'complete') run();
     else window.addEventListener('load', run, { once: true });
+  }
+
+  // When the page finished loading; the ask bar comes in 3 seconds after.
+  var loadedAt = performance.now();
+  if (document.readyState !== 'complete') {
+    window.addEventListener('load', function () {
+      loadedAt = performance.now();
+    }, { once: true });
   }
 
   function init() {

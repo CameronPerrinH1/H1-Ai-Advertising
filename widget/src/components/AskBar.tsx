@@ -2,11 +2,11 @@
 // Before a chat starts it shows the page's greeting, its suggested questions and the notice; sending
 // a question or tapping one is the visitor's consent, as with Start chat (D35). Once a chat runs,
 // the conversation opens in a card above the bar and can be minimized back to the bar.
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Ref } from 'preact';
 import type { Lang, PageCopy, PublicConfig } from '@concierge/shared';
 import type { UiStrings } from '../i18n';
-import { ArrowUpIcon, ChevronDownIcon, EndIcon, ExpandIcon } from '../icons';
+import { ArrowUpIcon, ChevronDownIcon, CloseIcon, EndIcon, ExpandIcon } from '../icons';
 import { Face } from './Face';
 
 interface BarProps {
@@ -86,18 +86,32 @@ interface IntroProps {
   suggestions: string[];
   starting: boolean;
   onStart: (first: string) => void;
+  onClose: () => void;
+  still?: boolean;
 }
 
 // Above the bar before a chat starts: the page's greeting, its questions and the notice (D35).
-export function Intro({ config, s, lang, copy, suggestions, starting, onStart }: IntroProps) {
+// Its X folds it back down into the bar.
+export function Intro({ config, s, lang, copy, suggestions, starting, onStart, onClose, still }: IntroProps) {
+  const [closing, setClosing] = useState(false);
+  const close = () => {
+    if (closing) return;
+    const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still) return onClose();
+    setClosing(true);
+    setTimeout(onClose, 200);
+  };
   return (
-    <div class="askbar-intro">
+    <div class={`askbar-intro${still ? ' still' : ''}${closing ? ' closing' : ''}`}>
       <div class="askbar-hello">
         <span class="avatar sm" aria-hidden="true">
           <Face c={config.concierge} />
         </span>
         {/* The notice sits inside the greeting's box, so nothing floats loose (D35: it's seen before the first message). */}
         <div class="askbar-bubble">
+          <button type="button" class="askbar-close" onClick={close} aria-label={s.close} title={s.close}>
+            <CloseIcon size={14} />
+          </button>
           <p class="askbar-greeting">{copy?.greeting?.[lang] ?? s.askbarHello(config.concierge.name)}</p>
           <p class="askbar-fine">
             {config.notice.text[lang]}{' '}

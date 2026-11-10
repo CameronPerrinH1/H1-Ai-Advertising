@@ -62,6 +62,24 @@ describe('conversation loop', () => {
     for (let i = 1; i < roles.length; i++) expect(roles[i]).not.toBe(roles[i - 1]);
   });
 
+  it('ends the turn once the reply is written and the tools only show things (no restating)', async () => {
+    const model = scriptedModel([
+      { content: [text('A consultation is the best first step, so our team can look closely and recommend what fits.'), toolUse('suggest_replies', { replies: ['Book it', 'Call me'] })], stop: 'tool_use' },
+      { content: [text('Our team can take a close look and tell you what might help, so a consultation is best.')] },
+      { content: [text('Tap below to book.')] },
+    ]);
+    const o = orchestrator(model);
+    const session = newSession();
+    const { reply } = await o.handleMessage(session, { id: 'm1-xxxxxxxx', text: 'thinning hair', lang: 'en' });
+    expect(model.calls).toHaveLength(1);
+    expect(reply.text).toBe('A consultation is the best first step, so our team can look closely and recommend what fits.');
+    expect(reply.quickReplies).toEqual(['Book it', 'Call me']);
+    expect(session.modelMessages.at(-1)?.role).toBe('user'); // ends on the tool result
+    await o.handleMessage(session, { id: 'm2-xxxxxxxx', text: 'Book it', lang: 'en' });
+    const roles = model.calls[1]!.messages!.map((m) => m.role);
+    for (let i = 1; i < roles.length; i++) expect(roles[i]).not.toBe(roles[i - 1]);
+  });
+
   it('blocks "tap Confirm" when no confirmation card exists, and accepts null optional fields', async () => {
     const model = scriptedModel([
       // A rejected request (bad phone) followed by a reply that pretends the card is there.

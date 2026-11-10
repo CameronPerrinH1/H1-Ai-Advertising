@@ -48,6 +48,7 @@ export function App() {
   const [open, setOpen] = useState(true);
   // The bar starts alone; the greeting, questions and notice pop up once it's clicked or tapped.
   const [introShown, setIntroShown] = useState(false);
+  const introPlayed = useRef(false); // the greeting pops up once; reopened, it just fades in
   const root = useRef<HTMLDivElement | null>(null);
 
   // The ask bar's frame is only as tall as what it shows, so the page around it stays usable.
@@ -303,7 +304,11 @@ export function App() {
       <div class="shell askbar" lang={lang} ref={root}>
         {active && open && (
           <div class="askbar-card" role="region" aria-label={s.nameFrom(config.concierge.name, config.businessName)}>
-            <CardTop config={config} s={s} lang={lang} copy={copy} onMinimize={() => setOpen(false)} onEnd={end} onExpand={() => toParent('concierge:open')} />
+            <CardTop config={config} s={s} lang={lang} copy={copy} onMinimize={() => {
+              // Reopened, the conversation shows as it was, without typing out or rising in again.
+              setMessages((prev) => prev.map((m) => ({ ...m, animate: false, shown: true })));
+              setOpen(false);
+            }} onEnd={end} onExpand={() => toParent('concierge:open')} />
             <MessageList
               messages={messages}
               waiting={waiting}
@@ -317,7 +322,10 @@ export function App() {
             />
           </div>
         )}
-        {!active && introShown && <Intro config={config} s={s} lang={lang} copy={copy} suggestions={suggestions} starting={starting} onStart={(q) => start(q)} />}
+        {!active && introShown && <Intro config={config} s={s} lang={lang} copy={copy} suggestions={suggestions} starting={starting} onStart={(q) => start(q)} onClose={() => {
+              introPlayed.current = true;
+              setIntroShown(false);
+            }} still={introPlayed.current} />}
         <Bar
           config={config}
           s={s}
