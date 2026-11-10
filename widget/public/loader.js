@@ -154,8 +154,15 @@
     s.position = 'fixed';
     s.left = '50%';
     s.bottom = '0';
-    // Hidden until it rises in, about 3 seconds after the page loads; it can't be clicked before then.
-    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // On the visitor's first page load it rises in 2 seconds after the page loads (hidden and
+    // unclickable until then). On every later load it's simply there. Only a "seen" flag is kept.
+    var KEY = 'concierge-askbar-seen';
+    var seen = false;
+    try {
+      seen = window.localStorage.getItem(KEY) === '1';
+      window.localStorage.setItem(KEY, '1');
+    } catch (e) {}
+    var still = seen || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     s.transform = still ? 'translateX(-50%)' : 'translateX(-50%) translateY(40px)';
     s.opacity = '0';
     s.pointerEvents = 'none';
@@ -179,6 +186,12 @@
     var timeUp = false;
     var reveal = function () {
       if (!frameReady || !timeUp) return;
+      if (seen) {
+        s.opacity = '1';
+        s.transform = 'translateX(-50%)';
+        s.pointerEvents = '';
+        return;
+      }
       s.transition = still
         ? 'opacity 0.3s ease'
         : 'opacity 0.35s ease, transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15)';
@@ -195,7 +208,7 @@
     setTimeout(function () {
       timeUp = true;
       reveal();
-    }, Math.max(0, 3000 - (performance.now() - loadedAt)));
+    }, seen ? 0 : Math.max(0, 2000 - (performance.now() - loadedAt)));
   }
 
   // Inline chats load once the page is idle, so they never compete with the client's own page
@@ -209,7 +222,7 @@
     else window.addEventListener('load', run, { once: true });
   }
 
-  // When the page finished loading; the ask bar comes in 3 seconds after.
+  // When the page finished loading; on a first visit the ask bar comes in 2 seconds after.
   var loadedAt = performance.now();
   if (document.readyState !== 'complete') {
     window.addEventListener('load', function () {

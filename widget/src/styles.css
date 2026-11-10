@@ -801,6 +801,11 @@ a {
   animation-delay: calc(150ms + var(--i, 0) * 120ms);
 }
 
+/* No photo for this service: the text takes the full width. */
+.option.no-thumb {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .option-thumb img,
 .thumb-fallback {
   display: block;
@@ -1676,6 +1681,10 @@ a {
 @media (max-width: 380px) {
   .option {
     grid-template-columns: 62px minmax(0, 1fr);
+  }
+
+  .option.no-thumb {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .option-thumb img,

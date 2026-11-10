@@ -291,6 +291,9 @@ export const configSchema = z
         summarizer_id: z.string().optional(),
         max_output_tokens: z.number().int().positive().default(2048),
         use_prompt_cache: z.boolean().default(true),
+        // How hard the model thinks before replying. Guest chat is short and latency-sensitive, so
+        // "low" by default (Claude 5.5 models otherwise default to "medium").
+        effort: z.enum(['low', 'medium', 'high']).default('low'),
       })
       .strict(),
     // D31: every chat is kept transcripts_days; chats flagged for review (D69) are kept flagged_transcripts_days.

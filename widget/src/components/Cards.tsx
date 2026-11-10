@@ -111,7 +111,7 @@ function OptionsCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
       </header>
       <ol class="option-list">
         {card.items.map(({ service, reason }, i) => (
-          <li class="option" style={{ '--i': i }} key={service.id}>
+          <li class={`option${service.image ? '' : ' no-thumb'}`} style={{ '--i': i }} key={service.id}>
             {service.image && (
               <div class="option-thumb">
                 <Thumb service={service} />
