@@ -46,13 +46,16 @@ export function App() {
   const presetUsed = useRef(false);
   // Ask bar: the conversation card is open, or minimized back to the bar.
   const [open, setOpen] = useState(true);
-  // On a phone the bar starts alone; the greeting, questions and notice appear once it's tapped.
-  const [introShown, setIntroShown] = useState(() => !window.matchMedia('(max-width: 520px)').matches);
+  // The bar starts alone; the greeting, questions and notice pop up once it's clicked or tapped.
+  const [introShown, setIntroShown] = useState(false);
   const root = useRef<HTMLDivElement | null>(null);
 
   // The ask bar's frame is only as tall as what it shows, so the page around it stays usable.
   useEffect(() => {
     if (MODE !== 'askbar' || !root.current) return;
+    // Bottom-aligned in its frame: while the frame catches up with a taller bar, the top is what's
+    // briefly out of view (it's still fading in), never the bar itself.
+    document.documentElement.classList.add('askbar-mode');
     const el = root.current;
     const report = () => toParent('concierge:size', { height: Math.ceil(el.getBoundingClientRect().height) });
     const ro = new ResizeObserver(report);

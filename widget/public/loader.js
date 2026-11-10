@@ -160,7 +160,6 @@
     var f = makeFrame(frameUrl('askbar'), 'Chat with our virtual concierge');
     f.style.width = '100%';
     f.style.height = '150px';
-    f.style.transition = 'height .2s ease';
     f.setAttribute('allowtransparency', 'true');
     box.appendChild(f);
     document.body.appendChild(box);

@@ -1766,11 +1766,50 @@ a {
   background: transparent;
 }
 
+html.askbar-mode #app {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
 .askbar-intro {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  animation: rise 0.3s ease-out both;
+}
+
+/* The pop-up: the greeting springs up from the bar, then each question follows. */
+@keyframes askbar-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.askbar-hello {
+  transform-origin: 30px 100%;
+  animation: askbar-pop 0.46s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+.askbar-chips .chip {
+  animation: askbar-pop 0.42s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+  animation-delay: calc(110ms + var(--i, 0) * 70ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .askbar-hello,
+  .askbar-chips .chip,
+  .askbar-card {
+    animation: none;
+  }
 }
 
 .askbar-hello {
@@ -1786,15 +1825,31 @@ a {
 }
 
 .askbar-bubble {
-  margin: 0;
   max-width: 100%;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 18px 18px 18px 4px;
-  padding: 11px 15px;
+  padding: 11px 15px 10px;
+  box-shadow: 0 6px 18px rgba(31, 27, 26, 0.08);
+}
+
+.askbar-greeting {
+  margin: 0;
   font-size: 14px;
   line-height: 1.5;
-  box-shadow: 0 6px 18px rgba(31, 27, 26, 0.08);
+}
+
+.askbar-fine {
+  margin: 8px 0 0;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.askbar-fine a {
+  color: var(--muted);
 }
 
 .askbar-chips {
@@ -1813,12 +1868,6 @@ a {
   box-shadow: 0 2px 8px rgba(31, 27, 26, 0.06);
 }
 
-.askbar-notice {
-  margin: 0;
-  text-align: center;
-  font-size: 11.5px;
-  color: var(--muted);
-}
 
 .askbar-card {
   display: flex;
@@ -1828,7 +1877,8 @@ a {
   border-radius: 24px;
   box-shadow: 0 8px 22px rgba(31, 27, 26, 0.12);
   overflow: hidden;
-  animation: rise 0.25s ease-out both;
+  transform-origin: 50% 100%;
+  animation: askbar-pop 0.42s cubic-bezier(0.2, 0.8, 0.25, 1) both;
 }
 
 .askbar-card .messages {

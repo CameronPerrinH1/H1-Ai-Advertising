@@ -96,23 +96,26 @@ export function Intro({ config, s, lang, copy, suggestions, starting, onStart }:
         <span class="avatar sm" aria-hidden="true">
           <Face c={config.concierge} />
         </span>
-        <p class="askbar-bubble">{copy?.greeting?.[lang] ?? s.askbarHello(config.concierge.name)}</p>
+        {/* The notice sits inside the greeting's box, so nothing floats loose (D35: it's seen before the first message). */}
+        <div class="askbar-bubble">
+          <p class="askbar-greeting">{copy?.greeting?.[lang] ?? s.askbarHello(config.concierge.name)}</p>
+          <p class="askbar-fine">
+            {config.notice.text[lang]}{' '}
+            <a href={config.notice.privacyUrl} target="_blank" rel="noopener noreferrer">
+              {s.privacy}
+            </a>
+          </p>
+        </div>
       </div>
       {suggestions.length > 0 && (
         <div class="askbar-chips">
-          {suggestions.slice(0, 3).map((q) => (
-            <button type="button" class="chip" key={q} disabled={starting} onClick={() => onStart(q)}>
+          {suggestions.slice(0, 3).map((q, i) => (
+            <button type="button" class="chip" key={q} style={{ '--i': i }} disabled={starting} onClick={() => onStart(q)}>
               {q}
             </button>
           ))}
         </div>
       )}
-      <p class="askbar-notice">
-        {config.notice.text[lang]}{' '}
-        <a href={config.notice.privacyUrl} target="_blank" rel="noopener noreferrer">
-          {s.privacy}
-        </a>
-      </p>
     </div>
   );
 }
