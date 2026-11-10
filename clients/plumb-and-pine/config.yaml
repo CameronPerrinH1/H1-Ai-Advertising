@@ -168,6 +168,9 @@ display:
     "/jen-home":
       greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
       placeholder: "Ask about facials, scalp care, pricing…"
+    "/home-chat": # unlisted preview page on her live site (Nov 10), pointed at the staging stack
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
+      placeholder: "Ask about facials, scalp care, pricing…"
     "/services*":
       greeting: "Have a question about a treatment? I can explain what it does, what it costs, and how to book."
       placeholder: "Ask about a treatment…"

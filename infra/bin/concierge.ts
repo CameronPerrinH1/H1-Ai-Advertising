@@ -32,7 +32,8 @@ new ConciergeStack(app, `Concierge-${deploymentName}`, {
   widgetDist: join(repoRoot, 'widget/dist'),
   modelIds: [...new Set([c.model.id, c.model.summarizer_id].filter((m): m is string => !!m))],
   business: { name: c.business.name, phone: c.business.phone, bookingUrl: c.booking.direct_links.default },
-  embedOrigins: c.security.allowed_domains.flatMap((domain) => [`https://${domain}`, `https://www.${domain}`]),
+  // Each allowed domain with and without www. (a domain already listed with www. isn't doubled).
+  embedOrigins: [...new Set(c.security.allowed_domains.flatMap((domain) => { const bare = domain.replace(/^www\./, ''); return [`https://${bare}`, `https://www.${bare}`]; }))],
   domain: d.domain,
   alarmEmail: app.node.tryGetContext('alarmEmail') ?? d.alarmEmail,
   monthlyBudgetUsd: d.monthlyBudgetUsd,
