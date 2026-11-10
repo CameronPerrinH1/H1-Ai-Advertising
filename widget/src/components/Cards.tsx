@@ -545,13 +545,16 @@ function ServiceCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
 }
 
 function CompareCard({ card, s }: Props & { card: Extract<Card, { type: 'compare' }> }) {
-  const rows: [string, (sv: ServiceView) => preact.ComponentChildren][] = [
-    [s.price, (sv) => <PriceLine service={sv} s={s} />],
-    [s.duration, (sv) => (sv.durationMinutes ? `${sv.durationMinutes} ${s.min}` : '–')],
-    [s.downtime, (sv) => sv.downtime ?? '–'],
-    [s.results, (sv) => sv.results ?? '–'],
-    [s.consult, (sv) => (sv.requiresAssessment ? s.yes : s.no)],
+  // Each row: its label, how a cell reads, and whether a service has a value for it. A row no
+  // compared service has a value for is left out, never shown as a line of dashes.
+  const all: [string, (sv: ServiceView) => preact.ComponentChildren, (sv: ServiceView) => boolean][] = [
+    [s.price, (sv) => <PriceLine service={sv} s={s} />, () => true],
+    [s.duration, (sv) => (sv.durationMinutes ? `${sv.durationMinutes} ${s.min}` : '–'), (sv) => !!sv.durationMinutes],
+    [s.downtime, (sv) => sv.downtime ?? '–', (sv) => !!sv.downtime],
+    [s.results, (sv) => sv.results ?? '–', (sv) => !!sv.results],
+    [s.consult, (sv) => (sv.requiresAssessment ? s.yes : s.no), () => true],
   ];
+  const rows = all.filter(([, , has]) => card.services.some(has)).map(([label, value]) => [label, value] as const);
   return (
     <section class="card compare" aria-label={s.sideBySide}>
       <p class="eyebrow pad-x">{s.sideBySide}</p>
