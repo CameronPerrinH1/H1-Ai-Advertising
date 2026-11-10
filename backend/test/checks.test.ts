@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { checkText } from '../src/checks/output.ts';
 import { catalog, TODAY } from './helpers.ts';
+import { Catalog } from '../src/catalog.ts';
+import { loadClient } from '../src/config/load.ts';
 
 const ok = (t: string, today = TODAY) => checkText(t, catalog, today).ok;
 
@@ -58,5 +60,27 @@ describe('output checks by audience', () => {
     const staff = (t: string) => checkText(t, catalog, TODAY, undefined, undefined, 'staff').ok;
     expect(staff('If a guest asks about a $175 package, say it is not on our menu.')).toBe(true);
     expect(staff('Send them to https://example.com/deal')).toBe(false);
+  });
+});
+
+// Plumb + Pine (Nov 10 sales review): claims the spa never made.
+describe('output checks: facts the spa did not give', () => {
+  const pp = new Catalog(loadClient('plumb-and-pine'));
+  const okPP = (t: string) => checkText(t, pp, TODAY).ok;
+  it('blocks downtime claims unless that treatment lists its downtime', () => {
+    expect(okPP('The Platinum Hydrafacial has no downtime, so it fits before your wedding.')).toBe(false);
+    expect(okPP('Most facials have minimal downtime.')).toBe(false);
+    expect(okPP('The Sugar Plumb Express Facial has no downtime.')).toBe(true);
+    expect(okPP('Jen will walk you through downtime at your visit.')).toBe(true);
+  });
+  it('blocks calling a paid consultation free or complimentary', () => {
+    expect(okPP('Start with a complimentary consultation with Jen.')).toBe(false);
+    expect(okPP('The consultation is free.')).toBe(false);
+    expect(okPP('Start with a Skin Consultation, $40.')).toBe(true);
+  });
+  it("blocks words quoted in the spa's voice rules", () => {
+    expect(pp.avoidWords()).toEqual(expect.arrayContaining(['painless', 'cheap', 'discount']));
+    expect(okPP('Dermaplaning is painless and quick.')).toBe(false);
+    expect(okPP('Our most affordable facial is the Sugar Plumb Express Facial at $85.')).toBe(true);
   });
 });

@@ -153,7 +153,8 @@ const handlers: Record<string, Handler> = {
     for (const o of p.data.options) {
       const service = serviceCard(o.service_id, ctx);
       if (!service) return fail(`Unknown service_id "${o.service_id}". Use IDs from the catalog.`);
-      const problem = badText(o.reason, ctx, 140);
+      // Checked with the treatment's name, so claims about it (downtime, length) are judged against its facts.
+      const problem = badText(`${service.name}: ${o.reason}`, ctx, 142 + service.name.length);
       if (problem) return fail(`The reason for ${service.name} was blocked: ${problem}. Rewrite it without prices or claims.`);
       items.push({ service, reason: o.reason });
     }

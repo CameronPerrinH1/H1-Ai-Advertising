@@ -192,6 +192,11 @@ export class Catalog {
     return out;
   }
 
+  // Words the spa asked never to use: anything quoted in its voice rules (for example “painless”).
+  avoidWords(): string[] {
+    return [...new Set(this.config.voice.donts.flatMap((d) => [...d.matchAll(/[“"]([^”"]{2,30})[”"]/g)].map((m) => m[1]!.trim())))];
+  }
+
   // The lengths one service may be described with: its own length and any time in its own details.
   minutesFor(serviceId: string): Set<number> {
     const s = this.services.get(serviceId);

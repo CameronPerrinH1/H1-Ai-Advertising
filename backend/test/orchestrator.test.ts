@@ -80,6 +80,36 @@ describe('conversation loop', () => {
     for (let i = 1; i < roles.length; i++) expect(roles[i]).not.toBe(roles[i - 1]);
   });
 
+  it('turns a "Book…" chip into the booking card when the treatment is clear', async () => {
+    const model = scriptedModel([
+      {
+        content: [
+          text('The HydraFacial deep-cleans and hydrates in one visit. Want to add anything?'),
+          toolUse('show_service_card', { service_id: 'hydrafacial' }),
+          toolUse('suggest_replies', { replies: ['Book a HydraFacial', 'What does it cost?'] }),
+        ],
+        stop: 'tool_use',
+      },
+      { content: [] },
+    ]);
+    const session = newSession();
+    const { reply } = await orchestrator(model).handleMessage(session, { id: 'm1-xxxxxxxx', text: 'Tell me about HydraFacials', lang: 'en' });
+    const link = reply.cards.find((c) => c.type === 'booking_link');
+    expect(link?.type === 'booking_link' && link.serviceName).toBe('HydraFacial Signature');
+    expect(reply.quickReplies).toEqual(['What does it cost?']);
+    expect(session.events.join(' ')).toContain('booking button');
+  });
+
+  it('leaves a booking chip alone when the treatment is unclear', async () => {
+    const model = scriptedModel([
+      { content: [text('Happy to help you choose. What would you like to improve most?'), toolUse('suggest_replies', { replies: ['Glow', 'Book a visit'] })], stop: 'tool_use' },
+      { content: [] },
+    ]);
+    const { reply } = await orchestrator(model).handleMessage(newSession(), { id: 'm1-xxxxxxxx', text: 'hi', lang: 'en' });
+    expect(reply.cards.some((c) => c.type === 'booking_link')).toBe(false);
+    expect(reply.quickReplies).toEqual(['Glow', 'Book a visit']);
+  });
+
   it('blocks "tap Confirm" when no confirmation card exists, and accepts null optional fields', async () => {
     const model = scriptedModel([
       // A rejected request (bad phone) followed by a reply that pretends the card is there.

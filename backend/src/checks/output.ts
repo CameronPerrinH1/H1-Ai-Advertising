@@ -13,6 +13,8 @@ const PERCENT = /(\d{1,3}(?:\.\d+)?)\s?(?:%|percent\b|por ciento\b)/gi;
 const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"'()[\]]+/gi;
 const PHONE = /(?<!\d)(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?!\d)/g;
 export const MAX_REPLY_CHARS = 1500;
+const DOWNTIME_CLAIM = /\b(?:no|zero|minimal|little(?: to no)?|without(?: any)?|hardly any|almost no)\s+(?:real\s+)?downtime\b|\bno recovery time\b|\bback to (?:your )?(?:normal|day|routine) (?:right away|immediately|the same day)\b/i;
+const FREE_CONSULT = /\b(?:free|complimentary|no[- ]cost|no[- ]charge)\b[^.!?\n]{0,25}\bconsult|\bconsult(?:ation)?s?\b[^.!?\n]{0,20}\b(?:is|are)\s+(?:always\s+)?(?:free|complimentary|no[- ]cost)\b/i;
 
 // extraAmounts: totals a planning tool computed this turn (an estimate, a membership comparison).
 // Staff mode (D64) skips the price, discount, and phone checks: practice calls role-play guests who
@@ -65,6 +67,29 @@ export function checkText(
     for (const m of sentence.matchAll(TIME_SPAN)) {
       if (!allowed.has(minutesOf(m))) problems.push(`"${m[0]}" isn't a length of time the spa gave${named.length ? ` for ${named.map((s) => s.name).join(' or ')}` : ''}; leave the length out or offer to have the team answer`);
     }
+  }
+
+  // Downtime is said only for treatments whose downtime the spa gave (never "no downtime" by default).
+  for (const sentence of guest ? text.split(/(?<=[.!?])\s+|\n+/) : []) {
+    if (!DOWNTIME_CLAIM.test(sentence)) continue;
+    const named = services.filter((s) => sentence.toLowerCase().includes(s.name.toLowerCase()));
+    const unknown = named.length ? named.filter((s) => !s.details.downtime) : [];
+    if (!named.length || unknown.length) {
+      problems.push(`it describes downtime${unknown.length ? ` for ${unknown.map((s) => s.name).join(' and ')}` : ''}, which the spa hasn't listed; leave it out or offer to have the team answer`);
+    }
+  }
+
+  // A consultation is free only if the spa lists it at $0.
+  if (guest && FREE_CONSULT.test(text)) {
+    const consults = services.filter((s) => /consult/i.test(s.name));
+    if (!consults.some((s) => s.price.amount === 0)) {
+      problems.push(`it calls a consultation free or complimentary; ${consults.length ? consults.map((s) => `${s.name} is ${money(s.price.amount ?? 0)}`).join(', ') : "the spa hasn't said it is"}`);
+    }
+  }
+
+  // Words the spa asked never to use (quoted in its voice rules), for example "painless".
+  for (const word of guest ? catalog.avoidWords() : []) {
+    if (new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)) problems.push(`it uses "${word}", which the spa asked never to use`);
   }
 
   const phones = catalog.allowedPhoneDigits();

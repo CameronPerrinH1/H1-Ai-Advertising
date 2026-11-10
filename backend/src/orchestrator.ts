@@ -306,7 +306,7 @@ export class Orchestrator {
         reply = { text: fb.text, cards: [...final.cards.filter((c) => c.type !== 'booking_link'), ...fb.cards], quickReplies: [] };
         stored = replaceFinalText(stored, fb.text);
       } else {
-        reply = { text: final.text, cards: final.cards, quickReplies: dropButtonChips(final.quickReplies, final.cards) };
+        reply = bookingFromChips({ text: final.text, cards: final.cards, quickReplies: dropButtonChips(final.quickReplies, final.cards) }, ctx);
         for (const id of check.promotionsMentioned) session.promotionsMentioned.add(id);
       }
 
@@ -506,6 +506,37 @@ export function dropButtonChips(chips: string[], cards: Card[]): string[] {
       !(types.has('event_plan') && /\b(request|solicitar)\b.*\bplan\b/i.test(chip)) &&
       !(types.has('confirm') && /\b(confirm|confirmar)\b/i.test(chip)),
   );
+}
+
+// Booking belongs on a card, not a chip. When the model offers a "Book…" chip without a booking
+// card and the treatment is clear (named in the chip, the one service card shown, or the
+// consultation an options card leads to), the chip becomes the booking card (Nov 10 sales review).
+const BOOK_CHIP = /\b(book|schedule|reserve|reservar|agendar)\b/i;
+export function bookingFromChips(reply: Reply, ctx: ToolContext): Reply {
+  const closed = reply.cards.some((c) => c.type === 'booking_link' || c.type === 'confirm' || c.type === 'urgent');
+  const chips = reply.quickReplies.filter((q) => BOOK_CHIP.test(q));
+  if (closed || !chips.length) return reply;
+  const { catalog } = ctx;
+  const services = [...catalog.services.values()];
+  const byName = (q: string) => services.filter((s) => q.toLowerCase().includes(s.name.toLowerCase()));
+  let target = chips.map(byName).find((m) => m.length === 1)?.[0];
+  if (!target) {
+    const shown = reply.cards.flatMap((c) => (c.type === 'service' ? [c.service.id] : c.type === 'treatment_options' ? c.items.map((i) => i.service.id) : []));
+    const single = reply.cards.filter((c) => c.type === 'service');
+    if (single.length === 1 && single[0]!.type === 'service') target = catalog.services.get(single[0]!.service.id);
+    else if (shown.length) {
+      // An options card: book its consultation when every option leads to the same one (or one is it).
+      const consults = new Set(shown.map((id) => (catalog.services.get(id)?.details.requires_assessment ? catalog.consultFor(id)?.id : /consult/i.test(catalog.services.get(id)?.name ?? '') ? id : undefined)));
+      const [only] = [...consults];
+      if (consults.size === 1 && only) target = catalog.services.get(only);
+    }
+  }
+  if (!target) return reply;
+  const out = safeHandle('get_booking_link', { service_id: target.id }, ctx);
+  if (out.isError || !out.cards?.length) return reply;
+  const card = out.cards[0]!;
+  ctx.session.events.push(`A booking button for ${card.type === 'booking_link' && card.serviceName ? card.serviceName : target.name} was shown under your last reply.`);
+  return { ...reply, cards: [...reply.cards, ...out.cards], quickReplies: reply.quickReplies.filter((q) => !BOOK_CHIP.test(q)) };
 }
 
 // Adds check feedback to the last user message for a retry; the stored history never keeps it.
