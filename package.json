@@ -11,6 +11,7 @@
     "test": "pnpm --filter \"@concierge/*\" --if-present test",
     "typecheck": "pnpm --filter \"@concierge/*\" --if-present typecheck",
     "eval": "pnpm --filter @concierge/evals start",
+    "eval:sales": "pnpm --filter @concierge/evals sales",
     "report:weekly": "pnpm --filter @concierge/backend report:weekly",
     "check": "pnpm typecheck && pnpm test && pnpm --filter @concierge/backend check:logging && pnpm --filter @concierge/backend check:configs && pnpm --filter @concierge/widget build",
     "kill-switch": "pnpm --filter @concierge/backend kill-switch",

@@ -353,7 +353,9 @@ export class Orchestrator {
         toolConfig: { tools: ctx.session.audience === 'staff' ? STAFF_TOOLS : LINK_HANDOFF_TOOLS },
         // Claude 5.5 models don't accept temperature; sampling is left at the model default.
         inferenceConfig: { maxTokens: c.model.max_output_tokens },
-        additionalModelRequestFields: { output_config: { effort: c.model.effort } } as never,
+        additionalModelRequestFields: (c.model.thinking === 'off'
+          ? { thinking: { type: 'disabled' }, output_config: { effort: c.model.effort } }
+          : { output_config: { effort: c.model.effort } }) as never,
       });
       log('model_call', {
         session: ctx.session.hash.slice(0, 8),

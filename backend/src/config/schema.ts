@@ -294,6 +294,8 @@ export const configSchema = z
         // How hard the model thinks before replying. Guest chat is short and latency-sensitive, so
         // "low" by default (Claude 5.5 models otherwise default to "medium").
         effort: z.enum(['low', 'medium', 'high']).default('low'),
+        // "off" skips the hidden reasoning entirely (faster; Haiku and Sonnet only, not Opus 5.5).
+        thinking: z.enum(['adaptive', 'off']).default('adaptive'),
       })
       .strict(),
     // D31: every chat is kept transcripts_days; chats flagged for review (D69) are kept flagged_transcripts_days.

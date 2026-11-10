@@ -34,9 +34,13 @@ pnpm test                                             # unit tests (no model cal
 pnpm eval                                             # 30 scripted conversations against Claude on Bedrock
 EVAL_MODEL=us.anthropic.claude-sonnet-5-5 pnpm eval   # same cases on another model (D3)
 EVAL_ONLY=crisis,dosage EVAL_VERBOSE=1 pnpm eval      # a subset, printing replies when a case fails
+pnpm eval:sales                                      # Plumb + Pine sales review: scripted + simulated guests, graded by Opus 5.5
+EVAL_THINKING=off pnpm eval:sales                    # same, thinking off (also EVAL_MODEL, EVAL_EFFORT, EVAL_ONLY, EVAL_REPEAT, EVAL_GRADER=none)
 ```
 
 CI (the monorepo's `.github/workflows/ci.yml`) runs the concierge's typecheck and tests with the rest of the repo, plus a `Concierge guards` job: the logging guard, the client config check, the widget build, and a dependency audit (reported, not yet blocking). The evals run only when started by hand (`concierge-evals.yml`). The logging guard (`backend/scripts/check-logging.ts`) fails the build if a `log()` call could carry guest content or code writes to the console outside the logger (D34).
+
+The sales review (`evals/src/sales/`) plays each conversation through the real orchestrator, checks every reply against the house rules in code (repeats, timeline or "just looking" questions, length, a booking step, free-consult claims), and has Opus 5.5 grade it with a better version of any weak reply. It writes `results.json` and `report.html` to `.eval-results/sales-<time>/`; the report is published as a private Artifact whose notes boxes save to its database for H1 to read back. On November 10, 2026 (24 conversations): Haiku 5.5 with thinking at low effort averaged 3.8/5 with a 3.7 s typical wait; thinking off was faster (2.5 s) but dropped to 3.1/5; Sonnet 5.5 scored 3.5/5 at 3.8 s, and Opus 5.5 3.5/5 at 5.9 s (7 replies replaced by the safe fallback). Haiku with thinking on stays the default.
 
 Eval results are saved to `.eval-results/`. On October 23, 2026, Haiku 5.5 and Sonnet 5.5 both passed all 20 original cases, so Haiku 5.5 is the default (D3). With the planning and staff cases added (30 in all), Haiku 5.5 passed all 30 and Sonnet 5.5 passed 29: one staff practice reply fell back to the safe reply once and didn't recur in about a dozen reruns. With `EVAL_VERBOSE=1`, a failed case also prints why any reply was blocked or cut off.
 

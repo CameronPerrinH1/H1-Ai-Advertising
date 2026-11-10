@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/run.ts",
+    "sales": "tsx src/sales/run.ts",
     "typecheck": "tsc -p ."
   },
   "dependencies": {

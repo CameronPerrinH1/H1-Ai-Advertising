@@ -5,6 +5,7 @@ export { createSession, MemorySessionRepo, type Session, type SessionRepo } from
 export { bedrockClient, type ModelClient } from './model/bedrock.ts';
 export { FileOutbox, MemoryOutbox, type Email, type Outbox } from './handoff/email.ts';
 export { checkText } from './checks/output.ts';
+export { catalogBlock, fixedBlock } from './prompt.ts';
 export { redactCardNumbers } from './safety/cardNumbers.ts';
 export { detectSafetyNet } from './safety/emergency.ts';
 export { FileSummaryRepo, type SummaryRepo } from './summary/store.ts';
