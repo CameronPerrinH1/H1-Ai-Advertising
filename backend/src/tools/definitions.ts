@@ -114,6 +114,17 @@ export const LINK_HANDOFF_TOOLS: Tool[] = [
   ...PLANNING_TOOLS(),
 ];
 
+// Offered only where the spa's booking platform is connected for live openings (booking.availability).
+export const OPENINGS_TOOL: Tool = tool(
+  'show_openings',
+  "Show the soonest real openings for a treatment, as tappable times that open the booking page. Use it instead of get_booking_link whenever you invite a booking. For a treatment that needs a consultation first, it shows the consultation's openings. Optional date (YYYY-MM-DD, the spa's local date) when the guest asks about a particular day. You can't hold or book a time: the guest confirms it on the booking page.",
+  {
+    service_id: { ...serviceId, description: 'Service ID from the catalog.' },
+    date: { type: 'string', description: 'Optional. A date the guest asked about, YYYY-MM-DD.' },
+  },
+  ['service_id'],
+);
+
 // Countdown, care, estimate, membership, first visit (D62). Code computes; the model only chooses.
 function PLANNING_TOOLS(): Tool[] {
   return [

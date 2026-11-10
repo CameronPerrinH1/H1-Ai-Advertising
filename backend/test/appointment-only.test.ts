@@ -23,13 +23,17 @@ describe('by appointment only', () => {
   });
 
   it("states no length or downtime the spa hasn't given, and the card leaves them out", () => {
-    const consult = catalog.serviceView('skin-consultation', 'en', '2026-11-09')!;
+    // Every length now comes from Vagaro (Nov 10), so one is removed here to keep covering the case.
+    const bundle = loadClient('plumb-and-pine');
+    delete bundle.services.services.find((s) => s.id === 'skin-consultation')!.duration_minutes;
+    const partial = new Catalog(bundle);
+    const consult = partial.serviceView('skin-consultation', 'en', '2026-11-09')!;
     expect(consult.durationMinutes).toBeUndefined();
     expect(consult.downtime).toBeUndefined();
-    expect(catalogBlock(catalog, '2026-11-09')).toMatch(/Skin Consultation \(id: skin-consultation\): .*length not listed/);
-    expect(fixedBlock(catalog)).toContain("Downtime: not listed. Don't state any");
+    expect(catalogBlock(partial, '2026-11-09')).toMatch(/Skin Consultation \(id: skin-consultation\): .*length not listed/);
+    expect(fixedBlock(partial)).toContain("Downtime: not listed. Don't state any");
     // What she did give still shows.
-    const ageless = catalog.serviceView('the-ageless-facial', 'en', '2026-11-09')!;
+    const ageless = partial.serviceView('the-ageless-facial', 'en', '2026-11-09')!;
     expect(ageless.durationMinutes).toBe(90);
     expect(catalog.serviceView('sugar-plumb-express-facial', 'en', '2026-11-09')!.downtime).toBe('None');
   });
@@ -44,8 +48,9 @@ describe('lengths of time in replies', () => {
     expect(checkText('The Ageless Facial is a 90-minute ritual.', c, '2026-11-09').ok).toBe(true);
     expect(checkText('The mask works for about 45 minutes while you rest.', c, '2026-11-09').ok).toBe(true); // from her description
     expect(checkText('We ask for 24 hours notice.', c, '2026-11-09').ok).toBe(true);
-    const guess = checkText('The Skin Consultation takes about 30 minutes.', c, '2026-11-09');
+    expect(checkText('The Skin Consultation takes about 30 minutes.', c, '2026-11-09').ok).toBe(true); // Vagaro's length
+    const guess = checkText('The Skin Consultation takes about 50 minutes.', c, '2026-11-09');
     expect(guess.ok).toBe(false);
-    expect(guess.problems.join(' ')).toContain('30 minutes');
+    expect(guess.problems.join(' ')).toContain('50 minutes');
   });
 });

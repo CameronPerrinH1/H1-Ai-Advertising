@@ -52,7 +52,7 @@ export interface Session {
   display: DisplayMessage[];
   pendingActions: Map<string, PendingAction>;
   events: string[]; // told to the model at the start of the next turn
-  counts: { messages: number; requests: number; callbacks: number; fallbacks: number };
+  counts: { messages: number; requests: number; callbacks: number; fallbacks: number; openings?: number }; // openings: availability searches (D22)
   phoneHashes: Set<string>; // lets a deletion request find this session (7.2)
   seenMessageIds: Set<string>;
   promotionsMentioned: Set<string>;

@@ -109,6 +109,17 @@ export type Card =
   | { type: 'compare'; services: ServiceView[] }
   | { type: 'provider'; provider: ProviderView }
   | { type: 'booking_link'; purpose: 'book' | 'manage' | 'rsvp'; url: string; serviceName?: string; providerName?: string; consult?: boolean; eventName?: string }
+  // Live openings from the spa's booking platform. Times are the spa's local time; tapping one opens
+  // the platform's booking page, where the guest confirms it (the chat can't hold or book a time).
+  | {
+      type: 'openings';
+      url: string;
+      serviceName: string;
+      providerName?: string;
+      consult: boolean;
+      durationMinutes?: number;
+      days: { date: string; label: string; times: { time: string; label: string }[] }[];
+    }
   | {
       type: 'confirm';
       actionId: string;

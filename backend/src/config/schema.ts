@@ -135,6 +135,19 @@ export const configSchema = z
           })
           .strict(),
         secret_name: z.string().optional(),
+        // Live openings from the booking platform's API (read only; no guest data is sent). The
+        // secret with the API keys is named per deployment (infra/lib/deployments.ts).
+        availability: z
+          .object({
+            source: z.literal('vagaro'),
+            business_id: z.string(),
+            // The platform's id for each service on the chat's menu (and each consultation).
+            service_ids: z.record(id, z.string()),
+            days_shown: z.number().int().min(1).max(5).default(3),
+            times_per_day: z.number().int().min(1).max(8).default(4),
+          })
+          .strict()
+          .optional(),
         location_map: z.record(z.string(), z.string()).optional(),
         call_budget_per_day: z.number().optional(),
         pricing_mode: z.enum(['provider', 'starting_at']).optional(),

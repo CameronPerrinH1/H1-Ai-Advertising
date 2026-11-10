@@ -655,6 +655,44 @@ function LinkCard({ card, s }: Props & { card: Extract<Card, { type: 'booking_li
   );
 }
 
+// Live openings: each time opens the booking page, where the guest confirms it.
+function OpeningsCard({ card, s }: Props & { card: Extract<Card, { type: 'openings' }> }) {
+  const meta = s.openingsWith(card.providerName, card.durationMinutes);
+  return (
+    <section class="card openings" aria-label={`${s.openingsEyebrow}: ${card.serviceName}`}>
+      <header class="card-head">
+        <span class="head-icon">
+          <CalendarIcon size={16} />
+        </span>
+        <div>
+          <p class="eyebrow">{s.openingsEyebrow}</p>
+          <h3>{card.serviceName}</h3>
+          {meta && <p class="muted small">{meta}</p>}
+        </div>
+      </header>
+      <div class="pad openings-body">
+        {card.days.map((d) => (
+          <div class="openings-day" key={d.date}>
+            <span class="openings-date">{d.label}</span>
+            <div class="openings-times">
+              {d.times.map((t) => (
+                <a class="time-chip" key={t.time} href={card.url} {...external} aria-label={`${d.label}, ${t.label}. ${s.opensBooking}`}>
+                  {t.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+        <p class="muted small openings-note">{s.openingsNote}</p>
+        <a class="btn ghost openings-all" href={card.url} {...external}>
+          <CalendarIcon size={16} />
+          {s.seeAllTimes}
+        </a>
+      </div>
+    </section>
+  );
+}
+
 function ConfirmCard({ card, s, h }: Props & { card: Extract<Card, { type: 'confirm' }> }) {
   const title = card.kind === 'appointment' ? s.appointmentRequest : s.callbackRequest;
   const busy = h.busyActions.has(card.actionId);
@@ -729,6 +767,8 @@ export function CardView(props: Props) {
       return <ProviderCard {...props} card={card} />;
     case 'booking_link':
       return <LinkCard {...props} card={card} />;
+    case 'openings':
+      return <OpeningsCard {...props} card={card} />;
     case 'confirm':
       return <ConfirmCard {...props} card={card} />;
     case 'urgent':

@@ -37,6 +37,7 @@ export const SESSION_COOKIE = '__Host-concierge_session';
 
 export interface ConciergeStackProps extends StackProps {
   clientId: string;
+  bookingSecretName?: string; // the booking platform's API keys, for live openings (deployments.ts)
   stage: 'staging' | 'production';
   repoRoot: string; // the concierge folder; the monorepo root is its parent
   widgetDist: string; // the built widget (pnpm --filter @concierge/widget build)
@@ -218,7 +219,9 @@ export class ConciergeStack extends Stack {
           },
         },
       });
-    const apiFn = fn('Api', 'api', Duration.seconds(29));
+    const bookingSecret = props.bookingSecretName ? secrets.Secret.fromSecretNameV2(this, 'BookingSecret', props.bookingSecretName) : undefined;
+    const apiFn = fn('Api', 'api', Duration.seconds(29), 1024, bookingSecret ? { ...environment, BOOKING_SECRET_ID: bookingSecret.secretName } : environment);
+    bookingSecret?.grantRead(apiFn);
     const sweepFn = fn('Sweep', 'sweep', Duration.minutes(4)); // under the 5-minute schedule, so runs never overlap
     const weeklyFn = fn('WeeklyReport', 'weeklyReport', Duration.minutes(2), 512);
     // Review function (D39, D69): the review role invokes it directly; it has no API route. It only

@@ -11,7 +11,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bedrockClient, Catalog, catalogBlock, createSession, fixedBlock, loadClient, MemoryOutbox, Orchestrator, type ModelClient } from '@concierge/backend';
+import { bedrockClient, Catalog, catalogBlock, createSession, FixedAvailability, fixedBlock, loadClient, MemoryOutbox, Orchestrator, type ModelClient } from '@concierge/backend';
 import { SCENARIOS, type Scenario, type Step } from './scenarios.ts';
 import { codeChecks } from './checks.ts';
 import { describeCards, type Run, type Turn } from './types.ts';
@@ -34,6 +34,7 @@ if (process.env.EVAL_THINKING) m.thinking = process.env.EVAL_THINKING as typeof 
 const catalog = new Catalog(bundle);
 const real = bedrockClient();
 const TODAY = new Date().toISOString().slice(0, 10);
+const tomorrow = () => new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
 
 const GUEST_SYSTEM = (persona: string) =>
   [
@@ -73,7 +74,9 @@ async function play(s: Scenario, copy: number): Promise<Run> {
       return real.converse(input);
     },
   };
-  const orchestrator = new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'eval' });
+  // Openings come from fixed data, never the spa's real calendar (D41).
+  const availability = catalog.config.booking.availability ? new FixedAvailability(() => tomorrow()) : undefined;
+  const orchestrator = new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'eval', availability });
   const { session } = createSession({ lang: 'en', noticeVersion: bundle.config.concierge.chat_notice.version, audience: 'guest' });
   const run: Run = { scenario: s, copy, turns: [], flags: [] };
   const page = s.page ?? '/home-chat';
@@ -136,7 +139,8 @@ async function main() {
   console.log(`Sales review: ${jobs.length} conversations on ${label}; grader ${GRADER}\n`);
 
   // The grader sees the same instructions and facts the coordinator does.
-  const reference = { instructions: fixedBlock(catalog), facts: catalogBlock(catalog, TODAY) };
+  const openings = !!catalog.config.booking.availability;
+  const reference = { instructions: fixedBlock(catalog, { openings }), facts: catalogBlock(catalog, TODAY, { openings }) };
   const runs: Run[] = [];
   const queue = [...jobs];
   await Promise.all(

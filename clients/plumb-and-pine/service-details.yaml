@@ -9,7 +9,7 @@ skin-consultation:
   good_for: [ first visits, choosing a treatment, building a home care routine ]
   requires_assessment: false
 sugar-plumb-express-facial:
-  summary: "A 30-minute holiday glow-up: cleanse, exfoliation, a hydrating mask,
+  summary: "A 15-minute holiday glow-up: cleanse, exfoliation, a hydrating mask,
     and a radiance boost."
   what_to_expect: "Quick enough for a lunch break. Skin looks bright and rested right away."
   downtime: "None"
@@ -73,7 +73,7 @@ dermaplane-facial:
 platinum-hydrafacial:
   summary: "The most complete HydraFacial: cleanse, exfoliate, and hydrate, plus
     lymphatic drainage, custom boosters, and LED."
-  what_to_expect: "About 75 minutes. Targets fine lines, uneven tone, congestion,
+  what_to_expect: "About 60 minutes. Targets fine lines, uneven tone, congestion,
     and dullness."
   good_for: [ fine lines, uneven tone, congestion, dull skin ]
   requires_assessment: false
@@ -81,7 +81,7 @@ platinum-hydrafacial:
 deluxe-hydrafacial:
   summary: "A results-driven HydraFacial with deep cleansing, exfoliation,
     painless extractions, and intense hydration."
-  what_to_expect: "About 60 minutes, with personalized boosters and LED light
+  what_to_expect: "About 45 minutes, with personalized boosters and LED light
     therapy for fine lines, dark spots, acne, and uneven tone."
   good_for: [ fine lines, dark spots, acne, uneven tone, dehydration ]
   requires_assessment: false

@@ -34,6 +34,8 @@ export function describeCards(cards: Card[]): string[] {
         return `[Comparison card: ${c.services.map((s) => s.name).join(' vs ')}]`;
       case 'booking_link':
         return `[Booking button${c.serviceName ? ` for ${c.serviceName}` : ''}${c.consult ? ' (consultation)' : ''}]`;
+      case 'openings':
+        return `[Openings card for ${c.serviceName}${c.consult ? ' (consultation first)' : ''}: ${c.days.map((d) => `${d.label} ${d.times.map((x) => x.label).join(', ')}`).join('; ')}; each time opens the booking page]`;
       case 'confirm':
         return `[Request card to review, with a Confirm button (${c.status})]`;
       case 'urgent':

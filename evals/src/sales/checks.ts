@@ -54,7 +54,7 @@ export function codeChecks(run: Run, catalog: Catalog) {
   const all = replies.map((t) => t.reply.text).join('\n').toLowerCase();
   if (e.booksBy) {
     const at = replies.findIndex(
-      (t) => t.reply.cards.some((c) => c.type === 'booking_link' || c.type === 'confirm') || BOOKING_WORDS.test(t.reply.text) || t.reply.quickReplies.some((q) => BOOKING_WORDS.test(q)),
+      (t) => t.reply.cards.some((c) => c.type === 'booking_link' || c.type === 'openings' || c.type === 'confirm') || BOOKING_WORDS.test(t.reply.text) || t.reply.quickReplies.some((q) => BOOKING_WORDS.test(q)),
     );
     if (at === -1 || at + 1 > e.booksBy) run.flags.push({ rule: 'slow-to-book', severity: 'major', note: `No booking step by reply ${e.booksBy}${at === -1 ? ' (never offered)' : ` (first at reply ${at + 1})`}.` });
   }

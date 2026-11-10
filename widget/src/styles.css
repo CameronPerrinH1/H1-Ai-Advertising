@@ -983,6 +983,62 @@ a {
 }
 
 /* Booking link */
+/* Live openings */
+.openings-body {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.openings-day {
+  display: grid;
+  gap: 6px;
+}
+
+.openings-date {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.openings-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.time-chip {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-decoration: none;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.time-chip:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.time-chip:focus-visible,
+.openings-all:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.openings-note {
+  margin: 0;
+}
+
+.openings-all {
+  justify-self: start;
+}
+
 .link-card {
   display: flex;
   align-items: center;

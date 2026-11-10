@@ -38,6 +38,7 @@ new ConciergeStack(app, `Concierge-${deploymentName}`, {
   alarmEmail: app.node.tryGetContext('alarmEmail') ?? d.alarmEmail,
   monthlyBudgetUsd: d.monthlyBudgetUsd,
   audit: d.audit,
+  bookingSecretName: c.booking.availability ? d.bookingSecretName : undefined,
   sesIdentity: handoffEmail ? { email: handoffEmail } : c.demo || d.stage === 'staging' ? undefined : { domain: senderDomain },
   handoffOverride: handoffEmail ? { from: handoffEmail, to: handoffEmail } : undefined,
 });

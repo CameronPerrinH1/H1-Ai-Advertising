@@ -12,6 +12,8 @@ import { planEvent, PlanError } from '../planning.ts';
 import { strings } from '../i18n.ts';
 import type { Session } from '../session/store.ts';
 
+import type { AvailabilitySource } from '../booking/availability.ts';
+
 export interface ToolContext {
   catalog: Catalog;
   session: Session;
@@ -22,6 +24,9 @@ export interface ToolContext {
   extraAmounts: Set<number>;
   // Phone numbers the guest typed in this chat (digits only); the reply may read them back.
   guestPhones?: Set<string>;
+  // Live openings from the booking platform, where it's connected (show_openings).
+  availability?: AvailabilitySource;
+  now?: () => number;
   // Staff mode only: this month's report of what visitors asked (D65).
   insights?: () => Card;
 }

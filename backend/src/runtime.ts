@@ -19,6 +19,7 @@ import { FileSummaryRepo, LOCAL_DATA_DIR, type SummaryRepo } from './summary/sto
 import { DynamoSummaryRepo } from './summary/dynamo.ts';
 import { insightsCard } from './summary/insights.ts';
 import { log } from './log.ts';
+import { VagaroAvailability, type AvailabilitySource, type VagaroCredentials } from './booking/availability.ts';
 
 export interface Runtime {
   bundle: ClientBundle;
@@ -95,6 +96,19 @@ export async function createRuntime(env: Env = process.env): Promise<Runtime> {
     return card;
   };
 
-  const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey, insights });
+  // Live openings (booking.availability), when the deployment names the secret with the platform's
+  // API keys (BOOKING_SECRET_ID, set by the stack). Read lazily and once per container.
+  const availCfg = bundle.config.booking.availability;
+  let availability: AvailabilitySource | undefined;
+  if (availCfg && env.BOOKING_SECRET_ID) {
+    let creds: Promise<VagaroCredentials> | undefined;
+    const load = () => (creds ??= secret(env.BOOKING_SECRET_ID!).then((s) => JSON.parse(s) as VagaroCredentials).catch((err) => {
+      creds = undefined; // retried on the next search
+      throw err;
+    }));
+    availability = new VagaroAvailability(availCfg.business_id, load);
+  }
+
+  const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey, insights, availability });
   return { bundle, catalog, model, outbox, orchestrator, sessions, summaries, control: controlFromEnv(clientId), staffCode, originVerify, currentMonth, onAws };
 }

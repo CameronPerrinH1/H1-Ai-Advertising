@@ -8,6 +8,9 @@ export interface Deployment {
   alarmEmail?: string; // alarms, and budget alerts when a budget is set (D40)
   monthlyBudgetUsd?: number;
   audit: { days: number; mode: 'compliance' | 'governance' };
+  // The Secrets Manager secret with the booking platform's API keys, for live openings
+  // (booking.availability). Created by hand in the deployment's account; only the API reads it.
+  bookingSecretName?: string;
 }
 
 export const DEPLOYMENTS: Record<string, Deployment> = {
@@ -27,5 +30,7 @@ export const DEPLOYMENTS: Record<string, Deployment> = {
     alarmEmail: 'cameron@h1webdev.com',
     monthlyBudgetUsd: 25,
     audit: { days: 7, mode: 'governance' },
+    // Jen's Vagaro keys (read-only openings; no guest data is sent to Vagaro, so D29 holds).
+    bookingSecretName: 'concierge/plumb-and-pine-staging/vagaro',
   },
 };

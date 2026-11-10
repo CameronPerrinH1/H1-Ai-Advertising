@@ -19,8 +19,10 @@ import { checkText, PHONE } from './checks/output.ts';
 import { redactCardNumbers } from './safety/cardNumbers.ts';
 import { detectSafetyNet } from './safety/emergency.ts';
 import { MAX_REPLY_CHARS } from './checks/output.ts';
-import { LINK_HANDOFF_TOOLS, STAFF_TOOLS } from './tools/definitions.ts';
-import { firstVisitCard, handleTool, urgentCard, type ToolContext } from './tools/handlers.ts';
+import { LINK_HANDOFF_TOOLS, OPENINGS_TOOL, STAFF_TOOLS } from './tools/definitions.ts';
+import { firstVisitCard, handleTool, urgentCard, type ToolContext, type ToolOutcome } from './tools/handlers.ts';
+import { showOpenings } from './tools/openings.ts';
+import type { AvailabilitySource } from './booking/availability.ts';
 import { buildSystem, fixedBlock, staffFixedBlock } from './prompt.ts';
 import { strings } from './i18n.ts';
 import { appointmentEmail, callbackEmail, type Outbox } from './handoff/email.ts';
@@ -41,6 +43,7 @@ const DISPLAY_ONLY = new Set([
   'show_provider',
   'suggest_replies',
   'get_booking_link',
+  'show_openings',
   'show_care_guide',
   'show_first_visit',
 ]);
@@ -53,6 +56,7 @@ export interface OrchestratorDeps {
   phoneKey: string;
   now?: () => Date;
   insights?: (lang: Lang) => Promise<Card>; // staff mode report (D65)
+  availability?: AvailabilitySource; // live openings, where the spa's booking platform is connected
 }
 
 interface TurnResult {
@@ -93,7 +97,7 @@ export class Orchestrator {
   private readonly staffFixed: string;
 
   constructor(private readonly deps: OrchestratorDeps) {
-    this.fixed = fixedBlock(deps.catalog);
+    this.fixed = fixedBlock(deps.catalog, { openings: !!deps.availability && !!deps.catalog.config.booking.availability });
     this.staffFixed = staffFixedBlock(deps.catalog);
   }
 
@@ -103,6 +107,11 @@ export class Orchestrator {
 
   private get catalog() {
     return this.deps.catalog;
+  }
+
+  // Openings are offered only with both the spa's platform ids (config) and a connector (runtime).
+  private get openingsOn() {
+    return !!this.deps.availability && !!this.deps.catalog.config.booking.availability;
   }
 
   private clock() {
@@ -268,7 +277,7 @@ export class Orchestrator {
 
     const clock = this.clock();
     const staff = session.audience === 'staff';
-    const system = buildSystem(this.catalog, { clock, lang, page: session.page }, staff ? this.staffFixed : this.fixed);
+    const system = buildSystem(this.catalog, { clock, lang, page: session.page, openings: this.openingsOn }, staff ? this.staffFixed : this.fixed);
     // Tools run synchronously, so the staff report is read before the turn.
     const report = staff && this.deps.insights ? await this.deps.insights(lang) : undefined;
     const ctx: ToolContext = {
@@ -278,6 +287,8 @@ export class Orchestrator {
       today: clock.date,
       phoneKey: this.deps.phoneKey,
       extraAmounts: new Set(),
+      availability: this.openingsOn ? this.deps.availability : undefined,
+      now: this.deps.now ? () => this.deps.now!().getTime() : undefined,
       guestPhones: guestPhones([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       insights: report ? () => report : undefined,
     };
@@ -307,7 +318,7 @@ export class Orchestrator {
         reply = { text: fb.text, cards: [...final.cards.filter((c) => c.type !== 'booking_link'), ...fb.cards], quickReplies: [] };
         stored = replaceFinalText(stored, fb.text);
       } else {
-        reply = bookingFromChips({ text: final.text, cards: final.cards, quickReplies: dropButtonChips(final.quickReplies, final.cards) }, ctx);
+        reply = await bookingFromChips({ text: final.text, cards: final.cards, quickReplies: dropButtonChips(final.quickReplies, final.cards) }, ctx);
         for (const id of check.promotionsMentioned) session.promotionsMentioned.add(id);
       }
 
@@ -351,7 +362,7 @@ export class Orchestrator {
         modelId: c.model.id,
         system,
         messages: [...input, ...added],
-        toolConfig: { tools: ctx.session.audience === 'staff' ? STAFF_TOOLS : LINK_HANDOFF_TOOLS },
+        toolConfig: { tools: ctx.session.audience === 'staff' ? STAFF_TOOLS : this.openingsOn ? [...LINK_HANDOFF_TOOLS, OPENINGS_TOOL] : LINK_HANDOFF_TOOLS },
         // Claude 5.5 models don't accept temperature; sampling is left at the model default.
         inferenceConfig: { maxTokens: c.model.max_output_tokens },
         additionalModelRequestFields: (c.model.thinking === 'off'
@@ -392,7 +403,9 @@ export class Orchestrator {
         if (!use?.toolUseId || !use.name) continue;
         const outcome = round === MAX_TOOL_ROUNDS
           ? { result: { error: 'Tool limit reached for this message. Reply to the guest now without tools.' }, isError: true }
-          : safeHandle(use.name, use.input, ctx);
+          : use.name === 'show_openings'
+            ? await safeOpenings(use.input, ctx)
+            : safeHandle(use.name, use.input, ctx);
         log('tool_call', { session: ctx.session.hash.slice(0, 8), tool: use.name, status: outcome.isError ? 'error' : 'ok' });
         if (outcome.cards) cards.push(...outcome.cards);
         if (outcome.quickReplies?.length) quickReplies = outcome.quickReplies;
@@ -477,6 +490,14 @@ function withConsistency(check: ReturnType<typeof checkText>, turn: Pick<TurnRes
   return check;
 }
 
+async function safeOpenings(input: unknown, ctx: ToolContext): Promise<ToolOutcome> {
+  try {
+    return await showOpenings(input, ctx);
+  } catch {
+    return safeHandle('get_booking_link', { service_id: (input as { service_id?: string })?.service_id }, ctx);
+  }
+}
+
 function safeHandle(name: string, input: unknown, ctx: ToolContext) {
   try {
     return handleTool(name, input, ctx);
@@ -520,8 +541,8 @@ export function dropButtonChips(chips: string[], cards: Card[]): string[] {
 // card and the treatment is clear (named in the chip, the one service card shown, or the
 // consultation an options card leads to), the chip becomes the booking card (Nov 10 sales review).
 const BOOK_CHIP = /\b(book|schedule|reserve|reservar|agendar)\b/i;
-export function bookingFromChips(reply: Reply, ctx: ToolContext): Reply {
-  const closed = reply.cards.some((c) => c.type === 'booking_link' || c.type === 'confirm' || c.type === 'urgent');
+export async function bookingFromChips(reply: Reply, ctx: ToolContext): Promise<Reply> {
+  const closed = reply.cards.some((c) => c.type === 'booking_link' || c.type === 'openings' || c.type === 'confirm' || c.type === 'urgent');
   const chips = reply.quickReplies.filter((q) => BOOK_CHIP.test(q));
   if (closed || !chips.length) return reply;
   const { catalog } = ctx;
@@ -540,10 +561,11 @@ export function bookingFromChips(reply: Reply, ctx: ToolContext): Reply {
     }
   }
   if (!target) return reply;
-  const out = safeHandle('get_booking_link', { service_id: target.id }, ctx);
+  const out = ctx.availability ? await safeOpenings({ service_id: target.id }, ctx) : safeHandle('get_booking_link', { service_id: target.id }, ctx);
   if (out.isError || !out.cards?.length) return reply;
   const card = out.cards[0]!;
-  ctx.session.events.push(`A booking button for ${card.type === 'booking_link' && card.serviceName ? card.serviceName : target.name} was shown under your last reply.`);
+  const named = (card.type === 'booking_link' || card.type === 'openings') && card.serviceName ? card.serviceName : target.name;
+  ctx.session.events.push(card.type === 'openings' ? `Openings for ${named} were shown under your last reply (soonest ${String(out.result.soonest ?? '')}).` : `A booking button for ${named} was shown under your last reply.`);
   return { ...reply, cards: [...reply.cards, ...out.cards], quickReplies: reply.quickReplies.filter((q) => !BOOK_CHIP.test(q)) };
 }
 

@@ -41,6 +41,31 @@ booking:
       - service: sugar-plumb-express-facial
         requires: skin-consultation
   allowed_phone_countries: [ US ]
+  # Live openings from Jen's Vagaro account (read only; the API keys are in AWS Secrets Manager, named
+  # per deployment in infra/lib/deployments.ts). Ids from the Vagaro API, 2026-11-10.
+  availability:
+    source: vagaro
+    business_id: "GQvcTaX8Jf8neKWNBYKkBA=="
+    service_ids:
+      skin-consultation: "K3X3j7UJFM9k36bb328CKA=="
+      sugar-plumb-express-facial: "XCrbtmKe1qweEXzZ3yo6kA=="
+      the-miracle-facial: "EtRu~gkH4LkDqNRWKKIjeg=="
+      lift-and-restore: "3nqN8yzGTluSJavpXX8LzA=="
+      custom-infusion-facial: "V4kRaBgiw0PryNrQ6dTI8g=="
+      the-ageless-facial: "71r3-84IiSt7WlzRj-Ga2w=="
+      oxygen-facial-glo2: "OqRefXvT70~4dd6viMXYQg=="
+      dermaplane-facial: "Akkttf9WDRoh2BQQq35rWA=="
+      platinum-hydrafacial: "76fp2VdOSI7MzO0RsJSYLA=="
+      deluxe-hydrafacial: "s3Zg6IgUEFumF2t9oh92Nw=="
+      express-hydrafacial: "ozOTcpVsLrSx6P62889AkA=="
+      back-hydrafacial: "JBP0mLbOZP6T3LCdfTqNfw=="
+      hair-scalp-consultation: "HErFAVsG3LLcBVoKZajOfg=="
+      hair-restoration-microchanneling: "aXNzlTTKAW-CXVO99gDsGw=="
+      hydrascalp-keravive-full-scalp: "Mc2wQb6Ek0KN6dI1FuAyGw=="
+      hydrascalp-keravive-partial-scalp: "ZeDqITp-r5vpX7sK3itjbQ=="
+      microchanneling: "idpwQQclGjtFFqa6KSkIlQ=="
+      dmk-enzyme-therapy: "zlMSljdaN-hcymD9dLfAIA=="
+      dmk-muscle-banding: "Ft0DwWoFrczV-hpxlcZPzg=="
   limits:
     max_bookings_per_session: 2
     max_callbacks_per_session: 2

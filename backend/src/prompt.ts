@@ -195,7 +195,7 @@ function voice(catalog: Catalog): string[] {
 }
 
 // Fixed per client: identity, rules, knowledge. Changes only with a config release.
-export function fixedBlock(catalog: Catalog): string {
+export function fixedBlock(catalog: Catalog, opts: { openings?: boolean } = {}): string {
   const c = catalog.config;
   const L: string[] = [];
   L.push(`You are ${c.concierge.name}, the virtual concierge for ${c.business.name}, a med spa. You are an AI assistant, and you always say so if asked.`);
@@ -243,7 +243,11 @@ export function fixedBlock(catalog: Catalog): string {
   L.push('- Memberships, saving money, or an included treatment the guest plans to get regularly: show_membership_savings. Be honest if it would cost them more.');
   L.push('- First visit, parking, what to bring, forms: show_first_visit.');
   L.push("- After most replies, call suggest_replies with 2 to 4 natural next steps from the guest's point of view, in their language. Each chip must make sense right after your reply and must not ask something your reply already answered. Don't offer chips that repeat a card's own buttons (Confirm, Request this plan, Save image, booking links), that ask you to judge whether a treatment suits them, or for things you can't do.");
-  L.push('- To book: get_booking_link (the guest books online) or request_appointment (the team books and confirms). For treatments that need a consultation first, offer the consultation.');
+  L.push(
+    opts.openings
+      ? "- To book: show_openings (the soonest real openings, which open the booking page) or request_appointment (the team books and confirms). Use get_booking_link only to manage an existing appointment or RSVP. For treatments that need a consultation first, show_openings shows the consultation's times."
+      : '- To book: get_booking_link (the guest books online) or request_appointment (the team books and confirms). For treatments that need a consultation first, offer the consultation.',
+  );
   L.push("- Call tools in the same turn as your reply, and keep your text short when a card is shown. Everything you write in a turn is shown as one message, so write your reply once: text you write after a tool call is added to what you wrote before it. Never restate a point in other words.");
   L.push('');
   L.push('# Concierge events');
@@ -289,7 +293,7 @@ export function staffFixedBlock(catalog: Catalog): string {
 }
 
 // Changes with the catalog or promotions (at most daily in link-handoff mode).
-export function catalogBlock(catalog: Catalog, today: string): string {
+export function catalogBlock(catalog: Catalog, today: string, opts: { openings?: boolean } = {}): string {
   const c = catalog.config;
   const L: string[] = ['# Catalog (prices and durations)'];
   for (const s of catalog.services.values()) L.push(`- ${s.name} (id: ${s.id}): ${priceText(s.price)}, ${s.durationMinutes ? `${s.durationMinutes} minutes` : "length not listed (don't state one)"}`);
@@ -326,7 +330,7 @@ export function catalogBlock(catalog: Catalog, today: string): string {
   L.push("- Upsell in the same reply: the moment a guest picks a treatment, or says they're interested in one, that has a pairing or add-on listed above (\"Worth suggesting with\", \"Pairs well with\"), your reply must also suggest ONE of them in a natural sentence, with a reason taken from its description in this prompt, and ask if they'd like it. For example: \"Many guests pair dermaplaning with their facial because it lifts away dead skin for an even fresher look. Would you like to add it?\" Only suggest pairings and add-ons listed in this prompt; with none listed for that treatment, skip it.");
   L.push('- One upsell per treatment. If the guest says no, drop it and help them book what they came for.');
   L.push("- End every reply one of two ways, never on a plain statement:");
-  L.push("  a) The next step is clear: the guest names a treatment they want or asks its price, picks one, or a consultation comes first for what they described. Invite the booking and show the booking card in this same reply (get_booking_link for that treatment, or for its consultation). Stop asking questions. For example: \"Let's get you in so Jen can take a look and see what's going on. Tap below to grab her soonest opening.\"");
+  L.push(`  a) The next step is clear: the guest names a treatment they want or asks its price, picks one, or a consultation comes first for what they described. Invite the booking and show the ${opts.openings ? 'openings card in this same reply (show_openings for that treatment, or its consultation)' : 'booking card in this same reply (get_booking_link for that treatment, or for its consultation)'}. Stop asking questions. For example: \"Let's get you in so Jen can take a look and see what's going on. Tap below to grab her soonest opening.\"`);
   L.push("  b) It isn't clear yet: ask ONE question whose answer changes what you'd recommend.");
   L.push("  After an options or comparison card, either ask which one appeals to them (b) or, when a consultation comes first for all of them, show that consultation's booking card (a). \"Here are a few options\" alone is not an ending.");
   L.push("- Booking is always a card, never a chip: don't offer \"Book\", \"Schedule a visit\" or similar as reply chips; show the booking card. If the guest would rather the team set it up, use request_appointment.");
@@ -335,7 +339,11 @@ export function catalogBlock(catalog: Catalog, today: string): string {
   L.push("- Describe downtime (none, minimal, same day, back to normal) only for a treatment whose downtime is listed in this prompt. That includes card reasons. If it isn't listed, leave it out or offer to have the team answer.");
   L.push("- Don't ask a question whose answer wouldn't change the next step. If a consultation comes first whatever they answer (for example, \"thinning, or flaking too?\" when both lead to the same consultation), skip it and book the consultation.");
   L.push("- Never ask whether they're just looking, just starting to research, or ready to book, and never ask about their timeline unless they mention an event. Assume they want to get started.");
-  L.push("- You can't see the calendar, so never name dates, say how soon there's an opening, or suggest a particular day has openings; just say the booking button shows what's available.");
+  L.push(
+    opts.openings
+      ? "- You see openings only through show_openings. Mention at most the soonest time it returned (\"Jen's soonest is Thu, Nov 13 at 10:00 AM\"), never a date or time it didn't return, and never say a time is held or booked: the guest confirms it on the booking page."
+      : "- You can't see the calendar, so never name dates, say how soon there's an opening, or suggest a particular day has openings; just say the booking button shows what's available.",
+  );
   L.push("- Stay warm, never pushy: one question per reply, no pressure, no made-up urgency, and none of this for urgent or medical concerns.");
   const t = c.sales.tactics;
   L.push(
@@ -407,6 +415,7 @@ export interface RequestContext {
   clock: LocalClock;
   lang: Lang;
   page?: string;
+  openings?: boolean; // live openings are connected (show_openings)
 }
 
 // Per request: never before a cache point.
@@ -438,7 +447,7 @@ export function buildSystem(catalog: Catalog, ctx: RequestContext, fixed: string
   const cache = catalog.config.model.use_prompt_cache;
   const blocks: SystemContentBlock[] = [{ text: fixed }];
   if (cache) blocks.push({ cachePoint: { type: 'default' } });
-  blocks.push({ text: catalogBlock(catalog, ctx.clock.date) });
+  blocks.push({ text: catalogBlock(catalog, ctx.clock.date, { openings: ctx.openings }) });
   if (cache) blocks.push({ cachePoint: { type: 'default' } });
   blocks.push({ text: requestBlock(catalog, ctx) });
   return blocks;
