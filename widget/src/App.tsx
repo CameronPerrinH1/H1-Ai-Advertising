@@ -6,9 +6,12 @@ import { applyTheme } from './theme';
 import { saveCardImage } from './saveImage';
 import { Composer, Header, NoticeLine, Unavailable, Welcome } from './components/Chrome';
 import { MessageList, type UiMessage } from './components/Chat';
+import { Bar, CardTop, Intro } from './components/AskBar';
+import { copyForPage, forPage } from '@concierge/shared';
 
 const params = new URLSearchParams(location.search);
-const MODE: 'inline' | 'fullscreen' = params.get('mode') === 'fullscreen' ? 'fullscreen' : 'inline';
+const MODE: 'inline' | 'fullscreen' | 'askbar' =
+  params.get('mode') === 'fullscreen' ? 'fullscreen' : params.get('mode') === 'askbar' ? 'askbar' : 'inline';
 const PAGE = params.get('page')?.slice(0, 200) || undefined;
 // A question the site attached to an "Ask about..." button (data-concierge-question).
 const PRESET = params.get('q')?.slice(0, 200) || undefined;
@@ -17,7 +20,7 @@ let seq = 0;
 const uid = () => `${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 10)}`;
 
 // Only UI events cross to the host page; never conversation content or the session (D30, D53).
-function toParent(type: 'concierge:close' | 'concierge:open', extra: Record<string, string> = {}) {
+function toParent(type: 'concierge:close' | 'concierge:open' | 'concierge:size', extra: Record<string, string | number> = {}) {
   window.parent?.postMessage({ type, ...extra }, '*');
 }
 
@@ -41,6 +44,22 @@ export function App() {
   const [busyActions, setBusyActions] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const presetUsed = useRef(false);
+  // Ask bar: the conversation card is open, or minimized back to the bar.
+  const [open, setOpen] = useState(true);
+  // On a phone the bar starts alone; the greeting, questions and notice appear once it's tapped.
+  const [introShown, setIntroShown] = useState(() => !window.matchMedia('(max-width: 520px)').matches);
+  const root = useRef<HTMLDivElement | null>(null);
+
+  // The ask bar's frame is only as tall as what it shows, so the page around it stays usable.
+  useEffect(() => {
+    if (MODE !== 'askbar' || !root.current) return;
+    const el = root.current;
+    const report = () => toParent('concierge:size', { height: Math.ceil(el.getBoundingClientRect().height) });
+    const ro = new ResizeObserver(report);
+    ro.observe(el);
+    report();
+    return () => ro.disconnect();
+  });
 
   const s = strings(lang);
 
@@ -75,6 +94,9 @@ export function App() {
     // The loader asks inline frames to refresh after the full-screen view closes.
     const onMessage = (e: MessageEvent) => {
       if (e.source === window.parent && e.data?.type === 'concierge:refresh') restore().catch(() => {});
+      // Ask bar: the host page's height, which sizes the open conversation.
+      if (e.source === window.parent && e.data?.type === 'concierge:viewport' && Number(e.data.height) > 0)
+        document.documentElement.style.setProperty('--host-h', `${Math.round(Number(e.data.height))}px`);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && MODE === 'fullscreen') toParent('concierge:close');
@@ -255,7 +277,62 @@ export function App() {
     );
   }
 
-  const suggestions = (PAGE && config.suggested.pages[PAGE]?.[lang]) || config.suggested.default[lang];
+  const suggestions = forPage(config.suggested.pages, PAGE)?.[lang] || config.suggested.default[lang];
+
+  if (MODE === 'askbar') {
+    const copy = copyForPage(config.display.pages, PAGE);
+    const ask = () => {
+      const q = draft.trim();
+      if (!q) return;
+      // The notice must be on screen before anything is sent (D35).
+      if (!active && !introShown) {
+        setIntroShown(true);
+        return;
+      }
+      setOpen(true);
+      if (active) send(q);
+      else {
+        setDraft('');
+        start(q);
+      }
+    };
+    return (
+      <div class="shell askbar" lang={lang} ref={root}>
+        {active && open && (
+          <div class="askbar-card" role="region" aria-label={s.nameFrom(config.concierge.name, config.businessName)}>
+            <CardTop config={config} s={s} lang={lang} copy={copy} onMinimize={() => setOpen(false)} onEnd={end} onExpand={() => toParent('concierge:open')} />
+            <MessageList
+              messages={messages}
+              waiting={waiting}
+              face={config.concierge}
+              name={config.concierge.name}
+              s={s}
+              lang={lang}
+              handlers={handlers}
+              onQuickReply={send}
+              onRate={rate}
+            />
+          </div>
+        )}
+        {!active && introShown && <Intro config={config} s={s} lang={lang} copy={copy} suggestions={suggestions} starting={starting} onStart={(q) => start(q)} />}
+        <Bar
+          config={config}
+          s={s}
+          lang={lang}
+          value={draft}
+          setValue={setDraft}
+          disabled={waiting || starting}
+          placeholder={active ? s.followUp : copy?.placeholder?.[lang] ?? s.placeholder}
+          onSubmit={ask}
+          onFocus={() => {
+            setOpen(true);
+            setIntroShown(true);
+          }}
+          inputRef={inputRef}
+        />
+      </div>
+    );
+  }
 
   return (
     <div class={`shell ${MODE}`} lang={lang}>

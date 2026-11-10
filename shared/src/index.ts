@@ -2,7 +2,39 @@
 // Cards are rendered by code from catalog data; the model only picks what to show (D59).
 
 export type Lang = 'en' | 'es';
-export type DisplayMode = 'inline' | 'fullscreen' | 'launcher';
+// askbar: a bar docked at the bottom of every page that opens into the conversation above it.
+export type DisplayMode = 'inline' | 'fullscreen' | 'launcher' | 'askbar';
+
+// What the chat says on one page of the spa's site, before and while the guest asks.
+export interface PageCopy {
+  greeting?: Record<Lang, string>;
+  placeholder?: Record<Lang, string>;
+  topic?: Record<Lang, string>; // "Asking about Tox"
+}
+
+// The entry for a page path: an exact key, else the longest key ending in "*" that the path starts
+// with ("/services*" covers "/services/hydrafacial"). Shared so the server and widget agree.
+export function forPage<T>(entries: Record<string, T>, path: string | undefined): T | undefined {
+  if (!path) return undefined;
+  const clean = path.split(/[?#]/)[0]!.replace(/\/+$/, '') || '/';
+  if (entries[clean] !== undefined) return entries[clean];
+  if (entries[`${clean}/`] !== undefined) return entries[`${clean}/`];
+  const prefixes = Object.keys(entries).filter((k) => k.endsWith('*') && clean.startsWith(k.slice(0, -1)));
+  const best = prefixes.sort((a, b) => b.length - a.length)[0];
+  return best === undefined ? undefined : entries[best];
+}
+
+// Page copy layered from every match, the most general first, so "/treatments/hydrafacial" can set
+// only its topic and keep the greeting "/treatments*" gives.
+export function copyForPage<T extends object = PageCopy>(entries: Record<string, T>, path: string | undefined): T | undefined {
+  if (!path) return undefined;
+  const clean = path.split(/[?#]/)[0]!.replace(/\/+$/, '') || '/';
+  const keys = Object.keys(entries)
+    .filter((k) => (k.endsWith('*') ? clean.startsWith(k.slice(0, -1)) : k.replace(/\/+$/, '') === clean || k === clean))
+    .sort((a, b) => (a.endsWith('*') === b.endsWith('*') ? a.length - b.length : a.endsWith('*') ? -1 : 1));
+  if (!keys.length) return undefined;
+  return Object.assign({}, ...keys.map((k) => entries[k])) as T;
+}
 
 export interface Price {
   amount: number;
@@ -167,7 +199,7 @@ export interface PublicConfig {
   };
   languages: Lang[];
   suggested: { default: Record<Lang, string[]>; pages: Record<string, Record<Lang, string[]>> };
-  display: { modes: DisplayMode[]; nudgeDelaySeconds?: number };
+  display: { modes: DisplayMode[]; nudgeDelaySeconds?: number; pages: Record<string, PageCopy> };
   promotions: { id: string; label: string; ends?: string }[]; // active today; no ends: evergreen
   hours: Record<string, string>; // e.g. { tue: '09:00-18:00' }
   timezone: string;

@@ -157,14 +157,57 @@ branding:
     license: "System fonts until her site's fonts are confirmed (D53)"
 
 display:
-  modes: [ inline, fullscreen, launcher ]
+  modes: [ askbar, fullscreen, inline ]
   nudge_delay_seconds: 20
+  # The ask bar on each page of plumbandpine.com: its greeting, box hint and "Asking about" topic.
+  # Paths are exact, or a prefix ending in "*". {name} is the coordinator's name.
+  pages:
+    "/":
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
+      placeholder: "Ask about facials, scalp care, pricing…"
+    "/jen-home":
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
+      placeholder: "Ask about facials, scalp care, pricing…"
+    "/services*":
+      greeting: "Have a question about a treatment? I can explain what it does, what it costs, and how to book."
+      placeholder: "Ask about a treatment…"
+      topic: "treatments"
+    "/treatments/hydrafacial-treatments":
+      topic: "HydraFacial"
+      placeholder: "Ask about HydraFacial…"
+    "/treatments/microchanneling-treatments":
+      topic: "Microchanneling"
+      placeholder: "Ask about microchanneling…"
+    "/treatments/glo2facial":
+      topic: "the Glo2 Facial"
+      placeholder: "Ask about the Glo2 Facial…"
+    "/treatments/hair-rejuvenation":
+      topic: "scalp and hair"
+      placeholder: "Ask about scalp treatments…"
+    "/treatments/danne-montague-king":
+      topic: "DMK"
+      placeholder: "Ask about DMK treatments…"
+    "/treatments*":
+      greeting: "Have a question about this treatment? I can explain what it does, what it costs, and how to book."
+      placeholder: "Ask about this treatment…"
+      topic: "treatments"
+    "/about*":
+      greeting: "Curious about Jen? Ask about her training, her approach, or what to expect at your visit."
+      placeholder: "Ask about Jen, her training, her approach…"
+      topic: "Jen"
   suggested_questions:
     default:
       en:
-        - Help me find the right facial
+        - What's right for my skin?
         - What helps with thinning hair?
         - What should I know before my first visit?
+    pages:
+      "/services*":
+        en: [ "Which facial is right for me?", "What's the difference between the HydraFacials?", "What's the most affordable option?" ]
+      "/treatments*":
+        en: [ "Is this right for my skin?", "How much does it cost?", "Can I book online?" ]
+      "/about*":
+        en: [ "Who is Jen?", "What does Jen specialize in?", "What should I know before my first visit?" ]
 
 handoff:
   email_from: "concierge@h1aiconsulting.com" # CONFIRM: the sending address H1 sets up

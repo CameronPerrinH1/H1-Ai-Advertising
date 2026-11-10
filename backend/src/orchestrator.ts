@@ -13,6 +13,7 @@ import type {
   Reply,
   SessionState,
 } from '@concierge/shared';
+import { copyForPage, forPage } from '@concierge/shared';
 import { type Catalog, localClock, pick } from './catalog.ts';
 import { checkText } from './checks/output.ts';
 import { redactCardNumbers } from './safety/cardNumbers.ts';
@@ -52,6 +53,11 @@ interface TurnResult {
   // everything). Empty messages aren't valid history, so the turn ends on the tool-result message.
   endsWithAssistant: boolean;
 }
+
+// A localized config string for both languages (Spanish falls back to English).
+const allLangs = (v: string | { en: string; es?: string }) => (typeof v === 'string' ? { en: v, es: v } : { en: v.en, es: v.es ?? v.en });
+// Page copy may say {name}, so it stays right when the spa renames its coordinator.
+const named = (m: { en: string; es: string }, name: string) => ({ en: m.en.replaceAll('{name}', name), es: m.es.replaceAll('{name}', name) });
 
 // The model often writes its answer, calls a tool (a card, a contact form), then writes the answer
 // again in other words. Keep the later version of any part that a later part repeats, so the guest
@@ -121,7 +127,20 @@ export class Orchestrator {
         default: qs ? { en: qs.default.en, es: qs.default.es ?? qs.default.en } : { en: [], es: [] },
         pages: Object.fromEntries(Object.entries(qs?.pages ?? {}).map(([path, q]) => [path, { en: q.en, es: q.es ?? q.en }])),
       },
-      display: { modes: c.display.modes, nudgeDelaySeconds: c.display.nudge_delay_seconds },
+      display: {
+        modes: c.display.modes,
+        nudgeDelaySeconds: c.display.nudge_delay_seconds,
+        pages: Object.fromEntries(
+          Object.entries(c.display.pages).map(([path, p]) => [
+            path,
+            {
+              ...(p.greeting ? { greeting: named(allLangs(p.greeting), c.concierge.name) } : {}),
+              ...(p.placeholder ? { placeholder: allLangs(p.placeholder) } : {}),
+              ...(p.topic ? { topic: allLangs(p.topic) } : {}),
+            },
+          ]),
+        ),
+      },
       promotions: this.catalog.activePromotions(this.clock().date).map((p) => ({ id: p.id, label: p.description, ends: p.ends })),
       hours: c.business.locations[0]!.hours,
       timezone: c.business.locations[0]!.timezone,
@@ -144,12 +163,16 @@ export class Orchestrator {
 
   private suggested(page: string | undefined, lang: Lang): string[] {
     const cfg = this.publicConfig().suggested;
-    return (page && cfg.pages[page]?.[lang]) || cfg.default[lang];
+    return forPage(cfg.pages, page)?.[lang] || cfg.default[lang];
   }
 
   greet(session: Session): Reply {
+    // The page's own greeting when the spa wrote one (the ask bar showed it before the guest asked).
+    const pageGreeting = copyForPage(this.catalog.config.display.pages, session.page)?.greeting;
     const reply: Reply = {
-      text: pick(this.catalog.config.concierge.greeting, session.lang),
+      text: pageGreeting
+        ? named(allLangs(pageGreeting), this.catalog.config.concierge.name)[session.lang]
+        : pick(this.catalog.config.concierge.greeting, session.lang),
       cards: [],
       quickReplies: this.suggested(session.page, session.lang),
     };

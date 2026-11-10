@@ -253,7 +253,12 @@ export const configSchema = z
       .strict(),
     display: z
       .object({
-        modes: z.array(z.enum(['inline', 'fullscreen', 'launcher'])).min(1),
+        modes: z.array(z.enum(['inline', 'fullscreen', 'launcher', 'askbar'])).min(1),
+        // Per page of the spa's site (exact path, or a prefix ending in "*"): what the ask bar and
+        // the chat's first message say there. Approved copy, like the greeting.
+        pages: z
+          .record(z.string(), z.object({ greeting: localized.optional(), placeholder: localized.optional(), topic: localized.optional() }).strict())
+          .default({}),
         nudge_delay_seconds: z.number().optional(),
         suggested_questions: z
           .object({ default: questions, pages: z.record(z.string(), questions).default({}) })

@@ -39,7 +39,7 @@ const startSchema = z.object({
   lang: z.enum(['en', 'es']),
   noticeVersion: z.string().max(40),
   page: z.string().max(200).optional(),
-  mode: z.enum(['inline', 'fullscreen', 'launcher']).optional(),
+  mode: z.enum(['inline', 'fullscreen', 'launcher', 'askbar']).optional(),
 });
 const staffSchema = z.object({ code: z.string().min(1).max(100), lang: z.enum(['en', 'es']) });
 const messageSchema = z.object({

@@ -2,6 +2,12 @@ import type { ConfirmField, Lang, Price } from '@concierge/shared';
 
 const en = {
   askAnything: (name: string) => `Ask ${name} anything`,
+  askbarHello: (name: string) => `Hi, I'm ${name}. Ask me about treatments, prices, or booking.`,
+  followUp: 'Ask a follow-up…',
+  nameFrom: (name: string, business: string) => `${name} from ${business}`,
+  askingAbout: 'Asking about',
+  minimize: 'Minimize chat',
+  openChat: 'Open chat',
   welcomeSub: 'Find the right treatment, get answers, and book in minutes.',
   startChat: 'Start chat',
   startHint: 'Tap Start chat or a question to begin.',
@@ -159,6 +165,12 @@ export type UiStrings = typeof en;
 
 const es: UiStrings = {
   askAnything: (name) => `Pregúntale a ${name}`,
+  askbarHello: (name) => `Hola, soy ${name}. Pregúntame por tratamientos, precios o reservas.`,
+  followUp: 'Haz otra pregunta…',
+  nameFrom: (name, business) => `${name} de ${business}`,
+  askingAbout: 'Preguntando por',
+  minimize: 'Minimizar chat',
+  openChat: 'Abrir chat',
   welcomeSub: 'Encuentra el tratamiento ideal, resuelve tus dudas y reserva en minutos.',
   startChat: 'Iniciar chat',
   startHint: 'Toca Iniciar chat o una pregunta para comenzar.',

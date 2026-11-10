@@ -24,6 +24,16 @@ export const CloseIcon = ({ size }: P) => (
     <path d="M6 6l12 12M18 6L6 18" />
   </svg>
 );
+export const ChevronDownIcon = ({ size }: P) => (
+  <svg {...base(size)}>
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
+export const ArrowUpIcon = ({ size }: P) => (
+  <svg {...base(size)}>
+    <path d="M12 19V5M6 11l6-6 6 6" />
+  </svg>
+);
 export const ExpandIcon = ({ size }: P) => (
   <svg {...base(size)}>
     <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />

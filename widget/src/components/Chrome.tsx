@@ -12,7 +12,7 @@ interface HeaderProps {
   lang: Lang;
   setLang: (l: Lang) => void;
   active: boolean;
-  mode: 'inline' | 'fullscreen';
+  mode: 'inline' | 'fullscreen' | 'askbar';
   onEnd: () => void;
   onExpand: () => void;
   onClose: () => void;

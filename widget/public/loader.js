@@ -5,6 +5,7 @@
  *   <div data-concierge-inline data-height="620"></div>   inline chat section
  *   <a data-concierge-open data-concierge-question="How much is Botox?">Ask about Botox</a>
  *   data-launcher="true" data-launcher-label="Chat with Ava" on the script tag for a launcher button
+ *   data-askbar="true" on the script tag for the ask bar docked at the bottom of every page
  *
  * The chat runs in an iframe from the chat. origin. Nothing passes between the iframe and this
  * page except UI events (open, close, refresh); the session lives in the iframe (D30, D53).
@@ -21,6 +22,7 @@
   var overlay = null;
   var lastTrigger = null;
   var launcher = null;
+  var askbar = null; // { box, frame }
 
   function frameUrl(mode, question) {
     var u = new URL('/', origin);
@@ -78,6 +80,7 @@
     document.body.appendChild(overlay);
     document.documentElement.style.overflow = 'hidden';
     if (launcher) launcher.style.display = 'none';
+    if (askbar) askbar.box.style.display = 'none';
     requestAnimationFrame(function () {
       overlay.style.opacity = '1';
     });
@@ -92,6 +95,7 @@
     overlay = null;
     document.documentElement.style.overflow = '';
     if (launcher) launcher.style.display = '';
+    if (askbar) askbar.box.style.display = '';
     // Inline frames reload the conversation so it continues where full screen left off.
     inlineFrames.forEach(function (f) {
       if (f.contentWindow) f.contentWindow.postMessage({ type: 'concierge:refresh' }, origin);
@@ -103,6 +107,11 @@
     if (e.origin !== origin || !e.data || typeof e.data.type !== 'string') return;
     if (e.data.type === 'concierge:close') close();
     if (e.data.type === 'concierge:open') open('', null);
+    // The ask bar reports how tall its content is; its frame never covers more of the page.
+    if (e.data.type === 'concierge:size' && askbar && e.source === askbar.frame.contentWindow) {
+      var h = Math.max(64, Math.min(Number(e.data.height) || 0, window.innerHeight - 24));
+      askbar.frame.style.height = h + 'px';
+    }
   });
 
   document.addEventListener('click', function (e) {
@@ -136,6 +145,35 @@
     document.body.appendChild(launcher);
   }
 
+  // The ask bar: a frame docked at the bottom centre, as wide as the bar (at most 692px), sized to
+  // what it shows. The page stays clickable around it.
+  function addAskbar() {
+    if (script.getAttribute('data-askbar') !== 'true') return;
+    var box = document.createElement('div');
+    var s = box.style;
+    s.position = 'fixed';
+    s.left = '50%';
+    s.transform = 'translateX(-50%)';
+    s.bottom = '0';
+    s.width = 'min(724px, 100vw)'; // the bar is 680px; the rest is room for its shadow
+    s.zIndex = '2147483645';
+    var f = makeFrame(frameUrl('askbar'), 'Chat with our virtual concierge');
+    f.style.width = '100%';
+    f.style.height = '150px';
+    f.style.transition = 'height .2s ease';
+    f.setAttribute('allowtransparency', 'true');
+    box.appendChild(f);
+    document.body.appendChild(box);
+    askbar = { box: box, frame: f };
+    inlineFrames.push(f);
+    // The frame can't see the page's height, so the conversation's size is told to it.
+    var tell = function () {
+      if (f.contentWindow) f.contentWindow.postMessage({ type: 'concierge:viewport', height: window.innerHeight }, origin);
+    };
+    f.addEventListener('load', tell);
+    window.addEventListener('resize', tell);
+  }
+
   // Inline chats load once the page is idle, so they never compete with the client's own page
   // (build plan 9.6). Native iframe lazy-loading proved unreliable in some embedded browsers.
   function whenIdle(fn) {
@@ -151,6 +189,7 @@
     addLauncher();
     whenIdle(function () {
       document.querySelectorAll('[data-concierge-inline]').forEach(mountInline);
+      addAskbar();
     });
   }
 

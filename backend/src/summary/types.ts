@@ -33,7 +33,7 @@ export interface Summary {
   local_hour: number;
   after_hours: boolean;
   language: 'en' | 'es' | 'other';
-  display_mode: 'inline' | 'fullscreen' | 'launcher';
+  display_mode: 'inline' | 'fullscreen' | 'launcher' | 'askbar';
   booking_mode: 'in_chat' | 'link_handoff';
   topics: Topic[];
   service_categories_discussed: string[];
