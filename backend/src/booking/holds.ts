@@ -32,6 +32,8 @@ export async function releaseHolds(deps: {
       if (!Number.isFinite(placed) || now - placed < limit) continue;
       await deps.holds.deleteHold(h.id);
       released += 1;
+      // The release stands even if the email fails (found Nov 11: the sweep couldn't send email);
+      // logged, and the next hold is still handled.
       await deps.outbox.send({
         from: deps.catalog.config.handoff.email_from,
         to: deps.catalog.config.handoff.email_to,
@@ -44,7 +46,7 @@ export async function releaseHolds(deps: {
           '',
           'If you already booked this guest in Vagaro, nothing else is needed.',
         ].join('\n'),
-      });
+      }).catch((err: Error) => log('hold_release_email_failed', { error: err?.name ?? 'Error' }));
     }
   }
   if (released) log('holds_released', { count: released });

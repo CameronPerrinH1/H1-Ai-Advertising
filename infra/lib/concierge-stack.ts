@@ -257,7 +257,8 @@ export class ConciergeStack extends Stack {
         }),
       );
     }
-    for (const f of [apiFn, weeklyFn]) {
+    // The sweep emails the spa when it releases a hold nobody turned into an appointment.
+    for (const f of props.holds && props.holds !== 'off' ? [apiFn, weeklyFn, sweepFn] : [apiFn, weeklyFn]) {
       f.addToRolePolicy(
         new iam.PolicyStatement({
           sid: 'SendEmail',

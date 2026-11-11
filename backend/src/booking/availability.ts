@@ -123,13 +123,19 @@ export class VagaroAvailability implements AvailabilitySource, HoldWriter {
     await this.post(`/personal-tasks/delete/${encodeURIComponent(id)}`, { businessId: this.businessId }, token);
   }
 
-  // `to` must be after `from`: a search that starts and ends on one day finds nothing.
+  // `to` must be after `from`: a search that starts and ends on one day finds nothing. Results come
+  // in pages (10 by default; found Nov 11 when a test hold was missed), so every page is read.
   async listHolds(providerId: string, from: string, to: string): Promise<Hold[]> {
     const token = await this.accessToken();
-    const r = await this.post('/personal-tasks/retrieve', { businessId: this.businessId, serviceProviderId: providerId, startTime: from, endTime: to }, token);
-    const list = (Array.isArray(r.data) ? r.data : ((r.data as { personalTasks?: unknown[] } | undefined)?.personalTasks ?? [])) as {
-      personalTaskId?: string; personalTaskName?: string; personalTaskComment?: string; startTime?: string; endTime?: string;
-    }[];
+    type Task = { personalTaskId?: string; personalTaskName?: string; personalTaskComment?: string; startTime?: string; endTime?: string };
+    const list: Task[] = [];
+    for (let page = 1; page <= 20; page++) {
+      const r = await this.post(`/personal-tasks/retrieve?pageNumber=${page}&pageSize=100`, { businessId: this.businessId, serviceProviderId: providerId, startTime: from, endTime: to }, token);
+      const data = r.data as { personalTasks?: Task[]; nextPage?: unknown } | Task[] | undefined;
+      const batch = Array.isArray(data) ? data : (data?.personalTasks ?? []);
+      list.push(...batch);
+      if (Array.isArray(data) || !data?.nextPage || batch.length < 100) break;
+    }
     return list
       .filter((x) => x.personalTaskId && x.startTime && x.endTime)
       .map((x) => ({

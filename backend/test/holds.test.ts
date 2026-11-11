@@ -45,6 +45,27 @@ function setup(opts: { holdMode?: 'on' | 'test'; writer?: HoldWriter } = { holdM
   return { fixed, outbox, o, session, ctx };
 }
 
+describe('Vagaro hold list', () => {
+  it('reads every page of calendar tasks', async () => {
+    const { VagaroAvailability } = await import('../src/booking/availability.ts');
+    const task = (i: number) => ({ personalTaskId: `t${i}`, personalTaskName: i === 149 ? 'Chat hold: X – A B.' : `task ${i}`, personalTaskComment: '', startTime: '2027-03-10T13:00:00', endTime: '2027-03-10T13:20:00' });
+    const pages: string[] = [];
+    const fakeFetch = (async (url: string) => {
+      const u = new URL(url);
+      if (u.pathname.endsWith('generate-access-token')) return new Response(JSON.stringify({ responseCode: 1000, data: { access_token: 'x', expires_in: 3600 } }));
+      const page = Number(u.searchParams.get('pageNumber'));
+      pages.push(String(page));
+      const items = Array.from({ length: page === 1 ? 100 : 50 }, (_, i) => task((page - 1) * 100 + i));
+      return new Response(JSON.stringify({ responseCode: 1000, data: { personalTasks: items, ...(page === 1 ? { nextPage: 'p2' } : {}) } }));
+    }) as typeof fetch;
+    const v = new VagaroAvailability('biz', async () => ({ clientId: 'a', clientSecretKey: 'b', region: 'us02' }), fakeFetch);
+    const holds = await v.listHolds('jen', '2026-11-11', '2027-05-12');
+    expect(pages).toEqual(['1', '2']);
+    expect(holds).toHaveLength(150);
+    expect(holds.some((h) => h.name.startsWith('Chat hold'))).toBe(true);
+  });
+});
+
 describe('holds', () => {
   it('holds a picked time on the calendar after Confirm, then emails the spa', async () => {
     const { fixed, outbox, o, session, ctx } = setup();
@@ -131,6 +152,11 @@ describe('holds', () => {
     expect(n).toBe(1); // only the one placed more than 24 hours ago; Jen's own tasks are never touched
     expect([...fixed.holds.values()].map((h) => h.name)).toEqual(['Chat hold: Dermaplane Facial – Sam L.', "Jen's own block"]);
     expect(outbox.sent[0]!.subject).toBe('Released: Chat hold: Deluxe Hydrafacial – Dana R.');
+    // A failed email doesn't stop the release, or the next one.
+    const failing = { sent: [] as unknown[], send: async () => { throw Object.assign(new Error('denied'), { name: 'AccessDeniedException' }); } };
+    await fixed.createHold({ providerId: jen, date: '2026-11-15', start: '10:00', end: '10:45', name: 'Chat hold: A – B C.', comment: placed('2026-11-08T20:00:00.000Z') });
+    await fixed.createHold({ providerId: jen, date: '2026-11-16', start: '10:00', end: '10:45', name: 'Chat hold: D – E F.', comment: placed('2026-11-08T20:00:00.000Z') });
+    expect(await releaseHolds({ catalog, holds: fixed, outbox: failing, mode: 'on', today: '2026-11-10', now: NOW })).toBe(2);
     // In test mode, holds go after 10 minutes.
     const t = await releaseHolds({ catalog, holds: fixed, outbox, mode: 'test', today: '2026-11-10', now: NOW });
     expect(t).toBe(1);
