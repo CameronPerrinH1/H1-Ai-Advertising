@@ -45,17 +45,20 @@ describe("Plumb + Pine's ask bar", () => {
 });
 
 describe('selling first (Erin, Nov 10)', () => {
-  it('tells the chat to ask, probe hesitation, and upsell listed pairings', async () => {
+  it('tells the chat to understand first, probe hesitation, and upsell listed pairings', async () => {
     const { loadClient } = await import('../src/config/load.ts');
     const { Catalog } = await import('../src/catalog.ts');
     const { catalogBlock } = await import('../src/prompt.ts');
     const block = catalogBlock(new Catalog(loadClient('lumen-aesthetics')), '2026-11-10');
-    expect(block).toContain('# Selling: your top priority after safety');
-    expect(block).toContain('Never answer and stop');
-    expect(block).toContain('gently ask whether anything is holding them back');
-    expect(block).toContain('Upsell in the same reply');
-    expect(block).toContain('Only suggest pairings and add-ons listed in this prompt');
-    expect(block).toContain('One upsell per treatment');
+    // Cameron, Nov 10: understand the guest's concern first, then recommend, expect hesitation, book.
+    expect(block).toContain('# How you help: understand, recommend, book');
+    expect(block).toContain('1. Understand first.');
+    expect(block).toContain("Until you understand their concern, don't recommend treatments or offer the phone, a callback, or booking");
+    expect(block).toContain('3. Expect hesitation.');
+    expect(block).toContain("ask what's holding them back");
+    expect(block).toContain('suggest ONE in a natural sentence');
+    expect(block).toContain('Only listed pairings; one per treatment.');
+    expect(block).toContain('Every reply ends with one question or a clear next step');
   });
 });
 

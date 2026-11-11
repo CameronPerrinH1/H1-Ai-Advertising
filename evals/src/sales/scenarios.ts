@@ -30,8 +30,7 @@ export const SCENARIOS: Scenario[] = [
     id: 'thinning-chip',
     title: 'Thinning hair, from the intro chip',
     turns: ['What helps with thinning hair?', { chip: 'thinning' }],
-    expect: { booksBy: 2 },
-    why: 'Was asking "thinning or flaking?" and "a timeline, or just starting to look?" instead of booking the scalp consultation.',
+    why: 'Understand first, then the scalp consultation. Never "a timeline, or just starting to look?" (Nov 10).',
   },
   {
     id: 'price-steep-scalp',
@@ -139,6 +138,19 @@ export const SCENARIOS: Scenario[] = [
     title: 'Callback request, confirmed',
     turns: ['Can someone call me about scalp treatments?', 'Dana Reyes, 775-555-0142', { confirm: true }],
     why: 'Takes name and phone, shows the card, confirms after the tap.',
+  },
+  {
+    id: 'rejects-first-pick',
+    title: 'Says no to the first recommendation',
+    turns: ['My skin looks dull and tired lately.', "Mostly I just want it to look brighter. Nothing that peels.", "Hmm, that's more than I wanted to spend."],
+    why: 'Understand, recommend, then handle the price no with a lower-priced fit instead of giving up.',
+  },
+  {
+    id: 'ideal-times',
+    title: 'Wants Saturday mornings',
+    turns: ["I'd like to book a Deluxe Hydrafacial.", 'Saturday mornings work best for me.'],
+    expect: { booksBy: 2 },
+    why: 'Ask what times work, then show openings that fit (morning), never promising a time is held.',
   },
   // ---- Simulated guests ----
   {

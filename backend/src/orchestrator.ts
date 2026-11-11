@@ -286,7 +286,8 @@ export class Orchestrator {
       lang,
       today: clock.date,
       phoneKey: this.deps.phoneKey,
-      extraAmounts: new Set(),
+      // A reply may repeat amounts the guest named ("about $150"), like their own phone number.
+      extraAmounts: guestAmounts([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       availability: this.openingsOn ? this.deps.availability : undefined,
       now: this.deps.now ? () => this.deps.now!().getTime() : undefined,
       guestPhones: guestPhones([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
@@ -318,7 +319,7 @@ export class Orchestrator {
         reply = { text: fb.text, cards: [...final.cards.filter((c) => c.type !== 'booking_link'), ...fb.cards], quickReplies: [] };
         stored = replaceFinalText(stored, fb.text);
       } else {
-        reply = await bookingFromChips({ text: final.text, cards: final.cards, quickReplies: dropButtonChips(final.quickReplies, final.cards) }, ctx);
+        reply = await bookingFromChips({ text: final.text, cards: oneOpeningsCard(final.cards), quickReplies: dropButtonChips(final.quickReplies, final.cards) }, ctx);
         for (const id of check.promotionsMentioned) session.promotionsMentioned.add(id);
       }
 
@@ -469,6 +470,17 @@ export class Orchestrator {
   }
 }
 
+// Amounts a guest named: "$150", "150 dollars", "my budget is 150", "under 200".
+const GUEST_AMOUNT = /\$\s?(\d[\d,]*(?:\.\d{1,2})?)|\b(\d[\d,]*(?:\.\d{1,2})?)\s*(?:dollars|bucks|usd)\b|\b(?:budget|spend|under|around|about|max(?:imum)?|up to)\D{0,12}?(\d[\d,]*(?:\.\d{1,2})?)/gi;
+function guestAmounts(texts: string[]): Set<number> {
+  const out = new Set<number>();
+  for (const t of texts) for (const m of t.matchAll(GUEST_AMOUNT)) {
+    const v = Number((m[1] ?? m[2] ?? m[3] ?? '').replace(/,/g, ''));
+    if (v > 0 && v < 100_000) out.add(v);
+  }
+  return out;
+}
+
 // The phone numbers a guest typed, as 10 digits, so a reply may read their own number back.
 function guestPhones(texts: string[]): Set<string> {
   const out = new Set<string>();
@@ -535,6 +547,12 @@ export function dropButtonChips(chips: string[], cards: Card[]): string[] {
       !(types.has('event_plan') && /\b(request|solicitar)\b.*\bplan\b/i.test(chip)) &&
       !(types.has('confirm') && /\b(confirm|confirmar)\b/i.test(chip)),
   );
+}
+
+// One openings card per reply: when the model searched twice, the later search (its refinement) wins.
+function oneOpeningsCard(cards: Card[]): Card[] {
+  const last = cards.filter((c) => c.type === 'openings').at(-1);
+  return last ? cards.filter((c) => c.type !== 'openings' || c === last) : cards;
 }
 
 // Booking belongs on a card, not a chip. When the model offers a "Book…" chip without a booking

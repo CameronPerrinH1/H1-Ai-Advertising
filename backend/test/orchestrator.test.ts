@@ -112,6 +112,18 @@ describe('conversation loop', () => {
     expect(s2.counts.fallbacks).toBe(1);
   });
 
+  it("lets a reply repeat an amount the guest named, but not invent one", async () => {
+    const model = scriptedModel([{ content: [text('Within your $150 budget, the HydraFacial Signature at $199 is a little over. Would you like a lighter option?')] }]);
+    const s = newSession();
+    await orchestrator(model).handleMessage(s, { id: 'm1-xxxxxxxx', text: 'My budget is about $150', lang: 'en' });
+    expect(s.counts.fallbacks).toBe(0);
+    expect(model.calls).toHaveLength(1);
+    const made = scriptedModel([{ content: [text('It is only $137 this week.')] }, { content: [text('It is only $137 this week.')] }]);
+    const s2 = newSession();
+    await orchestrator(made).handleMessage(s2, { id: 'm1-xxxxxxxx', text: 'My budget is about $150', lang: 'en' });
+    expect(s2.counts.fallbacks).toBe(1);
+  });
+
   it('leaves a booking chip alone when the treatment is unclear', async () => {
     const model = scriptedModel([
       { content: [text('Happy to help you choose. What would you like to improve most?'), toolUse('suggest_replies', { replies: ['Glow', 'Book a visit'] })], stop: 'tool_use' },

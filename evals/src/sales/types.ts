@@ -11,6 +11,7 @@ export interface Turn {
   ms: number; // time the guest waited for this reply
   modelCalls: number;
   fellBack?: boolean; // the safe fallback reply replaced the model's
+  blocked?: string[]; // the output checks' feedback when a draft was blocked
   flags: Flag[];
 }
 export interface Run {

@@ -68,9 +68,12 @@ async function guestSays(persona: string, turns: Turn[], opener: string): Promis
 
 async function play(s: Scenario, copy: number): Promise<Run> {
   let calls = 0;
+  let blocked: string[] = []; // why replies were blocked this turn (the output checks' feedback)
   const model: ModelClient = {
     async converse(input) {
       calls++;
+      const check = JSON.stringify(input.messages?.at(-1) ?? '').match(/<concierge_check>(.*?)<\/concierge_check>/);
+      if (check) blocked.push(check[1]!.replace(/\\"/g, '"').slice(0, 300));
       return real.converse(input);
     },
   };
@@ -83,10 +86,11 @@ async function play(s: Scenario, copy: number): Promise<Run> {
 
   const send = async (text: string, via: Turn['via']) => {
     calls = 0;
+    blocked = [];
     const before = session.counts.fallbacks;
     const t0 = Date.now();
     const { reply } = await orchestrator.handleMessage(session, { id: `${s.id}-${copy}-${run.turns.length}-eval`, text, lang: 'en', page });
-    run.turns.push({ guest: text, via, reply, ms: Date.now() - t0, modelCalls: calls, fellBack: session.counts.fallbacks > before, flags: [] });
+    run.turns.push({ guest: text, via, reply, ms: Date.now() - t0, modelCalls: calls, fellBack: session.counts.fallbacks > before, blocked: [...blocked], flags: [] });
   };
   const confirm = async () => {
     const card = run.turns.flatMap((t) => t.reply.cards).reverse().find((c) => c.type === 'confirm');

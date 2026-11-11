@@ -45,7 +45,7 @@ export function codeChecks(run: Run, catalog: Catalog) {
     if (/\b(cheap|discount)\b/i.test(text)) add('voice', 'minor', 'Uses "cheap" or "discount" (on the spa\'s list of words to avoid).');
     if (!text.trim() && !t.reply.cards.length) add('empty', 'major', 'Nothing was said or shown.');
     if (t.ms > 8000) add('slow', 'minor', `Took ${(t.ms / 1000).toFixed(1)}s.`);
-    if (t.fellBack) add('fallback', 'major', 'Fell back to the safe reply (an output check failed twice, or a tool limit was hit).');
+    if (t.fellBack) add('fallback', 'major', `Fell back to the safe reply.${t.blocked?.length ? ` Blocked because: ${t.blocked.join(' / ')}` : ' (a tool limit was hit)'}`);
   }
 
   const e = run.scenario.expect;

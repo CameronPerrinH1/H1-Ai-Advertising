@@ -83,7 +83,7 @@ describe('sales tactics and guidance', () => {
     expect(block).toContain("Don't use urgency, not even real end dates");
     expect(block).toContain('If they hesitate over price, you may offer this one: 20% off chemical peels.');
     expect(block).toContain('only when the guest asks to book or to talk to someone');
-    expect(block).toContain('Briefly invite the guest to book in most replies.');
+    expect(block).toContain('Once you have recommended a treatment, invite the booking in most replies.');
     expect(block).toContain("Don't recommend these unless the guest asks about them: IPL Photofacial.");
     expect(block).toContain('Worth suggesting with Botox: HydraFacial Signature.');
     expect(block).toContain('Glow Membership (a monthly facial for less)');

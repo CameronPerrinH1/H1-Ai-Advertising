@@ -60,6 +60,27 @@ describe('show_openings', () => {
     expect(src.calls[0]).toEqual({ serviceId: catalog.config.booking.availability!.service_ids['deluxe-hydrafacial'], date: undefined });
   });
 
+  it("keeps to the guest's part of the day, and says so when nothing fits", async () => {
+    const morning = await showOpenings({ service_id: 'deluxe-hydrafacial', time_of_day: 'morning' }, ctx(new FixedAvailability(() => '2026-11-11')));
+    const card = morning.cards?.[0];
+    if (card?.type !== 'openings') throw new Error('no openings card');
+    expect(card.days.map((d) => d.date)).toEqual(['2026-11-12', '2026-11-13', '2026-11-14']); // Wed's only time left is 3:00 PM
+    expect(card.days.flatMap((d) => d.times.map((t) => t.time)).every((t) => t < '12:00')).toBe(true);
+    expect(morning.result.no_openings_in).toBeUndefined();
+    const evening = await showOpenings({ service_id: 'deluxe-hydrafacial', time_of_day: 'evening' }, ctx(new FixedAvailability(() => '2026-11-11')));
+    expect(evening.cards?.[0]?.type).toBe('openings');
+    expect(evening.result.no_openings_in).toBe('evening');
+  });
+
+  it('searches the guest’s weekday', async () => {
+    const src = new FixedAvailability(() => '2026-11-11');
+    const r = await showOpenings({ service_id: 'deluxe-hydrafacial', weekday: 'saturday', time_of_day: 'morning' }, ctx(src));
+    const card = r.cards?.[0];
+    if (card?.type !== 'openings') throw new Error('no openings card');
+    expect(card.days.map((d) => d.date)).toEqual(['2026-11-14', '2026-11-21', '2026-11-28']); // Saturdays only
+    expect(src.calls[0]!.date).toBe('2026-11-14');
+  });
+
   it('shows the consultation’s openings for a treatment that needs one first', async () => {
     const r = await showOpenings({ service_id: 'sugar-plumb-express-facial' }, ctx(new FixedAvailability(() => '2026-11-12')));
     const card = r.cards?.[0];

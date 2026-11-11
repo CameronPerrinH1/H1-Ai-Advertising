@@ -11,9 +11,22 @@ import { handleTool, type ToolContext, type ToolOutcome } from './handlers.ts';
 const input = z.object({
   service_id: z.string(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  time_of_day: z.enum(['morning', 'afternoon', 'evening']).optional(),
+  weekday: z.enum(['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']).optional(),
 });
+const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const weekdayOf = (date: string) => new Date(`${date}T12:00:00Z`).getUTCDay();
+// The first date on or after `date` that falls on the weekday.
+const onOrAfter = (date: string, weekday: number) => addDays(date, (weekday - weekdayOf(date) + 7) % 7);
 
-const MAX_SEARCHES = 3; // platform calls for one card
+// The guest's preferred part of the day, in the spa's local time.
+const PART: Record<string, (t: string) => boolean> = {
+  morning: (t) => t < '12:00',
+  afternoon: (t) => t >= '12:00' && t < '17:00',
+  evening: (t) => t >= '17:00',
+};
+
+const MAX_SEARCHES = 4; // platform calls for one card
 const DEFAULT_CHECKS_PER_SESSION = 6;
 
 const dayLabel = (date: string, lang: Lang) =>
@@ -62,24 +75,34 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
   const lastDate = addDays(ctx.today, max_days_ahead);
   const from = p.data.date && p.data.date > ctx.today ? p.data.date : undefined;
 
+  const fits = p.data.time_of_day ? PART[p.data.time_of_day]! : () => true;
+  const wd = p.data.weekday ? WEEKDAYS.indexOf(p.data.weekday) : -1;
+  // A weekday is searched directly: the platform returns the first openings on or after a date.
+  const firstSearch = wd >= 0 ? onOrAfter(from ?? addDays(ctx.today, 1), wd) : from;
   const days: OpeningDay[] = [];
-  let next = from;
+  const anyTime: OpeningDay[] = []; // if nothing fits their part of the day, the soonest others
+  let next = firstSearch;
   try {
     for (let i = 0; i < MAX_SEARCHES && days.length < config.days_shown; i++) {
       const found = await ctx.availability.search(platformId, next);
       if (!found.length) break;
       for (const d of found) {
         if (d.date > lastDate || days.some((x) => x.date === d.date)) continue;
-        const times = d.times.filter((t) => zonedToUtc(d.date, t, tz) >= earliest);
+        if (wd >= 0 && weekdayOf(d.date) !== wd) continue;
+        const allowed = d.times.filter((t) => zonedToUtc(d.date, t, tz) >= earliest);
+        const times = allowed.filter(fits);
         if (times.length) days.push({ ...d, times });
+        else if (allowed.length && anyTime.length < config.days_shown) anyTime.push({ ...d, times: allowed });
       }
-      next = addDays(found.at(-1)!.date, 1);
+      next = wd >= 0 ? onOrAfter(addDays(found.at(-1)!.date, 1), wd) : addDays(found.at(-1)!.date, 1);
       if (next > lastDate) break;
     }
   } catch (err) {
     log('availability_error', { session: session.hash.slice(0, 8), error: (err as Error).name });
     return link('the booking system could not be reached just now; the booking button shows the openings');
   }
+  const noFit = !days.length && anyTime.length > 0;
+  if (noFit) days.push(...anyTime);
   if (!days.length) return link('no openings were found in the next few days; the booking button shows later dates');
 
   session.outcomes.add('link_provided');
@@ -106,6 +129,7 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
       consultation_first: !!consult,
       ...(provider ? { with: provider } : {}),
       soonest: `${shown[0]!.label} at ${shown[0]!.times[0]!.label}`,
+      ...(noFit ? { no_openings_in: p.data.time_of_day, showing: 'the soonest times at other parts of the day; say so' } : {}),
       days: shown.map((d) => `${d.label}: ${d.times.map((t) => t.label).join(', ')}`),
       note: "The card shows these times; tapping one opens the booking page, where the guest confirms it. You can't hold or book a time. Mention at most the soonest time, and only from this list.",
     },
