@@ -19,7 +19,7 @@ import { FileSummaryRepo, LOCAL_DATA_DIR, type SummaryRepo } from './summary/sto
 import { DynamoSummaryRepo } from './summary/dynamo.ts';
 import { insightsCard } from './summary/insights.ts';
 import { log } from './log.ts';
-import { VagaroAvailability, type AvailabilitySource, type VagaroCredentials } from './booking/availability.ts';
+import { VagaroAvailability, type AvailabilitySource, type HoldWriter, type VagaroCredentials } from './booking/availability.ts';
 
 export interface Runtime {
   bundle: ClientBundle;
@@ -34,6 +34,8 @@ export interface Runtime {
   originVerify?: string; // deployed: CloudFront sends this header, so the API can't be reached around the firewall
   currentMonth: () => string;
   onAws: boolean;
+  holds?: { writer: HoldWriter; mode: 'on' | 'test' }; // where the deployment switched holds on
+  today: () => string; // the spa's local date
 }
 
 type Env = Record<string, string | undefined>;
@@ -100,15 +102,22 @@ export async function createRuntime(env: Env = process.env): Promise<Runtime> {
   // API keys (BOOKING_SECRET_ID, set by the stack). Read lazily and once per container.
   const availCfg = bundle.config.booking.availability;
   let availability: AvailabilitySource | undefined;
+  // Holds also need the deployment's switch: BOOKING_HOLDS=on, or test (marked "TEST –", released
+  // after 10 minutes). Off by default, so a staging chat never blocks a spa's real calendar.
+  const holdMode = env.BOOKING_HOLDS === 'on' || env.BOOKING_HOLDS === 'test' ? env.BOOKING_HOLDS : undefined;
+  let holds: Runtime['holds'];
   if (availCfg && env.BOOKING_SECRET_ID) {
     let creds: Promise<VagaroCredentials> | undefined;
     const load = () => (creds ??= secret(env.BOOKING_SECRET_ID!).then((s) => JSON.parse(s) as VagaroCredentials).catch((err) => {
       creds = undefined; // retried on the next search
       throw err;
     }));
-    availability = new VagaroAvailability(availCfg.business_id, load);
+    const vagaro = new VagaroAvailability(availCfg.business_id, load, fetch, holdMode && availCfg.holds.enabled ? 'read access,write employee' : 'read access');
+    availability = vagaro;
+    if (holdMode && availCfg.holds.enabled) holds = { writer: vagaro, mode: holdMode };
   }
 
-  const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey, insights, availability });
-  return { bundle, catalog, model, outbox, orchestrator, sessions, summaries, control: controlFromEnv(clientId), staffCode, originVerify, currentMonth, onAws };
+  const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey, insights, availability, holds: holds?.writer, holdMode: holds?.mode });
+  const today = () => localClock(tz, new Date()).date;
+  return { bundle, catalog, model, outbox, orchestrator, sessions, summaries, control: controlFromEnv(clientId), staffCode, originVerify, currentMonth, onAws, holds, today };
 }

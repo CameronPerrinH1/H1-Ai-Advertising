@@ -79,7 +79,8 @@ async function play(s: Scenario, copy: number): Promise<Run> {
   };
   // Openings come from fixed data, never the spa's real calendar (D41).
   const availability = catalog.config.booking.availability ? new FixedAvailability(() => tomorrow()) : undefined;
-  const orchestrator = new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'eval', availability });
+  const holdsOn = !!availability && !!catalog.config.booking.availability?.holds.enabled && process.env.EVAL_HOLDS !== 'off';
+  const orchestrator = new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'eval', availability, ...(holdsOn ? { holds: availability, holdMode: 'on' as const } : {}) });
   const { session } = createSession({ lang: 'en', noticeVersion: bundle.config.concierge.chat_notice.version, audience: 'guest' });
   const run: Run = { scenario: s, copy, turns: [], flags: [] };
   const page = s.page ?? '/home-chat';
@@ -144,7 +145,8 @@ async function main() {
 
   // The grader sees the same instructions and facts the coordinator does.
   const openings = !!catalog.config.booking.availability;
-  const reference = { instructions: fixedBlock(catalog, { openings }), facts: catalogBlock(catalog, TODAY, { openings }) };
+  const holds = openings && !!catalog.config.booking.availability?.holds.enabled && process.env.EVAL_HOLDS !== 'off';
+  const reference = { instructions: fixedBlock(catalog, { openings }), facts: catalogBlock(catalog, TODAY, { openings, holds }) };
   const runs: Run[] = [];
   const queue = [...jobs];
   await Promise.all(

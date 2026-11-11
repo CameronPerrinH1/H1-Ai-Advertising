@@ -59,6 +59,8 @@ const en = {
   openingsWith: (provider?: string, minutes?: number) => [provider ? `with ${provider}` : '', minutes ? `${minutes} min` : ''].filter(Boolean).join(' · '),
   openingsNote: "Tap a time to finish booking. You'll confirm it on the booking page.",
   seeAllTimes: 'See all times',
+  pickTime: (day: string, time: string) => `I'd like ${day} at ${time}`,
+  openingsPickNote: "Tap a time to pick it. It's held for you once you confirm.",
   error: (phone: string) => `Something went wrong on our end. You can book online or call us at ${phone}.`,
   // Kill switch (D43)
   unavailableTitle: 'Chat is unavailable right now',
@@ -226,6 +228,8 @@ const es: UiStrings = {
   openingsWith: (provider, minutes) => [provider ? `con ${provider}` : '', minutes ? `${minutes} min` : ''].filter(Boolean).join(' · '),
   openingsNote: 'Toca un horario para terminar tu reserva. Lo confirmarás en la página de reservas.',
   seeAllTimes: 'Ver todos los horarios',
+  pickTime: (day, time) => `Me gustaría el ${day} a las ${time}`,
+  openingsPickNote: 'Toca un horario para elegirlo. Lo apartamos cuando lo confirmes.',
   error: (phone) => `Algo salió mal de nuestro lado. Puedes reservar en línea o llamarnos al ${phone}.`,
   unavailableTitle: 'El chat no está disponible en este momento',
   unavailableBody: (name) => `Aún puedes reservar en línea o llamar a ${name} y el equipo te ayudará.`,

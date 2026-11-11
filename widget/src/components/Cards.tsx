@@ -656,7 +656,7 @@ function LinkCard({ card, s }: Props & { card: Extract<Card, { type: 'booking_li
 }
 
 // Live openings: each time opens the booking page, where the guest confirms it.
-function OpeningsCard({ card, s }: Props & { card: Extract<Card, { type: 'openings' }> }) {
+function OpeningsCard({ card, s, h }: Props & { card: Extract<Card, { type: 'openings' }> }) {
   const meta = s.openingsWith(card.providerName, card.durationMinutes);
   return (
     <section class="card openings" aria-label={`${s.openingsEyebrow}: ${card.serviceName}`}>
@@ -675,15 +675,22 @@ function OpeningsCard({ card, s }: Props & { card: Extract<Card, { type: 'openin
           <div class="openings-day" key={d.date}>
             <span class="openings-date">{d.label}</span>
             <div class="openings-times">
-              {d.times.map((t) => (
-                <a class="time-chip" key={t.time} href={card.url} {...external} aria-label={`${d.label}, ${t.label}. ${s.opensBooking}`}>
-                  {t.label}
-                </a>
-              ))}
+              {d.times.map((t) =>
+                card.selectable ? (
+                  // With holds on, a time is picked in the chat, then held once the guest confirms.
+                  <button type="button" class="time-chip" key={t.time} onClick={() => h.onSend(s.pickTime(d.label, t.label))}>
+                    {t.label}
+                  </button>
+                ) : (
+                  <a class="time-chip" key={t.time} href={card.url} {...external} aria-label={`${d.label}, ${t.label}. ${s.opensBooking}`}>
+                    {t.label}
+                  </a>
+                ),
+              )}
             </div>
           </div>
         ))}
-        <p class="muted small openings-note">{s.openingsNote}</p>
+        <p class="muted small openings-note">{card.selectable ? s.openingsPickNote : s.openingsNote}</p>
         <a class="btn ghost openings-all" href={card.url} {...external}>
           <CalendarIcon size={16} />
           {s.seeAllTimes}

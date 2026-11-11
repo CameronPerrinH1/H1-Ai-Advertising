@@ -51,7 +51,7 @@ export function codeChecks(run: Run, catalog: Catalog) {
   const e = run.scenario.expect;
   if (!e) return;
   const replies = run.turns.filter((t) => t.via !== 'confirm');
-  const all = replies.map((t) => t.reply.text).join('\n').toLowerCase();
+  const all = run.turns.map((t) => t.reply.text).join('\n').toLowerCase(); // the reply after Confirm counts too
   if (e.booksBy) {
     const at = replies.findIndex(
       (t) => t.reply.cards.some((c) => c.type === 'booking_link' || c.type === 'openings' || c.type === 'confirm') || BOOKING_WORDS.test(t.reply.text) || t.reply.quickReplies.some((q) => BOOKING_WORDS.test(q)),

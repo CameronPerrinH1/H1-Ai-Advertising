@@ -6,7 +6,25 @@ export interface OpeningDay {
   date: string; // YYYY-MM-DD, the spa's local date
   times: string[]; // HH:mm, the spa's local time
   provider?: string;
+  providerId?: string; // the platform's id for the provider, for a hold
   durationMinutes?: number; // the platform's booking block (treatment plus clean-up)
+}
+
+// Holds (Cameron, Nov 11): a block on the provider's calendar for a time the guest picked and
+// confirmed, which the spa turns into a real appointment. On Vagaro a hold is a "personal task";
+// it takes the time out of online booking (tested Nov 11, though Vagaro reports the flag as off).
+export interface Hold {
+  id: string;
+  date: string; // YYYY-MM-DD, local
+  start: string; // HH:mm, local
+  end: string;
+  name: string;
+  comment: string;
+}
+export interface HoldWriter {
+  createHold(h: { providerId: string; date: string; start: string; end: string; name: string; comment: string }): Promise<string>;
+  deleteHold(id: string): Promise<void>;
+  listHolds(providerId: string, from: string, to: string): Promise<Hold[]>;
 }
 
 export interface AvailabilitySource {
@@ -25,19 +43,21 @@ export interface VagaroCredentials {
 
 const TIMEOUT_MS = 4000;
 
-export class VagaroAvailability implements AvailabilitySource {
+export class VagaroAvailability implements AvailabilitySource, HoldWriter {
   private token?: { value: string; expires: number };
 
   constructor(
     private readonly businessId: string,
     private readonly credentials: () => Promise<VagaroCredentials>,
     private readonly fetchImpl: typeof fetch = fetch,
+    // "write employee" is asked for only where holds are on: it's the scope personal tasks need.
+    private readonly scope = 'read access',
   ) {}
 
-  private async post(path: string, body: unknown, token?: string): Promise<{ responseCode?: number; message?: string; data?: unknown }> {
+  private async post(path: string, body: unknown, token?: string, method = 'POST'): Promise<{ responseCode?: number; message?: string; data?: unknown }> {
     const { region } = await this.credentials();
     const res = await this.fetchImpl(`https://api.vagaro.com/${encodeURIComponent(region)}/api/v2${path}`, {
-      method: 'POST',
+      method,
       headers: { 'content-type': 'application/json', ...(token ? { accessToken: token } : {}) },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -51,7 +71,7 @@ export class VagaroAvailability implements AvailabilitySource {
   private async accessToken(): Promise<string> {
     if (this.token && Date.now() < this.token.expires) return this.token.value;
     const c = await this.credentials();
-    const r = await this.post('/merchants/generate-access-token', { clientId: c.clientId, clientSecretKey: c.clientSecretKey, scope: 'read access' });
+    const r = await this.post('/merchants/generate-access-token', { clientId: c.clientId, clientSecretKey: c.clientSecretKey, scope: this.scope });
     const d = r.data as { access_token?: string; expires_in?: number } | undefined;
     if (!d?.access_token) throw new Error('VagaroError no token');
     this.token = { value: d.access_token, expires: Date.now() + Math.max(60, (d.expires_in ?? 3600) - 60) * 1000 };
@@ -65,14 +85,60 @@ export class VagaroAvailability implements AvailabilitySource {
       { businessId: this.businessId, ...(date ? { appointmentDate: date } : {}), bookingItems: [{ serviceId: platformServiceId }] },
       token,
     );
-    const days = (Array.isArray(r.data) ? r.data : []) as { appointmentDate?: string; timeSlot?: string[]; items?: { serviceProvider?: string; duration?: number }[] }[];
+    const days = (Array.isArray(r.data) ? r.data : []) as { appointmentDate?: string; timeSlot?: string[]; items?: { serviceProvider?: string; serviceProviderId?: string; duration?: number }[] }[];
     return days
       .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.appointmentDate ?? '') && Array.isArray(d.timeSlot))
       .map((d) => ({
         date: d.appointmentDate!,
         times: d.timeSlot!.filter((t) => /^\d{2}:\d{2}$/.test(t)),
         provider: d.items?.[0]?.serviceProvider,
+        providerId: d.items?.[0]?.serviceProviderId,
         durationMinutes: d.items?.[0]?.duration,
+      }));
+  }
+
+  async createHold(h: { providerId: string; date: string; start: string; end: string; name: string; comment: string }): Promise<string> {
+    const token = await this.accessToken();
+    const r = await this.post(
+      '/personal-tasks/create',
+      {
+        businessId: this.businessId,
+        serviceProviderId: h.providerId,
+        personalTaskName: h.name.slice(0, 100),
+        personalTaskComment: h.comment.slice(0, 500),
+        blockOnlineBooking: true,
+        startTime: `${h.date}T${h.start}:00`,
+        endTime: `${h.date}T${h.end}:00`,
+      },
+      token,
+    );
+    const id = (r.data as { personalTaskIds?: string[] } | undefined)?.personalTaskIds?.[0];
+    if (!id) throw new Error('VagaroError no hold id');
+    return id;
+  }
+
+  // The business id must be in the body, or Vagaro answers "validation errors" (tested Nov 11).
+  async deleteHold(id: string): Promise<void> {
+    const token = await this.accessToken();
+    await this.post(`/personal-tasks/delete/${encodeURIComponent(id)}`, { businessId: this.businessId }, token);
+  }
+
+  // `to` must be after `from`: a search that starts and ends on one day finds nothing.
+  async listHolds(providerId: string, from: string, to: string): Promise<Hold[]> {
+    const token = await this.accessToken();
+    const r = await this.post('/personal-tasks/retrieve', { businessId: this.businessId, serviceProviderId: providerId, startTime: from, endTime: to }, token);
+    const list = (Array.isArray(r.data) ? r.data : ((r.data as { personalTasks?: unknown[] } | undefined)?.personalTasks ?? [])) as {
+      personalTaskId?: string; personalTaskName?: string; personalTaskComment?: string; startTime?: string; endTime?: string;
+    }[];
+    return list
+      .filter((x) => x.personalTaskId && x.startTime && x.endTime)
+      .map((x) => ({
+        id: x.personalTaskId!,
+        date: x.startTime!.slice(0, 10),
+        start: x.startTime!.slice(11, 16),
+        end: x.endTime!.slice(11, 16),
+        name: x.personalTaskName ?? '',
+        comment: x.personalTaskComment ?? '',
       }));
   }
 }
@@ -80,8 +146,11 @@ export class VagaroAvailability implements AvailabilitySource {
 // ---------- Fixed openings for tests and the eval suite (D41) ----------
 
 // Every day from `from`: openings at the given times, except on the listed closed weekdays (0 = Sunday).
-export class FixedAvailability implements AvailabilitySource {
+// Holds live in memory and take their times out of the openings, as on Vagaro.
+export class FixedAvailability implements AvailabilitySource, HoldWriter {
   readonly calls: { serviceId: string; date?: string }[] = [];
+  readonly holds = new Map<string, Hold & { providerId: string }>();
+  private nextId = 1;
   constructor(
     private readonly from: () => string,
     private readonly times = ['10:00', '10:30', '13:30', '15:00'],
@@ -92,9 +161,22 @@ export class FixedAvailability implements AvailabilitySource {
     this.calls.push({ serviceId, date });
     let d = new Date(`${date ?? this.from()}T12:00:00Z`);
     for (let i = 0; i < 14; i++, d = new Date(d.getTime() + 86_400_000)) {
-      if (!this.closedWeekdays.includes(d.getUTCDay())) return [{ date: d.toISOString().slice(0, 10), times: this.times, provider: this.provider }];
+      const date = d.toISOString().slice(0, 10);
+      const times = this.times.filter((t) => ![...this.holds.values()].some((h) => h.date === date && t >= h.start && t < h.end));
+      if (!this.closedWeekdays.includes(d.getUTCDay()) && times.length) return [{ date, times, provider: this.provider, providerId: 'jen-vagaro-id' }];
     }
     return [];
+  }
+  async createHold(h: { providerId: string; date: string; start: string; end: string; name: string; comment: string }): Promise<string> {
+    const id = `hold-${this.nextId++}`;
+    this.holds.set(id, { id, ...h });
+    return id;
+  }
+  async deleteHold(id: string): Promise<void> {
+    this.holds.delete(id);
+  }
+  async listHolds(providerId: string, from: string, to: string): Promise<Hold[]> {
+    return [...this.holds.values()].filter((h) => h.providerId === providerId && h.date >= from && h.date < to);
   }
 }
 

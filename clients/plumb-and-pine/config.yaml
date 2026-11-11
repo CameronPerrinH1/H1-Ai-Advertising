@@ -46,6 +46,13 @@ booking:
   availability:
     source: vagaro
     business_id: "GQvcTaX8Jf8neKWNBYKkBA=="
+    # Holds (Nov 11): a time the guest picks and confirms is blocked on Jen's calendar until she
+    # makes the appointment; released after release_after_hours. The deployment must also allow them.
+    holds:
+      enabled: true
+      release_after_hours: 24
+    provider_ids:
+      jen-jeffers: "L~m7GercQGrImXF0FAHLhA=="
     service_ids:
       skin-consultation: "K3X3j7UJFM9k36bb328CKA=="
       sugar-plumb-express-facial: "XCrbtmKe1qweEXzZ3yo6kA=="

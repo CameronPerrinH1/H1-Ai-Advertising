@@ -1020,6 +1020,13 @@ a {
   transition: border-color 0.15s, background 0.15s;
 }
 
+button.time-chip {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .time-chip:hover {
   border-color: var(--brand);
   background: var(--brand-soft);

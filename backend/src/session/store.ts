@@ -24,6 +24,9 @@ export interface AppointmentPayload {
   lastName: string;
   phone: string; // E.164
   email?: string;
+  // A time picked from the openings shown in this chat. With holds on, Confirm blocks it on the
+  // provider's calendar before the request is emailed.
+  hold?: { serviceId: string; date: string; start: string; end: string; providerId?: string; label: string };
 }
 
 export interface CallbackPayload {
@@ -36,6 +39,14 @@ export interface CallbackPayload {
 export type PendingAction =
   | { id: string; kind: 'appointment'; payload: AppointmentPayload; createdAt: number; status: 'pending' | 'confirmed' | 'expired' }
   | { id: string; kind: 'callback'; payload: CallbackPayload; createdAt: number; status: 'pending' | 'confirmed' | 'expired' };
+
+export interface ShownSlot {
+  serviceId: string; // the chat's id for the treatment (or consultation) the openings were for
+  date: string; // YYYY-MM-DD, local
+  time: string; // HH:mm, local
+  providerId?: string; // the platform's provider id
+  minutes?: number; // the platform's booking block
+}
 
 export interface Session {
   hash: string;
@@ -52,6 +63,8 @@ export interface Session {
   display: DisplayMessage[];
   pendingActions: Map<string, PendingAction>;
   events: string[]; // told to the model at the start of the next turn
+  // Times show_openings offered in this chat; a hold may only be placed on one of them (D11).
+  shownSlots?: ShownSlot[];
   counts: { messages: number; requests: number; callbacks: number; fallbacks: number; openings?: number }; // openings: availability searches (D22)
   phoneHashes: Set<string>; // lets a deletion request find this session (7.2)
   seenMessageIds: Set<string>;

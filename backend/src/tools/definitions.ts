@@ -96,6 +96,12 @@ export const LINK_HANDOFF_TOOLS: Tool[] = [
       last_name: { type: 'string', maxLength: 50 },
       phone: { type: 'string', description: "Guest's phone number as they gave it. Code normalizes and validates it." },
       email: { type: 'string', description: 'Optional.' },
+      slot: {
+        type: 'object',
+        description: 'The time the guest picked from the openings shown in this chat (show_openings): its date (YYYY-MM-DD) and time (HH:mm, 24-hour, as in the openings). Instead of preferred_times.',
+        properties: { date: { type: 'string' }, time: { type: 'string' } },
+        required: ['date', 'time'],
+      },
     },
     ['first_name', 'last_name', 'phone'],
   ),
@@ -122,7 +128,7 @@ export const OPENINGS_TOOL: Tool = tool(
     service_id: { ...serviceId, description: 'Service ID from the catalog.' },
     date: { type: 'string', description: 'Optional. A date the guest asked about, YYYY-MM-DD.' },
     time_of_day: { type: 'string', enum: ['morning', 'afternoon', 'evening'], description: 'Optional. The part of the day that works for the guest.' },
-    weekday: { type: 'string', enum: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'], description: 'Optional. A day of the week that works for the guest.' },
+    weekday: { type: 'string', enum: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'weekday', 'weekend'], description: "Optional. The day of the week that works for the guest, or 'weekday' (Monday to Friday) or 'weekend'." },
   },
   ['service_id'],
 );

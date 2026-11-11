@@ -290,7 +290,7 @@ export function staffFixedBlock(catalog: Catalog): string {
 }
 
 // Changes with the catalog or promotions (at most daily in link-handoff mode).
-export function catalogBlock(catalog: Catalog, today: string, opts: { openings?: boolean } = {}): string {
+export function catalogBlock(catalog: Catalog, today: string, opts: { openings?: boolean; holds?: boolean } = {}): string {
   const c = catalog.config;
   const L: string[] = ['# Catalog (prices and durations)'];
   for (const s of catalog.services.values()) L.push(`- ${s.name} (id: ${s.id}): ${priceText(s.price)}, ${s.durationMinutes ? `${s.durationMinutes} minutes` : "length not listed (don't state one)"}`);
@@ -341,14 +341,16 @@ export function catalogBlock(catalog: Catalog, today: string, opts: { openings?:
   L.push('');
   L.push('4. Book it.');
   L.push(
-    opts.openings
-      ? "- Once they want a treatment (or its consultation), ask which days or times usually work for them, unless they've said. Then call show_openings once, with their weekday, date, or time of day, which shows real times that fit; tapping one opens the booking page, where they confirm it. If they'd rather Jen set it up, use request_appointment with the time they picked as preferred_times."
-      : "- Once they want a treatment (or its consultation), show the booking card for it (get_booking_link), or use request_appointment with their preferred days and times if they'd rather the team set it up.",
+    opts.holds
+      ? "- Once they want a treatment (or its consultation), ask which days or times usually work for them, unless they've said. Then call show_openings once, with their weekday, date, or time of day. When they pick a time (tapping it, or naming one from those days), ask for their first and last name and phone (email optional), then call request_appointment with slot {date, time} from the openings. That shows a card; tapping Confirm holds the time on the calendar, and the team texts them to confirm the appointment. Never say a time is held before they've confirmed."
+      : opts.openings
+        ? "- Once they want a treatment (or its consultation), ask which days or times usually work for them, unless they've said. Then call show_openings once, with their weekday, date, or time of day, which shows real times that fit; tapping one opens the booking page, where they confirm it. If they'd rather Jen set it up, use request_appointment with the time they picked as preferred_times."
+        : "- Once they want a treatment (or its consultation), show the booking card for it (get_booking_link), or use request_appointment with their preferred days and times if they'd rather the team set it up.",
   );
   L.push("- Booking is always a card, never a chip: don't offer \"Book\", \"Schedule a visit\" or similar as reply chips.");
   L.push(
     opts.openings
-      ? "- You see openings only through show_openings. Mention at most the soonest time it returned, never a date or time it didn't return, and never say a time is held or booked."
+      ? `- You see openings only through show_openings. Mention at most the soonest time it returned, never a date or time it didn't return${opts.holds ? ', and say a time is held only after the guest confirms it' : ', and never say a time is held or booked'}.`
       : "- You can't see the calendar, so never name dates, say how soon there's an opening, or suggest a particular day has openings; the booking button shows what's available.",
   );
   L.push('');
@@ -427,6 +429,7 @@ export interface RequestContext {
   lang: Lang;
   page?: string;
   openings?: boolean; // live openings are connected (show_openings)
+  holds?: boolean; // a picked, confirmed time is held on the calendar
 }
 
 // Per request: never before a cache point.
@@ -458,7 +461,7 @@ export function buildSystem(catalog: Catalog, ctx: RequestContext, fixed: string
   const cache = catalog.config.model.use_prompt_cache;
   const blocks: SystemContentBlock[] = [{ text: fixed }];
   if (cache) blocks.push({ cachePoint: { type: 'default' } });
-  blocks.push({ text: catalogBlock(catalog, ctx.clock.date, { openings: ctx.openings }) });
+  blocks.push({ text: catalogBlock(catalog, ctx.clock.date, { openings: ctx.openings, holds: ctx.holds }) });
   if (cache) blocks.push({ cachePoint: { type: 'default' } });
   blocks.push({ text: requestBlock(catalog, ctx) });
   return blocks;

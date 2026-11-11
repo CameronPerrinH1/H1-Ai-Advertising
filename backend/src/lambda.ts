@@ -8,6 +8,7 @@ import { createRuntime, type Runtime } from './runtime.ts';
 import { sweep as runSweep } from './session/sweep.ts';
 import { weeklyReport as buildWeeklyReport } from './summary/insights.ts';
 import { log } from './log.ts';
+import { releaseHolds } from './booking/holds.ts';
 import { review as runReview, type ReviewRequest } from './review.ts';
 import { DynamoSessionRepo } from './session/dynamo.ts';
 import { CLIENTS_DIR, loadClient } from './config/load.ts';
@@ -64,8 +65,19 @@ export async function api(event: ProxyEvent): Promise<ProxyResult> {
   return result(await app({ method: event.httpMethod, path: event.path, headers, body }));
 }
 
-export async function sweep(): Promise<{ summarized: number }> {
-  return { summarized: await runSweep(await getRuntime()) };
+export async function sweep(): Promise<{ summarized: number; holdsReleased: number }> {
+  const rt = await getRuntime();
+  const summarized = await runSweep(rt);
+  // Holds nobody turned into an appointment in time are released, and the spa is told.
+  let holdsReleased = 0;
+  if (rt.holds) {
+    try {
+      holdsReleased = await releaseHolds({ catalog: rt.catalog, holds: rt.holds.writer, outbox: rt.outbox, mode: rt.holds.mode, today: rt.today() });
+    } catch (err) {
+      log('holds_release_failed', { error: (err as Error)?.name ?? 'Error' });
+    }
+  }
+  return { summarized, holdsReleased };
 }
 
 export async function weeklyReport(): Promise<{ sent: boolean; conversations: number }> {

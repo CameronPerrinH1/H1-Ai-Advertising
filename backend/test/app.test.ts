@@ -23,6 +23,7 @@ function setup(reply = 'Happy to help with that.') {
   const outbox = new MemoryOutbox();
   const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey: 'test' });
   const rt: Runtime = {
+    today: () => '2026-10-23',
     bundle: catalog.bundle,
     catalog,
     model,

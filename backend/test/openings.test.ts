@@ -81,6 +81,17 @@ describe('show_openings', () => {
     expect(src.calls[0]!.date).toBe('2026-11-14');
   });
 
+  it('understands "weekday" and "weekend"', async () => {
+    const wk = await showOpenings({ service_id: 'deluxe-hydrafacial', weekday: 'weekend' }, ctx(new FixedAvailability(() => '2026-11-11')));
+    const card = wk.cards?.[0];
+    if (card?.type !== 'openings') throw new Error('no openings card');
+    expect(card.days.map((d) => d.date)).toEqual(['2026-11-14']); // Saturday only (Sunday is closed); found within the searches
+    const wd = await showOpenings({ service_id: 'deluxe-hydrafacial', weekday: 'weekday', time_of_day: 'morning' }, ctx(new FixedAvailability(() => '2026-11-11')));
+    const c2 = wd.cards?.[0];
+    if (c2?.type !== 'openings') throw new Error('no openings card');
+    expect(c2.days.map((d) => d.date)).toEqual(['2026-11-12', '2026-11-13', '2026-11-17']); // Thu, Fri, then Tue (Sat is a weekend; Sun, Mon closed)
+  });
+
   it('shows the consultation’s openings for a treatment that needs one first', async () => {
     const r = await showOpenings({ service_id: 'sugar-plumb-express-facial' }, ctx(new FixedAvailability(() => '2026-11-12')));
     const card = r.cards?.[0];

@@ -38,6 +38,7 @@ export const SESSION_COOKIE = '__Host-concierge_session';
 export interface ConciergeStackProps extends StackProps {
   clientId: string;
   bookingSecretName?: string; // the booking platform's API keys, for live openings (deployments.ts)
+  holds?: 'off' | 'test' | 'on'; // holds on the spa's calendar; off unless set
   stage: 'staging' | 'production';
   repoRoot: string; // the concierge folder; the monorepo root is its parent
   widgetDist: string; // the built widget (pnpm --filter @concierge/widget build)
@@ -220,9 +221,14 @@ export class ConciergeStack extends Stack {
         },
       });
     const bookingSecret = props.bookingSecretName ? secrets.Secret.fromSecretNameV2(this, 'BookingSecret', props.bookingSecretName) : undefined;
-    const apiFn = fn('Api', 'api', Duration.seconds(29), 1024, bookingSecret ? { ...environment, BOOKING_SECRET_ID: bookingSecret.secretName } : environment);
+    const bookingEnv = bookingSecret
+      ? { ...environment, BOOKING_SECRET_ID: bookingSecret.secretName, ...(props.holds && props.holds !== 'off' ? { BOOKING_HOLDS: props.holds } : {}) }
+      : environment;
+    const apiFn = fn('Api', 'api', Duration.seconds(29), 1024, bookingEnv);
     bookingSecret?.grantRead(apiFn);
-    const sweepFn = fn('Sweep', 'sweep', Duration.minutes(4)); // under the 5-minute schedule, so runs never overlap
+    // Under the 5-minute schedule, so runs never overlap. With holds on it also releases stale holds.
+    const sweepFn = fn('Sweep', 'sweep', Duration.minutes(4), 1024, props.holds && props.holds !== 'off' ? bookingEnv : environment);
+    if (props.holds && props.holds !== 'off') bookingSecret?.grantRead(sweepFn);
     const weeklyFn = fn('WeeklyReport', 'weeklyReport', Duration.minutes(2), 512);
     // Review function (D39, D69): the review role invokes it directly; it has no API route. It only
     // reads the sessions table, so it gets none of the secrets, email, or model settings.

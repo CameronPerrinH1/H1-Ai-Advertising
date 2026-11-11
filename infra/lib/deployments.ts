@@ -11,6 +11,9 @@ export interface Deployment {
   // The Secrets Manager secret with the booking platform's API keys, for live openings
   // (booking.availability). Created by hand in the deployment's account; only the API reads it.
   bookingSecretName?: string;
+  // Holds on the spa's calendar (booking.availability.holds): off unless set. 'test' marks them
+  // "TEST –" and releases them after 10 minutes, for supervised trials on staging.
+  holds?: 'off' | 'test' | 'on';
 }
 
 export const DEPLOYMENTS: Record<string, Deployment> = {

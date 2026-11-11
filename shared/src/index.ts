@@ -119,6 +119,7 @@ export type Card =
       consult: boolean;
       durationMinutes?: number;
       days: { date: string; label: string; times: { time: string; label: string }[] }[];
+      selectable?: boolean; // where holds are on: tapping a time picks it in the chat instead of leaving
     }
   | {
       type: 'confirm';

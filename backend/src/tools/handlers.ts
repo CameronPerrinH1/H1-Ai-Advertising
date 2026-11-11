@@ -10,9 +10,10 @@ import { normalizePhone, formatPhone, phoneHash } from '../safety/phone.ts';
 import { redactCardNumbers } from '../safety/cardNumbers.ts';
 import { planEvent, PlanError } from '../planning.ts';
 import { strings } from '../i18n.ts';
-import type { Session } from '../session/store.ts';
+import type { AppointmentPayload, Session } from '../session/store.ts';
+import { dayLabel, timeLabel } from './openings.ts';
 
-import type { AvailabilitySource } from '../booking/availability.ts';
+import type { AvailabilitySource, HoldWriter } from '../booking/availability.ts';
 
 export interface ToolContext {
   catalog: Catalog;
@@ -26,6 +27,7 @@ export interface ToolContext {
   guestPhones?: Set<string>;
   // Live openings from the booking platform, where it's connected (show_openings).
   availability?: AvailabilitySource;
+  holds?: HoldWriter; // where holds are on: a confirmed time is blocked on the calendar
   now?: () => number;
   // Staff mode only: this month's report of what visitors asked (D65).
   insights?: () => Card;
@@ -106,6 +108,7 @@ const schemas = {
       last_name: z.string().trim().min(1).max(50),
       phone: z.string().trim().min(7).max(40),
       email: z.string().trim().email().optional(),
+      slot: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), time: z.string().regex(/^\d{2}:\d{2}$/) }).optional(),
     })
     .refine((d) => d.use_event_plan || d.service_id, { message: 'service_id is required unless use_event_plan is true' }),
   show_urgent_help: z.object({ kind: z.enum(['post_treatment', 'emergency', 'crisis']) }),
@@ -299,6 +302,7 @@ const handlers: Record<string, Handler> = {
     let serviceIds: string[];
     let emailTimes: string;
     let cardTimes: string;
+    let hold: AppointmentPayload['hold'];
     const extra = p.data.preferred_times ? cleanFreeText(p.data.preferred_times) : '';
     if (p.data.use_event_plan) {
       const plan = session.lastPlan;
@@ -310,10 +314,29 @@ const handlers: Record<string, Handler> = {
     } else {
       const service = catalog.services.get(p.data.service_id!);
       if (!service) return fail(`Unknown service_id "${p.data.service_id}".`);
-      if (!extra) return fail('Ask the guest when they would like to come in.');
       serviceIds = [service.id];
-      emailTimes = extra;
-      cardTimes = extra;
+      if (p.data.slot) {
+        // Only a time the openings showed in this chat (D11); for a treatment that needs a
+        // consultation first, the openings (and the hold) are the consultation's.
+        const target = (service.details.requires_assessment ? catalog.consultFor(service.id) : undefined) ?? service;
+        const { date, time } = p.data.slot;
+        const shown = session.shownSlots?.find((s) => s.serviceId === target.id && s.date === date && s.time === time);
+        if (!shown) return fail("That time isn't one of the openings shown in this chat. Show openings with show_openings and let the guest pick one.");
+        const label = (l: Lang) => `${dayLabel(date, l)} at ${timeLabel(time, l)}`;
+        emailTimes = `${label('en')}${target.id !== service.id ? ` (${target.name})` : ''}${extra ? `. Guest note: ${extra}` : ''}`;
+        cardTimes = label(lang);
+        if (ctx.holds) {
+          const minutes = shown.minutes ?? target.durationMinutes ?? 30;
+          const [h, m] = time.split(':').map(Number) as [number, number];
+          const endMin = Math.min(h * 60 + m + minutes, 23 * 60 + 59);
+          const end = `${String(Math.floor(endMin / 60)).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`;
+          hold = { serviceId: target.id, date, start: time, end, providerId: shown.providerId, label: label('en') };
+        }
+      } else {
+        if (!extra) return fail('Ask the guest when they would like to come in.');
+        emailTimes = extra;
+        cardTimes = extra;
+      }
     }
 
     const provider = p.data.staff_id ? catalog.providers.get(p.data.staff_id) : undefined;
@@ -340,6 +363,7 @@ const handlers: Record<string, Handler> = {
         lastName: p.data.last_name,
         phone,
         email: p.data.email,
+        ...(hold ? { hold } : {}),
       },
       createdAt: Date.now(),
       status: 'pending',
@@ -357,7 +381,9 @@ const handlers: Record<string, Handler> = {
     return {
       result: {
         status: 'awaiting_confirmation',
-        note: "A confirmation card is shown. Ask the guest to review it and tap Confirm. It's a request; the team confirms the appointment.",
+        note: hold
+          ? "A confirmation card is shown. Ask the guest to review it and tap Confirm, which holds the time on the calendar; the team then texts to confirm the appointment. Until they tap Confirm, nothing is held."
+          : "A confirmation card is shown. Ask the guest to review it and tap Confirm. It's a request; the team confirms the appointment.",
       },
       cards: [
         {
@@ -365,7 +391,7 @@ const handlers: Record<string, Handler> = {
           actionId: id,
           kind: 'appointment',
           fields,
-          note: needsConsult ? `${S.appointmentNote(time)} ${S.consultNote}` : S.appointmentNote(time),
+          note: hold ? S.holdNote(time) : needsConsult ? `${S.appointmentNote(time)} ${S.consultNote}` : S.appointmentNote(time),
           status: 'pending',
         },
       ],

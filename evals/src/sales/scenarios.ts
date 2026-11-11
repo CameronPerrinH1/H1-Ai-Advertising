@@ -152,6 +152,13 @@ export const SCENARIOS: Scenario[] = [
     expect: { booksBy: 2 },
     why: 'Ask what times work, then show openings that fit (morning), never promising a time is held.',
   },
+  {
+    id: 'books-a-hold',
+    title: 'Picks a time and confirms (hold)',
+    turns: ["I'd like to book a Deluxe Hydrafacial.", 'Weekday mornings are best for me.', 'The first time you showed works for me.', 'Dana Reyes, 775-555-0142', { confirm: true }],
+    expect: { booksBy: 2, mentions: ['held'] },
+    why: 'Openings, a picked time, name and phone, the confirm card, then "Your time is held". Never says held before Confirm.',
+  },
   // ---- Simulated guests ----
   {
     id: 'sim-nervous-first-timer',

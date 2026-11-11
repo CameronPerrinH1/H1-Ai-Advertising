@@ -7,6 +7,9 @@ export interface Strings {
   callbackNote: (time: string) => string;
   anyProvider: string;
   appointmentSent: (time: string) => string;
+  holdNote: (time: string) => string;
+  holdPlaced: (when: string, time: string) => string;
+  slotTaken: string;
   callbackSent: (time: string) => string;
   actionExpired: string;
   fallback: string;
@@ -28,6 +31,9 @@ const en: Strings = {
   callbackNote: (time) => `The team will call you ${time}.`,
   anyProvider: 'First available',
   appointmentSent: (time) => `Your request is in. The team will reach out ${time} to confirm your appointment.`,
+  holdNote: (time) => `Tapping Confirm holds this time for you. The team will text you ${time} to confirm your appointment.`,
+  holdPlaced: (when, time) => `Your time is held: ${when}. The team will text you ${time} to confirm your appointment.`,
+  slotTaken: 'That time was just taken, sorry about that. Want me to show the next openings?',
   callbackSent: (time) => `You're all set. The team will call you ${time}.`,
   actionExpired: 'That request is no longer available. Just ask, and I can set it up again.',
   fallback:
@@ -57,6 +63,9 @@ const es: Strings = {
   callbackNote: (time) => `El equipo te llamará ${time}.`,
   anyProvider: 'Primer disponible',
   appointmentSent: (time) => `Recibimos tu solicitud. El equipo te contactará ${time} para confirmar tu cita.`,
+  holdNote: (time) => `Al tocar Confirmar, apartamos este horario para ti. El equipo te enviará un mensaje ${time} para confirmar tu cita.`,
+  holdPlaced: (when, time) => `Tu horario está apartado: ${when}. El equipo te enviará un mensaje ${time} para confirmar tu cita.`,
+  slotTaken: 'Ese horario se acaba de ocupar, lo siento. ¿Te muestro los próximos horarios?',
   callbackSent: (time) => `Listo. El equipo te llamará ${time}.`,
   actionExpired: 'Esa solicitud ya no está disponible. Pídemelo y la preparo de nuevo.',
   fallback:

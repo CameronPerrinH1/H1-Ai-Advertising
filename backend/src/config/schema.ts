@@ -145,6 +145,15 @@ export const configSchema = z
             service_ids: z.record(id, z.string()),
             days_shown: z.number().int().min(1).max(5).default(3),
             times_per_day: z.number().int().min(1).max(8).default(4),
+            // Holds: a confirmed time is blocked on the provider's calendar until the spa makes the
+            // appointment. Released (and the spa told) if still there after release_after_hours.
+            // Each deployment also has to switch holds on (infra/lib/deployments.ts).
+            holds: z
+              .object({ enabled: z.boolean().default(false), release_after_hours: z.number().min(1).max(168).default(24) })
+              .strict()
+              .default({ enabled: false, release_after_hours: 24 }),
+            // The platform's id for each provider on the chat's provider list, for releasing holds.
+            provider_ids: z.record(id, z.string()).default({}),
           })
           .strict()
           .optional(),

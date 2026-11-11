@@ -93,6 +93,9 @@ function crossCheck(b: ClientBundle): void {
   }
   for (const key of Object.keys(b.config.booking.direct_links.services)) expect(serviceIds.has(key), `direct_links.services: unknown service ${key}`);
   for (const key of Object.keys(b.config.booking.availability?.service_ids ?? {})) expect(serviceIds.has(key), `booking.availability.service_ids: unknown service ${key}`);
+  const providerIds = new Set(b.providers.map((p) => p.id));
+  for (const key of Object.keys(b.config.booking.availability?.provider_ids ?? {})) expect(providerIds.has(key), `booking.availability.provider_ids: unknown provider ${key}`);
+  if (b.config.booking.availability?.holds.enabled) expect(Object.keys(b.config.booking.availability.provider_ids).length > 0, 'booking.availability.holds needs provider_ids');
   for (const sid of b.config.sales.featured_services) expect(serviceIds.has(sid), `featured_services: unknown service ${sid}`);
   for (const [sid, addOns] of Object.entries(b.config.sales.add_on_suggestions)) {
     expect(serviceIds.has(sid), `add_on_suggestions: unknown service ${sid}`);

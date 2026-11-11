@@ -21,13 +21,15 @@ import { detectSafetyNet } from './safety/emergency.ts';
 import { MAX_REPLY_CHARS } from './checks/output.ts';
 import { LINK_HANDOFF_TOOLS, OPENINGS_TOOL, STAFF_TOOLS } from './tools/definitions.ts';
 import { firstVisitCard, handleTool, urgentCard, type ToolContext, type ToolOutcome } from './tools/handlers.ts';
-import { showOpenings } from './tools/openings.ts';
-import type { AvailabilitySource } from './booking/availability.ts';
+import { dayLabel, showOpenings, timeLabel } from './tools/openings.ts';
+import type { AvailabilitySource, HoldWriter } from './booking/availability.ts';
+import { HOLD_MARK } from './booking/holds.ts';
+import { formatPhone } from './safety/phone.ts';
 import { buildSystem, fixedBlock, staffFixedBlock } from './prompt.ts';
 import { strings } from './i18n.ts';
 import { appointmentEmail, callbackEmail, type Outbox } from './handoff/email.ts';
 import type { ModelClient } from './model/bedrock.ts';
-import type { Session } from './session/store.ts';
+import type { AppointmentPayload, Session } from './session/store.ts';
 import { log } from './log.ts';
 
 export const MAX_MESSAGES = 30;
@@ -57,6 +59,10 @@ export interface OrchestratorDeps {
   now?: () => Date;
   insights?: (lang: Lang) => Promise<Card>; // staff mode report (D65)
   availability?: AvailabilitySource; // live openings, where the spa's booking platform is connected
+  // Holds (booking.availability.holds): a confirmed time is blocked on the provider's calendar.
+  // `test` marks them "TEST –" and releases them after 10 minutes (staging trials).
+  holds?: HoldWriter;
+  holdMode?: 'on' | 'test';
 }
 
 interface TurnResult {
@@ -112,6 +118,41 @@ export class Orchestrator {
   // Openings are offered only with both the spa's platform ids (config) and a connector (runtime).
   private get openingsOn() {
     return !!this.deps.availability && !!this.deps.catalog.config.booking.availability;
+  }
+
+  // Holds need openings, a writer, the spa's switch (config), and the deployment's (holdMode).
+  private get holdsOn() {
+    return this.openingsOn && !!this.deps.holds && !!this.deps.holdMode && !!this.deps.catalog.config.booking.availability?.holds.enabled;
+  }
+
+  // Rechecks the picked time and blocks it on the calendar. 'taken' when it's no longer open;
+  // undefined when the platform can't be reached or refuses (the request is then sent without a hold).
+  private async placeHold(session: Session, p: AppointmentPayload): Promise<{ id: string } | 'taken' | undefined> {
+    const h = p.hold!;
+    const cfg = this.catalog.config.booking.availability!;
+    const platformId = cfg.service_ids[h.serviceId];
+    const providerId = h.providerId ?? Object.values(cfg.provider_ids)[0];
+    if (!platformId || !providerId) return undefined;
+    try {
+      const days = await this.deps.availability!.search(platformId, h.date);
+      if (!days.some((d) => d.date === h.date && d.times.includes(h.start))) return 'taken';
+      const service = this.catalog.services.get(h.serviceId)?.name ?? 'Appointment';
+      const test = this.deps.holdMode === 'test';
+      const hours = test ? 'about 10 minutes (test)' : `${cfg.holds.release_after_hours} hours`;
+      const id = await this.deps.holds!.createHold({
+        providerId,
+        date: h.date,
+        start: h.start,
+        end: h.end,
+        name: `${test ? 'TEST – ' : ''}Chat hold: ${service} – ${p.firstName} ${p.lastName.slice(0, 1)}.`,
+        comment: `Picked in the website chat by ${p.firstName} ${p.lastName}, ${formatPhone(p.phone)}${p.email ? `, ${p.email}` : ''}. Make the appointment in Vagaro, then delete this hold. It's released automatically if it's still here after ${hours}. ${HOLD_MARK} ${new Date(this.deps.now ? this.deps.now() : Date.now()).toISOString()}]`,
+      });
+      log('hold_placed', { session: session.hash.slice(0, 8) });
+      return { id };
+    } catch (err) {
+      log('hold_failed', { session: session.hash.slice(0, 8), error: (err as Error).name });
+      return undefined;
+    }
   }
 
   private clock() {
@@ -277,7 +318,7 @@ export class Orchestrator {
 
     const clock = this.clock();
     const staff = session.audience === 'staff';
-    const system = buildSystem(this.catalog, { clock, lang, page: session.page, openings: this.openingsOn }, staff ? this.staffFixed : this.fixed);
+    const system = buildSystem(this.catalog, { clock, lang, page: session.page, openings: this.openingsOn, holds: this.holdsOn }, staff ? this.staffFixed : this.fixed);
     // Tools run synchronously, so the staff report is read before the turn.
     const report = staff && this.deps.insights ? await this.deps.insights(lang) : undefined;
     const ctx: ToolContext = {
@@ -289,6 +330,7 @@ export class Orchestrator {
       // A reply may repeat amounts the guest named ("about $150"), like their own phone number.
       extraAmounts: guestAmounts([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       availability: this.openingsOn ? this.deps.availability : undefined,
+      holds: this.holdsOn ? this.deps.holds : undefined,
       now: this.deps.now ? () => this.deps.now!().getTime() : undefined,
       guestPhones: guestPhones([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       insights: report ? () => report : undefined,
@@ -443,14 +485,35 @@ export class Orchestrator {
     if (action.kind === 'appointment' && session.counts.requests >= limits.max_bookings_per_session) return expired();
     if (action.kind === 'callback' && session.counts.callbacks >= limits.max_callbacks_per_session) return expired();
 
-    const email = action.kind === 'appointment' ? appointmentEmail(this.catalog, action.payload) : callbackEmail(this.catalog, action.payload);
+    // A picked time is held on the calendar first; if it was just taken, nothing is sent.
+    let held: { id: string } | undefined;
+    if (action.kind === 'appointment' && action.payload.hold && this.holdsOn) {
+      const h = action.payload.hold;
+      const out = await this.placeHold(session, action.payload);
+      if (out === 'taken') {
+        action.status = 'expired';
+        setCardStatus(session, actionId, 'expired');
+        session.shownSlots = session.shownSlots?.filter((s) => !(s.serviceId === h.serviceId && s.date === h.date && s.time === h.start));
+        session.events.push(`The time the guest picked (${h.label}) was just taken, so nothing was held or sent. Offer to show the next openings.`);
+        const reply: Reply = { replyId: newReplyId(), text: S.slotTaken, cards: [], quickReplies: [] };
+        session.display.push({ role: 'assistant', ...reply });
+        return { actionId, status: 'expired', reply };
+      }
+      held = out;
+    }
+    const releaseAfter = this.deps.holdMode === 'test' ? 'about 10 minutes' : `${this.catalog.config.booking.availability?.holds.release_after_hours ?? 24} hours`;
+    const email = action.kind === 'appointment' ? appointmentEmail(this.catalog, action.payload, held ? { releaseAfter } : undefined) : callbackEmail(this.catalog, action.payload);
     await this.deps.outbox.send(email);
     action.status = 'confirmed';
     setCardStatus(session, actionId, 'confirmed');
     if (action.kind === 'appointment') {
       session.counts.requests += 1;
       session.outcomes.add('request');
-      session.events.push('The guest tapped Confirm on the appointment request. It was sent to the team, who will contact the guest to confirm a time.');
+      session.events.push(
+        held
+          ? `The guest tapped Confirm. ${action.payload.hold?.label ?? 'The time'} is now held on the calendar, and the team will text the guest to confirm the appointment.`
+          : 'The guest tapped Confirm on the appointment request. It was sent to the team, who will contact the guest to confirm a time.',
+      );
     } else {
       session.counts.callbacks += 1;
       session.outcomes.add('handoff');
@@ -461,7 +524,10 @@ export class Orchestrator {
     const fv = action.kind === 'appointment' ? firstVisitCard(this.catalog, session.lang) : undefined;
     const reply: Reply = {
       replyId: newReplyId(),
-      text: action.kind === 'appointment' ? `${S.appointmentSent(time)}${fv ? ` ${S.firstVisitIntro}` : ''}` : S.callbackSent(time),
+      text:
+        action.kind === 'appointment'
+          ? `${held && action.payload.hold ? S.holdPlaced(`${dayLabel(action.payload.hold.date, session.lang)}, ${timeLabel(action.payload.hold.start, session.lang)}`, time) : S.appointmentSent(time)}${fv ? ` ${S.firstVisitIntro}` : ''}`
+          : S.callbackSent(time),
       cards: fv ? [fv] : [],
       quickReplies: [],
     };

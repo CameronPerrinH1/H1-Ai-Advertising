@@ -22,14 +22,19 @@ export interface Outbox {
 
 const FOOTER = 'Sent by your website concierge. Conversation details are not included.';
 
-export function appointmentEmail(catalog: Catalog, p: AppointmentPayload): Email {
+export function appointmentEmail(catalog: Catalog, p: AppointmentPayload, held?: { releaseAfter: string }): Email {
   const provider = p.staffId ? catalog.providers.get(p.staffId) : undefined;
   const treatments = p.serviceIds.map((id) => {
     const consult = catalog.consultFor(id);
     return `${catalog.services.get(id)?.name ?? id}${consult ? ` (needs the ${consult.name} first)` : ''}`;
   });
   const lines = [
-    'New appointment request from your website. Please book it and confirm with the guest.',
+    ...(held && p.hold
+      ? [
+          `A guest picked a time in your website chat, and it's HELD on your Vagaro calendar: ${p.hold.label}.`,
+          `Please make the appointment in Vagaro and text the guest to confirm, then delete the hold. If the hold is still there after ${held.releaseAfter}, it's released and the time opens up again.`,
+        ]
+      : ['New appointment request from your website. Please book it and confirm with the guest.']),
     '',
     `${treatments.length > 1 ? 'Treatments' : 'Treatment'}: ${treatments.join('; ')}`,
     `Provider: ${provider?.name ?? strings('en').anyProvider}`,
@@ -40,7 +45,8 @@ export function appointmentEmail(catalog: Catalog, p: AppointmentPayload): Email
     '',
     FOOTER,
   ];
-  return { from: catalog.config.handoff.email_from, to: catalog.config.handoff.email_to, subject: 'New appointment request from your website', body: lines.join('\n') };
+  const subject = held && p.hold ? `Held: ${p.hold.label} (website chat)` : 'New appointment request from your website';
+  return { from: catalog.config.handoff.email_from, to: catalog.config.handoff.email_to, subject, body: lines.join('\n') };
 }
 
 export function callbackEmail(catalog: Catalog, p: CallbackPayload): Email {
