@@ -127,7 +127,16 @@ function knowledge(catalog: Catalog): string[] {
     const hidden = new Set(c.sales.do_not_promote);
     for (const con of concerns.concerns) {
       const names = con.services.filter((sid) => !hidden.has(sid)).map((sid) => catalog.services.get(sid)?.name).filter(Boolean);
-      L.push(names.length ? `- ${con.name}: lead with ${names.join(', ')}.` : `- ${con.name}: no treatment here is the answer; ${fallbackText(con.otherwise)}.`);
+      // A concern the spa left without a lead treatment isn't a "no" (Cameron, Nov 11: most were blank
+      // and every chat ended at a consultation): Mila matches it to the treatments whose "Good for"
+      // fits. Conditions that rule treatment out for now (an active infection, a fresh tan) stay a no.
+      L.push(
+        names.length
+          ? `- ${con.name}: lead with ${names.join(', ')}.`
+          : NOT_NOW.test(con.name)
+            ? `- ${con.name}: don't suggest a treatment for now; ${fallbackText(con.otherwise)}.`
+            : `- ${con.name}: recommend the treatments whose "Good for" covers it and explain why they fit; only if none does, ${fallbackText(con.otherwise)}.`,
+      );
     }
     const preg = concerns.pregnancy;
     if (preg) {
@@ -193,6 +202,9 @@ function voice(catalog: Catalog): string[] {
   }
   return L;
 }
+
+// Concerns that mean a guest shouldn't be treated right now, whatever the spa's list says.
+const NOT_NOW = /cold sore|infection|sun ?burn|sun exposure|tann/i;
 
 // Fixed per client: identity, rules, knowledge. Changes only with a config release.
 export function fixedBlock(catalog: Catalog, opts: { openings?: boolean; inChat?: boolean } = {}): string {
@@ -338,7 +350,8 @@ export function catalogBlock(catalog: Catalog, today: string, opts: { openings?:
   L.push('2. Recommend what solves it.');
   L.push("- Once you understand, recommend the one treatment that best fits and talk them through why, in your own words, in this reply: what it does for their specific concern, how it gets there, and what to expect, using only the facts in this prompt. Make it about them, not a description of the menu. This explanation is yours to give: never hand it off to a provider or let a card stand in for it. When two or three fit, show them with show_treatment_options, and still say which you'd start with and why.");
   L.push("- In the same reply, if that treatment has a pairing or add-on listed above (\"Worth suggesting with\", \"Pairs well with\"), suggest ONE in a natural sentence with a reason from its description, and ask if they'd like it. For example: \"Many guests pair dermaplaning with their facial because it lifts away dead skin for an even fresher look. Would you like to add it?\" Only listed pairings; one per treatment.");
-  L.push("- When a consultation comes first, recommend it as the first step and say what the provider will look at, so it feels like progress, not a detour.");
+  L.push("- With several goals (a glow, texture, and a budget, say), match each goal to the treatment that answers it, or name one that covers more than one, and explain the match.");
+  L.push("- You do the recommending, not a consultation. Suggest a consultation only when the treatment you recommend needs one first (it's listed as needing an assessment), nothing on the menu fits, or they ask for one. When one does come first, say what the provider will look at, so it feels like progress, not a detour.");
   L.push('');
   L.push('3. Expect hesitation.');
   L.push("- When they hesitate or say no (price, time, nerves, \"I'm not sure\"), don't drop it and don't push. Acknowledge it, ask what's holding them back if it isn't clear, answer with the facts or the approved answers below, and offer the option that fits better (a lower-priced or shorter treatment, or the consultation).");

@@ -174,7 +174,9 @@ describe('concerns, products, and pregnancy', () => {
       files['concerns.yaml'] = { concerns: [{ name: 'Dull skin', services: ['hydrafacial', 'chemical-peel'] }] };
     });
     expect(fixedBlock(new Catalog(hidden()))).toContain('- Dull skin: lead with HydraFacial Signature.');
-    expect(block).toContain('- Hair thinning and loss: no treatment here is the answer; offer a callback from the team.');
+    // A blank concern is matched by "Good for", not turned away (Nov 11); a condition that rules treatment out stays a no.
+    expect(block).toContain('- Hair thinning and loss: recommend the treatments whose "Good for" covers it and explain why they fit; only if none does, offer a callback from the team.');
+    expect(block).not.toContain('no treatment here is the answer');
     expect(block).toContain('the spa offers HydraFacial Signature to guests who are pregnant or nursing. Never call any treatment safe');
     expect(block).toContain('Glow Daily Mineral Sunscreen SPF 40 ($48): Our most recommended aftercare product.; helps with dull skin; suggest after Microneedling; one the spa likes to recommend');
   });
@@ -210,5 +212,18 @@ describe("the spa's own emergency symptoms (D14)", () => {
     }));
     expect(block).toContain('treats these as emergencies (show_urgent_help, kind emergency): Difficulty breathing.');
     expect(block).toContain('(kind post_treatment): Unusual swelling.');
+  });
+});
+
+describe('concerns without a lead treatment (Nov 11)', () => {
+  it('are matched to treatments on Plumb + Pine, except conditions that rule treatment out', async () => {
+    const { fixedBlock } = await import('../src/prompt.ts');
+    const { loadClient } = await import('../src/config/load.ts');
+    const { Catalog } = await import('../src/catalog.ts');
+    const block = fixedBlock(new Catalog(loadClient('plumb-and-pine')), { openings: true, inChat: true });
+    expect(block).toContain('- Acne scars: recommend the treatments whose "Good for" covers it');
+    expect(block).toContain("- Active cold sore or infection: don't suggest a treatment for now; suggest a consultation.");
+    expect(block).toContain("- Recent sun exposure or tanning: don't suggest a treatment for now");
+    expect(block).toContain('Good for: fine lines, acne scars');
   });
 });
