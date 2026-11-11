@@ -19,7 +19,7 @@ const staffId = { type: 'string', description: 'Provider ID from the providers l
 export const LINK_HANDOFF_TOOLS: Tool[] = [
   tool(
     'show_treatment_options',
-    "Show a 'Your options' card with 1 to 3 treatments that fit what the guest has told you, each with a one-line reason written for this guest. Use it at the end of the treatment finder, or whenever you recommend treatments. The card shows prices, downtime, promotions, and booking buttons from the catalog, so introduce it in one short sentence and don't repeat its details. Frame recommendations as options to confirm with a provider.",
+    "Show a 'Your options' card with 1 to 3 treatments that fit what the guest has told you, each with a one-line reason written for this guest. Use it at the end of the treatment finder, or whenever you recommend treatments. The card shows prices, downtime and promotions from the catalog, so don't repeat those. Your reply still explains, in your own words, how the option you'd start with helps their concern; the card never replaces that. A provider confirms the plan at the visit, but the explaining is yours now.",
     {
       headline: { type: 'string', maxLength: 80, description: "Optional short title, e.g. 'For a fresh glow before your wedding'." },
       options: {

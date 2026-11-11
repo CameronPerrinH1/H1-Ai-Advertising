@@ -34,6 +34,8 @@ booking:
     services: {}
     providers: {}
   self_service_link: "https://www.vagaro.com/plumandpine"
+  # Never show booking-page links: every booking happens in the chat (Cameron, Nov 11).
+  links: false
   rules:
     min_notice_hours: 24
     max_days_ahead: 180

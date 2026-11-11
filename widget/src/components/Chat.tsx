@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import type { DisplayMessage, Feedback, FeedbackReason, Lang, PublicConfig } from '@concierge/shared';
 import { Face } from './Face';
+import { useOneRow } from '../oneRow';
 import type { UiStrings } from '../i18n';
 import { CardView, type CardHandlers } from './Cards';
 import { ThumbDownIcon, ThumbUpIcon } from '../icons';
@@ -10,6 +11,20 @@ export interface UiMessage extends DisplayMessage {
   animate?: boolean;
   // Already seen (the ask bar card was minimized and reopened): shown in place, without rising in again.
   shown?: boolean;
+}
+
+function QuickReplies({ replies, onPick }: { replies: string[]; onPick: (q: string) => void }) {
+  const row = useRef<HTMLDivElement>(null);
+  useOneRow(row, replies.join('\n'));
+  return (
+    <div class="quick" role="group" ref={row}>
+      {replies.map((q) => (
+        <button type="button" class="chip" key={q} onClick={() => onPick(q)}>
+          {q}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -196,13 +211,7 @@ export function MessageList({ messages, waiting, face, name, s, lang, handlers, 
                 <Rate feedback={m.feedback} s={s} onRate={(rating, reason) => onRate(m.replyId!, rating, reason)} />
               )}
               {m === lastAssistant && !waiting && revealed.has(m.id) && (m.quickReplies?.length ?? 0) > 0 && (
-                <div class="quick" role="group">
-                  {m.quickReplies!.map((q) => (
-                    <button type="button" class="chip" key={q} onClick={() => onQuickReply(q)}>
-                      {q}
-                    </button>
-                  ))}
-                </div>
+                <QuickReplies replies={m.quickReplies!} onPick={onQuickReply} />
               )}
             </div>
           </div>

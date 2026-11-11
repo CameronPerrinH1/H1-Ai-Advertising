@@ -8,6 +8,7 @@ import type { Lang, PageCopy, PublicConfig } from '@concierge/shared';
 import type { UiStrings } from '../i18n';
 import { ArrowUpIcon, ChevronDownIcon, CloseIcon, EndIcon, ExpandIcon } from '../icons';
 import { Face } from './Face';
+import { useOneRow } from '../oneRow';
 
 interface BarProps {
   config: PublicConfig;
@@ -94,6 +95,8 @@ interface IntroProps {
 // Its X folds it back down into the bar.
 export function Intro({ config, s, lang, copy, suggestions, starting, onStart, onClose, still }: IntroProps) {
   const [closing, setClosing] = useState(false);
+  const chips = useRef<HTMLDivElement>(null);
+  useOneRow(chips, suggestions.join('\n'));
   const close = () => {
     if (closing) return;
     const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -122,7 +125,7 @@ export function Intro({ config, s, lang, copy, suggestions, starting, onStart, o
         </div>
       </div>
       {suggestions.length > 0 && (
-        <div class="askbar-chips">
+        <div class="askbar-chips" ref={chips}>
           {suggestions.slice(0, 3).map((q, i) => (
             <button type="button" class="chip" key={q} style={{ '--i': i }} disabled={starting} onClick={() => onStart(q)}>
               {q}

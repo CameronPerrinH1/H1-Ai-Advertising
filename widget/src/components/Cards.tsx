@@ -83,17 +83,17 @@ function Promo({ service, s, lang }: { service: ServiceView; s: UiStrings; lang:
   );
 }
 
-// With the spa's openings connected (inChat), Book asks in the chat, which shows the times; otherwise
-// it opens the booking page.
+// With booking in the chat (inChat), a card never books: its button asks Mila how the treatment
+// would help with the guest's concern, so she explains it before any booking (Cameron, Nov 11).
+// Otherwise it opens the booking page.
 function BookButton({ service, s, variant = 'primary', inChat, onSend }: { service: ServiceView; s: UiStrings; variant?: 'primary' | 'ghost'; inChat?: boolean; onSend?: (text: string) => void }) {
   const consult = service.action.kind === 'consult';
   const label = consult ? s.bookConsult : s.bookOnline;
   if (inChat && onSend) {
-    const name = (consult && service.action.consultName) || service.name;
     return (
-      <button type="button" class={`btn ${variant}`} onClick={() => onSend(s.bookInChat(name))}>
-        <CalendarIcon size={16} />
-        {label}
+      <button type="button" class={`btn ${variant === 'primary' ? 'ghost' : variant}`} onClick={() => onSend(s.askHow(service.name))}>
+        <SparkleIcon size={16} />
+        {s.rightForMe}
       </button>
     );
   }

@@ -104,7 +104,7 @@ export class Orchestrator {
 
   constructor(private readonly deps: OrchestratorDeps) {
     const openings = !!deps.availability && !!deps.catalog.config.booking.availability;
-    this.fixed = fixedBlock(deps.catalog, { openings, inChat: openings && !!deps.holdMode && !!deps.catalog.config.booking.availability?.holds.enabled && (deps.holdMode === 'preview' || !!deps.holds) });
+    this.fixed = fixedBlock(deps.catalog, { openings, inChat: !!this.inChat });
     this.staffFixed = staffFixedBlock(deps.catalog);
   }
 
@@ -116,6 +116,10 @@ export class Orchestrator {
     return this.deps.catalog;
   }
 
+  private get links() {
+    return this.deps.catalog.config.booking.links;
+  }
+
   // Openings are offered only with both the spa's platform ids (config) and a connector (runtime).
   private get openingsOn() {
     return !!this.deps.availability && !!this.deps.catalog.config.booking.availability;
@@ -123,9 +127,12 @@ export class Orchestrator {
 
   // In-chat booking needs openings, the spa's switch (config), and the deployment's (holdMode).
   private get inChat(): 'hold' | 'preview' | undefined {
-    if (!this.openingsOn || !this.deps.holdMode || !this.deps.catalog.config.booking.availability?.holds.enabled) return undefined;
-    if (this.deps.holdMode === 'preview') return 'preview';
-    return this.deps.holds ? 'hold' : undefined;
+    if (!this.openingsOn || !this.deps.catalog.config.booking.availability?.holds.enabled) return undefined;
+    if ((this.deps.holdMode === 'on' || this.deps.holdMode === 'test') && this.deps.holds) return 'hold';
+    // A spa with no booking links books in the chat even when the deployment hasn't turned holds
+    // on: the whole flow runs with Confirm greyed out, as in preview.
+    if (this.deps.holdMode === 'preview' || !this.links) return 'preview';
+    return undefined;
   }
 
   // Holds are written only with a writer and holds really on (or test), never in preview.
@@ -136,7 +143,7 @@ export class Orchestrator {
   // With in-chat booking there's no booking-link tool: every booking stays in the chat.
   private get guestTools() {
     if (!this.openingsOn) return LINK_HANDOFF_TOOLS;
-    const tools = this.inChat ? LINK_HANDOFF_TOOLS.filter((t) => t.toolSpec?.name !== 'get_booking_link') : LINK_HANDOFF_TOOLS;
+    const tools = this.inChat || !this.links ? LINK_HANDOFF_TOOLS.filter((t) => t.toolSpec?.name !== 'get_booking_link') : LINK_HANDOFF_TOOLS;
     return [...tools, OPENINGS_TOOL];
   }
 
@@ -265,6 +272,7 @@ export class Orchestrator {
 
   private fallback(lang: Lang): Reply {
     const S = strings(lang);
+    if (!this.links) return { text: S.fallbackNoLink(this.catalog.config.business.phone), cards: [], quickReplies: [] };
     return {
       text: S.fallback,
       cards: [{ type: 'booking_link', purpose: 'book', url: this.catalog.config.booking.direct_links.default }],
@@ -310,7 +318,7 @@ export class Orchestrator {
 
     session.counts.messages += 1;
     if (session.counts.messages > MAX_MESSAGES) {
-      const reply = { ...this.fallback(lang), text: S.messageLimit(this.catalog.config.business.phone) };
+      const reply = { ...this.fallback(lang), text: (this.links ? S.messageLimit : S.messageLimitNoLink)(this.catalog.config.business.phone) };
       return { reply, limitReached: true };
     }
 
@@ -399,6 +407,8 @@ export class Orchestrator {
       stored = [...turnMessages, { role: 'assistant', content: [{ text: reply.text }] }];
     }
 
+    // No booking-page links for a spa that books only in the chat, whatever produced them.
+    if (!this.links) reply.cards = reply.cards.filter((c) => c.type !== 'booking_link');
     session.modelMessages = normalizeHistory(stored);
     expireSupersededCards(session, reply.cards);
     reply.replyId = newReplyId();

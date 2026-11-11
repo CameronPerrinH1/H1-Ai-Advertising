@@ -15,7 +15,9 @@ export interface Strings {
   callbackSent: (time: string) => string;
   actionExpired: string;
   fallback: string;
+  fallbackNoLink: (phone: string) => string;
   messageLimit: (phone: string) => string;
+  messageLimitNoLink: (phone: string) => string;
   busy: string;
   yourEvent: string;
   staffGreeting: (name: string) => string;
@@ -40,8 +42,10 @@ const en: Strings = {
   previewOff: "Booking in the chat isn't switched on yet, so nothing was sent.",
   callbackSent: (time) => `You're all set. The team will call you ${time}.`,
   actionExpired: 'That request is no longer available. Just ask, and I can set it up again.',
+  fallbackNoLink: (phone) => `I want to be sure I give you accurate details. I can have the team call you, or you can reach us at ${phone}.`,
   fallback:
     "I want to be sure I give you accurate details. You can see current options and book online, or I can have the team call you.",
+  messageLimitNoLink: (phone) => `We've covered a lot. To keep going, call us at ${phone}, or I can have the team call you.`,
   messageLimit: (phone) => `We've covered a lot. To keep going, book online or call us at ${phone}.`,
   busy: "One moment, I'm still answering your last message.",
   yourEvent: 'your event',
@@ -74,8 +78,10 @@ const es: Strings = {
   previewOff: 'Reservar en el chat aún no está activado, así que no se envió nada.',
   callbackSent: (time) => `Listo. El equipo te llamará ${time}.`,
   actionExpired: 'Esa solicitud ya no está disponible. Pídemelo y la preparo de nuevo.',
+  fallbackNoLink: (phone) => `Quiero asegurarme de darte información precisa. Puedo pedirle al equipo que te llame, o puedes llamarnos al ${phone}.`,
   fallback:
     'Quiero asegurarme de darte información precisa. Puedes ver las opciones actuales y reservar en línea, o puedo pedirle al equipo que te llame.',
+  messageLimitNoLink: (phone) => `Hemos cubierto mucho. Para continuar, llámanos al ${phone} o puedo pedirle al equipo que te llame.`,
   messageLimit: (phone) => `Hemos cubierto mucho. Para continuar, reserva en línea o llámanos al ${phone}.`,
   busy: 'Un momento, todavía estoy respondiendo tu último mensaje.',
   yourEvent: 'tu evento',

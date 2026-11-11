@@ -127,6 +127,9 @@ export const configSchema = z
           })
           .strict(),
         self_service_link: z.string().url().optional(),
+        // false: the chat never shows a booking-page link (Cameron, Nov 11, Plumb + Pine): booking
+        // always happens in the chat, and without live openings the team takes the guest's times.
+        links: z.boolean().default(true),
         rules: z
           .object({
             min_notice_hours: z.number(),
