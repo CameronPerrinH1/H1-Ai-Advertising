@@ -136,7 +136,7 @@ const en = {
   qualityBreakdown: 'How Ava answered (out of 5)',
   whyFlagged: 'Why chats were flagged',
   // Save as image
-  saveImage: 'Save image',
+  saveImage: 'Save for later',
   madeWith: (name: string, biz: string) => `Made with ${name}, ${biz}'s virtual concierge`,
   // Hours
   openNow: (until: string) => `Open now · until ${until}`,
@@ -300,7 +300,7 @@ const es: UiStrings = {
   flaggedForReview: 'Marcados para revisión',
   qualityBreakdown: 'Cómo respondió Ava (de 5)',
   whyFlagged: 'Por qué se marcaron',
-  saveImage: 'Guardar imagen',
+  saveImage: 'Guardar para después',
   madeWith: (name, biz) => `Creado con ${name}, la concierge virtual de ${biz}`,
   openNow: (until) => `Abierto ahora · hasta las ${until}`,
   closedNow: (next) => `Cerrado ahora · abre ${next}`,

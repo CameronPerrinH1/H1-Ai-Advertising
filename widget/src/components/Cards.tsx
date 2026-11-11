@@ -29,8 +29,9 @@ export interface CardHandlers {
 
 function SaveButton({ card, s, h }: { card: Card; s: UiStrings; h: CardHandlers }) {
   return (
-    <button type="button" class="btn ghost" onClick={() => h.onSave(card)}>
-      <DownloadIcon size={16} />
+    // Plain icon and text, not a button shape, so it doesn't compete with the card's actions (Cameron, Nov 11).
+    <button type="button" class="save-link" onClick={() => h.onSave(card)}>
+      <DownloadIcon size={14} />
       {s.saveImage}
     </button>
   );
