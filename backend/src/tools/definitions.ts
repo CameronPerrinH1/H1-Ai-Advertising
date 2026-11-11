@@ -47,8 +47,16 @@ export const LINK_HANDOFF_TOOLS: Tool[] = [
   ),
   tool(
     'compare_services',
-    'Show a side-by-side comparison of 2 or 3 treatments: price, duration, downtime, results, and whether a consultation is needed. Use it when the guest asks how treatments differ or which to choose.',
-    { service_ids: { type: 'array', minItems: 2, maxItems: 3, items: serviceId } },
+    "Show a side-by-side comparison of 2 or 3 treatments: why each fits this guest, what it does, what it targets, price, time, downtime, and results. Use it whenever two or three treatments could fit, or the guest asks how they differ: show it in the same reply instead of offering to. Give each a one-line reason written for this guest's goal (no promises of results). The card shows the details, so your reply says which you'd lean toward for them and why.",
+    {
+      service_ids: { type: 'array', minItems: 2, maxItems: 3, items: serviceId },
+      reasons: {
+        type: 'array',
+        maxItems: 3,
+        description: "Why each treatment fits this guest's goal, one line each (under 140 characters).",
+        items: { type: 'object', properties: { service_id: serviceId, reason: { type: 'string', maxLength: 140 } }, required: ['service_id', 'reason'] },
+      },
+    },
     ['service_ids'],
   ),
   tool(

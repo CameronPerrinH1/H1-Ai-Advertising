@@ -54,6 +54,7 @@ export interface ServiceView {
   downtime?: string; // none: not given yet, so not shown
   results?: string;
   summary: string;
+  goodFor?: string[]; // what the spa says it's good for (its targets), for comparisons
   image?: string;
   requiresAssessment: boolean;
   // 'consult' means the button books the consultation instead of the treatment (D15).
@@ -108,7 +109,7 @@ export type Card =
   // instead of leaving for the booking page.
   | { type: 'treatment_options'; headline?: string; items: { service: ServiceView; reason: string }[]; bookInChat?: boolean }
   | { type: 'service'; service: ServiceView; bookInChat?: boolean }
-  | { type: 'compare'; services: ServiceView[]; bookInChat?: boolean }
+  | { type: 'compare'; services: ServiceView[]; reasons?: Record<string, string>; bookInChat?: boolean } // reasons: why each fits this guest, by service id
   | { type: 'provider'; provider: ProviderView }
   | { type: 'booking_link'; purpose: 'book' | 'manage' | 'rsvp'; url: string; serviceName?: string; providerName?: string; consult?: boolean; eventName?: string }
   // Live openings from the spa's booking platform. Times are the spa's local time; tapping one opens

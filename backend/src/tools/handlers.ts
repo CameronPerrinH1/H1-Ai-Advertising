@@ -86,7 +86,10 @@ const schemas = {
     options: z.array(z.object({ service_id: z.string(), reason: z.string().trim().min(1).max(140) })).min(1).max(3),
   }),
   show_service_card: z.object({ service_id: z.string() }),
-  compare_services: z.object({ service_ids: z.array(z.string()).min(2).max(3) }),
+  compare_services: z.object({
+    service_ids: z.array(z.string()).min(2).max(3),
+    reasons: z.array(z.object({ service_id: z.string(), reason: z.string().trim().min(1).max(140) })).max(3).optional(),
+  }),
   show_provider: z.object({ staff_id: z.string() }),
   suggest_replies: z.object({ replies: z.array(z.string()).min(1).max(3) }), // one row (Cameron, Nov 11)
   get_booking_link: z.object({
@@ -199,7 +202,11 @@ const handlers: Record<string, Handler> = {
       if (!s) return fail(`Unknown service_id "${id}".`);
       services.push(s);
     }
-    return { result: { shown: true, treatments: services.map((s) => s.name) }, cards: [{ type: 'compare', services, ...(ctx.availability ? { bookInChat: true } : {}) }] };
+    const reasons = Object.fromEntries((p.data.reasons ?? []).filter((r) => p.data.service_ids.includes(r.service_id)).map((r) => [r.service_id, r.reason]));
+    return {
+      result: { shown: true, treatments: services.map((s) => s.name) },
+      cards: [{ type: 'compare', services, ...(Object.keys(reasons).length ? { reasons } : {}), ...(ctx.availability ? { bookInChat: true } : {}) }],
+    };
   },
 
   show_provider(input, ctx) {

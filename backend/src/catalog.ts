@@ -309,6 +309,7 @@ export class Catalog {
       downtime: d.downtime ? pick(d.downtime, lang) : undefined,
       results: d.results ? pick(d.results, lang) : undefined,
       summary: pick(d.summary, lang),
+      ...(d.good_for.length ? { goodFor: d.good_for } : {}),
       image: d.image,
       requiresAssessment: d.requires_assessment,
       action: consult
