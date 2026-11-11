@@ -59,8 +59,8 @@ export const LINK_HANDOFF_TOOLS: Tool[] = [
   ),
   tool(
     'suggest_replies',
-    "Offer 2 to 4 short tap-to-send replies the guest might want next, written from the guest's point of view, in the guest's language, each under 40 characters. Use it after most replies, and as answer choices for each treatment-finder question. Never put anything only the guest knows in a reply: no names, phone numbers, emails, birthdays, addresses, or health details. When you've asked for one of those, offer a different next step instead (for example \"I'd rather get a callback\").",
-    { replies: { type: 'array', minItems: 1, maxItems: 4, items: { type: 'string', maxLength: 40 } } },
+    "Offer 2 or 3 short tap-to-send replies the guest might want next, written from the guest's point of view, in the guest's language, each under 40 characters. Use it after most replies, and as answer choices for each treatment-finder question. Never put anything only the guest knows in a reply: no names, phone numbers, emails, birthdays, addresses, or health details. When you've asked for one of those, offer a different next step instead (for example \"I'd rather get a callback\").",
+    { replies: { type: 'array', minItems: 1, maxItems: 3, items: { type: 'string', maxLength: 32 } } },
     ['replies'],
   ),
   tool(

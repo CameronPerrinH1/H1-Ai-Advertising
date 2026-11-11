@@ -83,12 +83,24 @@ function Promo({ service, s, lang }: { service: ServiceView; s: UiStrings; lang:
   );
 }
 
-function BookButton({ service, s, variant = 'primary' }: { service: ServiceView; s: UiStrings; variant?: 'primary' | 'ghost' }) {
+// With the spa's openings connected (inChat), Book asks in the chat, which shows the times; otherwise
+// it opens the booking page.
+function BookButton({ service, s, variant = 'primary', inChat, onSend }: { service: ServiceView; s: UiStrings; variant?: 'primary' | 'ghost'; inChat?: boolean; onSend?: (text: string) => void }) {
   const consult = service.action.kind === 'consult';
+  const label = consult ? s.bookConsult : s.bookOnline;
+  if (inChat && onSend) {
+    const name = (consult && service.action.consultName) || service.name;
+    return (
+      <button type="button" class={`btn ${variant}`} onClick={() => onSend(s.bookInChat(name))}>
+        <CalendarIcon size={16} />
+        {label}
+      </button>
+    );
+  }
   return (
     <a class={`btn ${variant}`} href={service.action.url} {...external}>
       <CalendarIcon size={16} />
-      {consult ? s.bookConsult : s.bookOnline}
+      {label}
     </a>
   );
 }
@@ -134,10 +146,12 @@ function OptionsCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
               </div>
               <Promo service={service} s={s} lang={lang} />
               <div class="actions">
-                <BookButton service={service} s={s} />
-                <button type="button" class="btn ghost" onClick={() => h.onSend(s.requestService(service.name))}>
-                  {s.requestThis}
-                </button>
+                <BookButton service={service} s={s} inChat={card.bookInChat} onSend={h.onSend} />
+                {!card.bookInChat && (
+                  <button type="button" class="btn ghost" onClick={() => h.onSend(s.requestService(service.name))}>
+                    {s.requestThis}
+                  </button>
+                )}
               </div>
             </div>
           </li>
@@ -534,17 +548,19 @@ function ServiceCard({ card, s, lang, h }: Props & { card: Extract<Card, { type:
           </p>
         )}
         <div class="actions">
-          <BookButton service={sv} s={s} />
-          <button type="button" class="btn ghost" onClick={() => h.onSend(s.requestService(sv.name))}>
-            {s.requestThis}
-          </button>
+          <BookButton service={sv} s={s} inChat={card.bookInChat} onSend={h.onSend} />
+          {!card.bookInChat && (
+            <button type="button" class="btn ghost" onClick={() => h.onSend(s.requestService(sv.name))}>
+              {s.requestThis}
+            </button>
+          )}
         </div>
       </div>
     </section>
   );
 }
 
-function CompareCard({ card, s }: Props & { card: Extract<Card, { type: 'compare' }> }) {
+function CompareCard({ card, s, h }: Props & { card: Extract<Card, { type: 'compare' }> }) {
   // Each row: its label, how a cell reads, and whether a service has a value for it. A row no
   // compared service has a value for is left out, never shown as a line of dashes.
   const all: [string, (sv: ServiceView) => preact.ComponentChildren, (sv: ServiceView) => boolean][] = [
@@ -584,7 +600,7 @@ function CompareCard({ card, s }: Props & { card: Extract<Card, { type: 'compare
           <div class="label" role="cell" />
           {card.services.map((sv) => (
             <div role="cell" key={sv.id}>
-              <BookButton service={sv} s={s} variant="ghost" />
+              <BookButton service={sv} s={s} variant="ghost" inChat={card.bookInChat} onSend={h.onSend} />
             </div>
           ))}
         </div>

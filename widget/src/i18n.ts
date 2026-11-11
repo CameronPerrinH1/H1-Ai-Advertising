@@ -3,7 +3,7 @@ import type { ConfirmField, Lang, Price } from '@concierge/shared';
 const en = {
   askAnything: (name: string) => `Ask ${name} anything`,
   askbarHello: (name: string) => `Hi, I'm ${name}. Ask me about treatments, prices, or booking.`,
-  followUp: 'Ask a follow-up…',
+  followUp: 'Type your message here…',
   nameFrom: (name: string, business: string) => `${name} from ${business}`,
   askingAbout: 'Asking about',
   minimize: 'Minimize chat',
@@ -26,6 +26,7 @@ const en = {
   bookConsult: 'Book a consultation',
   requestThis: 'Request this',
   requestService: (name: string) => `I'd like to request an appointment for ${name}.`,
+  bookInChat: (name: string) => `I'd like to book the ${name}.`,
   requestWith: (first: string) => `Request with ${first}`,
   requestWithText: (name: string) => `I'd like to request an appointment with ${name}.`,
   needsConsult: 'Starts with a consultation',
@@ -172,7 +173,7 @@ export type UiStrings = typeof en;
 const es: UiStrings = {
   askAnything: (name) => `Pregúntale a ${name}`,
   askbarHello: (name) => `Hola, soy ${name}. Pregúntame por tratamientos, precios o reservas.`,
-  followUp: 'Haz otra pregunta…',
+  followUp: 'Escribe tu mensaje aquí…',
   nameFrom: (name, business) => `${name} de ${business}`,
   askingAbout: 'Preguntando por',
   minimize: 'Minimizar chat',
@@ -195,6 +196,7 @@ const es: UiStrings = {
   bookConsult: 'Reservar consulta',
   requestThis: 'Solicitar',
   requestService: (name) => `Me gustaría solicitar una cita para ${name}.`,
+  bookInChat: (name) => `Me gustaría reservar ${name}.`,
   requestWith: (first) => `Solicitar con ${first}`,
   requestWithText: (name) => `Me gustaría solicitar una cita con ${name}.`,
   needsConsult: 'Comienza con una consulta',

@@ -85,7 +85,7 @@ const schemas = {
   show_service_card: z.object({ service_id: z.string() }),
   compare_services: z.object({ service_ids: z.array(z.string()).min(2).max(3) }),
   show_provider: z.object({ staff_id: z.string() }),
-  suggest_replies: z.object({ replies: z.array(z.string()).min(1).max(4) }),
+  suggest_replies: z.object({ replies: z.array(z.string()).min(1).max(3) }), // one row (Cameron, Nov 11)
   get_booking_link: z.object({
     service_id: z.string().optional(),
     staff_id: z.string().optional(),
@@ -174,7 +174,7 @@ const handlers: Record<string, Handler> = {
     }
     return {
       result: { shown: true, treatments: items.map((i) => i.service.name), note: 'The card is visible to the guest. Introduce it in one short sentence.' },
-      cards: [{ type: 'treatment_options', headline: p.data.headline, items }],
+      cards: [{ type: 'treatment_options', headline: p.data.headline, items, ...(ctx.availability ? { bookInChat: true } : {}) }],
     };
   },
 
@@ -183,7 +183,7 @@ const handlers: Record<string, Handler> = {
     if (!p.ok) return fail(p.error);
     const service = serviceCard(p.data.service_id, ctx);
     if (!service) return fail(`Unknown service_id "${p.data.service_id}".`);
-    return { result: { shown: true, treatment: service.name }, cards: [{ type: 'service', service }] };
+    return { result: { shown: true, treatment: service.name }, cards: [{ type: 'service', service, ...(ctx.availability ? { bookInChat: true } : {}) }] };
   },
 
   compare_services(input, ctx) {
@@ -196,7 +196,7 @@ const handlers: Record<string, Handler> = {
       if (!s) return fail(`Unknown service_id "${id}".`);
       services.push(s);
     }
-    return { result: { shown: true, treatments: services.map((s) => s.name) }, cards: [{ type: 'compare', services }] };
+    return { result: { shown: true, treatments: services.map((s) => s.name) }, cards: [{ type: 'compare', services, ...(ctx.availability ? { bookInChat: true } : {}) }] };
   },
 
   show_provider(input, ctx) {

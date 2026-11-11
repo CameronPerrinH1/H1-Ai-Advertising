@@ -104,9 +104,11 @@ export interface CountedItem {
 }
 
 export type Card =
-  | { type: 'treatment_options'; headline?: string; items: { service: ServiceView; reason: string }[] }
-  | { type: 'service'; service: ServiceView }
-  | { type: 'compare'; services: ServiceView[] }
+  // bookInChat: the spa's openings are connected, so Book asks in the chat (which shows the times)
+  // instead of leaving for the booking page.
+  | { type: 'treatment_options'; headline?: string; items: { service: ServiceView; reason: string }[]; bookInChat?: boolean }
+  | { type: 'service'; service: ServiceView; bookInChat?: boolean }
+  | { type: 'compare'; services: ServiceView[]; bookInChat?: boolean }
   | { type: 'provider'; provider: ProviderView }
   | { type: 'booking_link'; purpose: 'book' | 'manage' | 'rsvp'; url: string; serviceName?: string; providerName?: string; consult?: boolean; eventName?: string }
   // Live openings from the spa's booking platform. Times are the spa's local time; tapping one opens

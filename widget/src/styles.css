@@ -570,9 +570,24 @@ a {
 
 .quick {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* one row of replies (Cameron, Nov 11); scrolls sideways if they don't fit */
   gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  padding-bottom: 2px;
   animation: rise 0.4s ease-out 0.1s both;
+}
+
+.quick::-webkit-scrollbar,
+.askbar-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.quick .chip,
+.askbar-chips .chip {
+  flex: none;
+  white-space: nowrap;
 }
 
 .chip {
@@ -1987,9 +2002,19 @@ html.askbar-mode #app {
 
 .askbar-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* one row; centered when it fits, scrolls when it doesn't */
   gap: 8px;
-  justify-content: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.askbar-chips .chip:first-child {
+  margin-left: auto;
+}
+
+.askbar-chips .chip:last-child {
+  margin-right: auto;
 }
 
 .askbar-chips .chip {
