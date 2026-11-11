@@ -11,9 +11,10 @@ export interface Deployment {
   // The Secrets Manager secret with the booking platform's API keys, for live openings
   // (booking.availability). Created by hand in the deployment's account; only the API reads it.
   bookingSecretName?: string;
-  // Holds on the spa's calendar (booking.availability.holds): off unless set. 'test' marks them
-  // "TEST –" and releases them after 10 minutes, for supervised trials on staging.
-  holds?: 'off' | 'test' | 'on';
+  // In-chat booking with holds on the spa's calendar (booking.availability.holds): off unless set.
+  // 'preview' runs the whole flow with Confirm greyed out (nothing held or sent); 'test' marks holds
+  // "TEST –" and releases them after 10 minutes, for supervised trials.
+  holds?: 'off' | 'preview' | 'test' | 'on';
 }
 
 export const DEPLOYMENTS: Record<string, Deployment> = {
@@ -35,5 +36,6 @@ export const DEPLOYMENTS: Record<string, Deployment> = {
     audit: { days: 7, mode: 'governance' },
     // Jen's Vagaro keys (read-only openings; no guest data is sent to Vagaro, so D29 holds).
     bookingSecretName: 'concierge/plumb-and-pine-staging/vagaro',
+    holds: 'preview', // Cameron, Nov 11: book in the chat, Confirm greyed out until it goes live
   },
 };

@@ -38,7 +38,7 @@ export const SESSION_COOKIE = '__Host-concierge_session';
 export interface ConciergeStackProps extends StackProps {
   clientId: string;
   bookingSecretName?: string; // the booking platform's API keys, for live openings (deployments.ts)
-  holds?: 'off' | 'test' | 'on'; // holds on the spa's calendar; off unless set
+  holds?: 'off' | 'preview' | 'test' | 'on'; // in-chat booking and holds; off unless set
   stage: 'staging' | 'production';
   repoRoot: string; // the concierge folder; the monorepo root is its parent
   widgetDist: string; // the built widget (pnpm --filter @concierge/widget build)
@@ -226,9 +226,11 @@ export class ConciergeStack extends Stack {
       : environment;
     const apiFn = fn('Api', 'api', Duration.seconds(29), 1024, bookingEnv);
     bookingSecret?.grantRead(apiFn);
-    // Under the 5-minute schedule, so runs never overlap. With holds on it also releases stale holds.
-    const sweepFn = fn('Sweep', 'sweep', Duration.minutes(4), 1024, props.holds && props.holds !== 'off' ? bookingEnv : environment);
-    if (props.holds && props.holds !== 'off') bookingSecret?.grantRead(sweepFn);
+    // Under the 5-minute schedule, so runs never overlap. With holds written (on or test) it also
+    // releases stale holds; preview writes none, so the sweep needs no booking access then.
+    const holdsWrite = props.holds === 'on' || props.holds === 'test';
+    const sweepFn = fn('Sweep', 'sweep', Duration.minutes(4), 1024, holdsWrite ? bookingEnv : environment);
+    if (holdsWrite) bookingSecret?.grantRead(sweepFn);
     const weeklyFn = fn('WeeklyReport', 'weeklyReport', Duration.minutes(2), 512);
     // Review function (D39, D69): the review role invokes it directly; it has no API route. It only
     // reads the sessions table, so it gets none of the secrets, email, or model settings.
@@ -258,7 +260,7 @@ export class ConciergeStack extends Stack {
       );
     }
     // The sweep emails the spa when it releases a hold nobody turned into an appointment.
-    for (const f of props.holds && props.holds !== 'off' ? [apiFn, weeklyFn, sweepFn] : [apiFn, weeklyFn]) {
+    for (const f of holdsWrite ? [apiFn, weeklyFn, sweepFn] : [apiFn, weeklyFn]) {
       f.addToRolePolicy(
         new iam.PolicyStatement({
           sid: 'SendEmail',

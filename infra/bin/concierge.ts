@@ -39,7 +39,7 @@ new ConciergeStack(app, `Concierge-${deploymentName}`, {
   monthlyBudgetUsd: d.monthlyBudgetUsd,
   audit: d.audit,
   bookingSecretName: c.booking.availability ? d.bookingSecretName : undefined,
-  holds: (app.node.tryGetContext('holds') as 'off' | 'test' | 'on' | undefined) ?? d.holds,
+  holds: (app.node.tryGetContext('holds') as 'off' | 'preview' | 'test' | 'on' | undefined) ?? d.holds,
   sesIdentity: handoffEmail ? { email: handoffEmail } : c.demo || d.stage === 'staging' ? undefined : { domain: senderDomain },
   handoffOverride: handoffEmail ? { from: handoffEmail, to: handoffEmail } : undefined,
 });

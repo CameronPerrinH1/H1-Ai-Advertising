@@ -17,7 +17,7 @@ const catalog = new Catalog(loadClient('plumb-and-pine'));
 const NOW = Date.UTC(2026, 10, 10, 23, 0); // Tue, Nov 10, 3:00 PM in Reno
 const guest = { first_name: 'Dana', last_name: 'Reyes', phone: '775-555-0142' };
 
-function setup(opts: { holdMode?: 'on' | 'test'; writer?: HoldWriter } = { holdMode: 'on' }) {
+function setup(opts: { holdMode?: 'on' | 'test' | 'preview'; writer?: HoldWriter } = { holdMode: 'on' }) {
   const fixed = new FixedAvailability(() => '2026-11-12');
   const outbox = new MemoryOutbox();
   const o = new Orchestrator({
@@ -39,7 +39,8 @@ function setup(opts: { holdMode?: 'on' | 'test'; writer?: HoldWriter } = { holdM
     phoneKey: 'test',
     extraAmounts: new Set(),
     availability: fixed,
-    holds: opts.holdMode ? (opts.writer ?? fixed) : undefined,
+    holds: opts.holdMode && opts.holdMode !== 'preview' ? (opts.writer ?? fixed) : undefined,
+    inChat: opts.holdMode ? (opts.holdMode === 'preview' ? 'preview' : 'hold') : undefined,
     now: () => NOW,
   };
   return { fixed, outbox, o, session, ctx };
@@ -138,6 +139,29 @@ describe('holds', () => {
     await o.confirm(session, card.actionId);
     expect(fixed.holds.size).toBe(0);
     expect(outbox.sent[0]!.body).toContain('Preferred times: Thu, Nov 12 at 10:00 AM');
+  });
+
+  it('in preview: the whole flow, Confirm greyed out, no booking links, nothing held or sent', async () => {
+    const { fixed, outbox, o, session, ctx } = setup({ holdMode: 'preview' });
+    const openings = await showOpenings({ service_id: 'deluxe-hydrafacial' }, ctx);
+    expect(openings.cards?.[0]?.type === 'openings' && openings.cards[0].selectable).toBe(true);
+    const card = handleTool('request_appointment', { service_id: 'deluxe-hydrafacial', slot: { date: '2026-11-12', time: '10:00' }, ...guest }, ctx).cards?.[0];
+    if (card?.type !== 'confirm') throw new Error('no confirm card');
+    expect(card.preview).toBe(true);
+    expect(card.note).toContain('Confirm is turned off');
+    const res = await o.confirm(session, card.actionId); // greyed out, but if it arrives anyway
+    expect(res.reply.text).toContain("isn't switched on yet");
+    expect(fixed.holds.size).toBe(0);
+    expect(outbox.sent).toHaveLength(0);
+    // No booking-link tool for the model, and no link when openings can't be found.
+    const model = scriptedModel([{ content: [{ text: 'Hi!' }] }]);
+    const p = new Orchestrator({ catalog, model, outbox, phoneKey: 'test', availability: fixed, holdMode: 'preview', now: () => new Date(NOW) });
+    await p.handleMessage(createSession({ lang: 'en', noticeVersion: 'v' }).session, { id: 'm1-xxxxxxxx', text: 'hi', lang: 'en' });
+    const names = model.calls[0]!.toolConfig!.tools!.map((x) => x.toolSpec?.name);
+    expect(names).toContain('show_openings');
+    expect(names).not.toContain('get_booking_link');
+    const down = await showOpenings({ service_id: 'deluxe-hydrafacial' }, { ...ctx, availability: { search: async () => { throw new Error('down'); } } });
+    expect(down.cards ?? []).toHaveLength(0);
   });
 
   it('releases holds nobody made into an appointment, and tells the spa', async () => {

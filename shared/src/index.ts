@@ -130,6 +130,7 @@ export type Card =
       fields: { key: ConfirmField; value: string }[];
       note: string;
       status: 'pending' | 'confirmed' | 'expired';
+      preview?: boolean; // in-chat booking in preview: the whole flow, with Confirm greyed out
     }
   | {
       type: 'urgent';

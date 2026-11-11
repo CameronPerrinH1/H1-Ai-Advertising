@@ -104,7 +104,9 @@ export async function createRuntime(env: Env = process.env): Promise<Runtime> {
   let availability: AvailabilitySource | undefined;
   // Holds also need the deployment's switch: BOOKING_HOLDS=on, or test (marked "TEST –", released
   // after 10 minutes). Off by default, so a staging chat never blocks a spa's real calendar.
-  const holdMode = env.BOOKING_HOLDS === 'on' || env.BOOKING_HOLDS === 'test' ? env.BOOKING_HOLDS : undefined;
+  // preview: the whole in-chat flow with Confirm greyed out; nothing is held or sent.
+  const holdMode = env.BOOKING_HOLDS === 'on' || env.BOOKING_HOLDS === 'test' || env.BOOKING_HOLDS === 'preview' ? env.BOOKING_HOLDS : undefined;
+  const writes = holdMode === 'on' || holdMode === 'test';
   let holds: Runtime['holds'];
   if (availCfg && env.BOOKING_SECRET_ID) {
     let creds: Promise<VagaroCredentials> | undefined;
@@ -112,12 +114,12 @@ export async function createRuntime(env: Env = process.env): Promise<Runtime> {
       creds = undefined; // retried on the next search
       throw err;
     }));
-    const vagaro = new VagaroAvailability(availCfg.business_id, load, fetch, holdMode && availCfg.holds.enabled ? 'read access,write employee' : 'read access');
+    const vagaro = new VagaroAvailability(availCfg.business_id, load, fetch, writes && availCfg.holds.enabled ? 'read access,write employee' : 'read access');
     availability = vagaro;
-    if (holdMode && availCfg.holds.enabled) holds = { writer: vagaro, mode: holdMode };
+    if (writes && availCfg.holds.enabled) holds = { writer: vagaro, mode: holdMode as 'on' | 'test' };
   }
 
-  const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey, insights, availability, holds: holds?.writer, holdMode: holds?.mode });
+  const orchestrator = new Orchestrator({ catalog, model, outbox, phoneKey, insights, availability, holds: holds?.writer, holdMode });
   const today = () => localClock(tz, new Date()).date;
   return { bundle, catalog, model, outbox, orchestrator, sessions, summaries, control: controlFromEnv(clientId), staffCode, originVerify, currentMonth, onAws, holds, today };
 }

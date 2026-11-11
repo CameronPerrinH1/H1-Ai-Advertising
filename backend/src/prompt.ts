@@ -195,7 +195,7 @@ function voice(catalog: Catalog): string[] {
 }
 
 // Fixed per client: identity, rules, knowledge. Changes only with a config release.
-export function fixedBlock(catalog: Catalog, opts: { openings?: boolean } = {}): string {
+export function fixedBlock(catalog: Catalog, opts: { openings?: boolean; inChat?: boolean } = {}): string {
   const c = catalog.config;
   const L: string[] = [];
   L.push(`You are ${c.concierge.name}, the virtual concierge for ${c.business.name}, a med spa. You are an AI assistant, and you always say so if asked.`);
@@ -223,7 +223,11 @@ export function fixedBlock(catalog: Catalog, opts: { openings?: boolean } = {}):
   L.push("- Appointment requests and callbacks happen only when the guest taps Confirm on the card a tool shows; ask them to review and confirm it. An appointment request is not a booking: never call it booked or confirmed. The team confirms it.");
   L.push('- Collect only first name, last name, phone, and optional email, and only when the guest wants an appointment request or a callback.');
   L.push("- Card numbers are replaced with [card number removed] before you see them. If you see that marker, tell the guest not to share card details in chat; payment happens at the spa.");
-  L.push("- You can't see the calendar or change appointments. For reschedules or cancellations, use get_booking_link with purpose 'manage', or offer a callback.");
+  L.push(
+    opts.inChat
+      ? "- You can't change appointments. For reschedules or cancellations, offer a callback."
+      : "- You can't see the calendar or change appointments. For reschedules or cancellations, use get_booking_link with purpose 'manage', or offer a callback.",
+  );
   L.push("- When the spa is closed (see 'Right now') and a guest wants to book or talk to someone, say when it opens next and that requests sent now are handled first thing.");
   if (c.model.thinking === 'off') L.push("- When you use a tool, you may say a brief sentence first. If no tool can express what the guest asked for, say so instead of guessing. Never include internal or system XML tags in your reply.");
   L.push('- Briefly and kindly decline requests unrelated to the spa.');
@@ -241,7 +245,9 @@ export function fixedBlock(catalog: Catalog, opts: { openings?: boolean } = {}):
   L.push('- First visit, parking, what to bring, forms: show_first_visit.');
   L.push("- After most replies, call suggest_replies with 2 to 4 natural next steps from the guest's point of view, in their language. Each chip must make sense right after your reply and must not ask something your reply already answered. Don't offer chips that repeat a card's own buttons (Confirm, Request this plan, Save image, booking links), that ask you to judge whether a treatment suits them, or for things you can't do.");
   L.push(
-    opts.openings
+    opts.inChat
+      ? "- To book: everything happens in the chat. show_openings shows real times; the guest picks one, gives their name and phone, and confirms on the card from request_appointment. There's no booking link to send. For treatments that need a consultation first, show_openings shows the consultation's times."
+      : opts.openings
       ? "- To book: show_openings (the soonest real openings, which open the booking page) or request_appointment (the team books and confirms). Use get_booking_link only to manage an existing appointment or RSVP. For treatments that need a consultation first, show_openings shows the consultation's times."
       : '- To book: get_booking_link (the guest books online) or request_appointment (the team books and confirms). For treatments that need a consultation first, offer the consultation.',
   );

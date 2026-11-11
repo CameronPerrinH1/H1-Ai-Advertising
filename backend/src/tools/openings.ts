@@ -58,7 +58,10 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
   const consult = service.details.requires_assessment ? catalog.consultFor(service.id) : undefined;
   const target = consult ?? service;
 
+  // Without openings: the booking button, or, with in-chat booking, no link at all: the guest's
+  // preferred times go to the team through request_appointment instead.
   const link = (why: string): ToolOutcome => {
+    if (ctx.inChat) return { result: { openings_shown: false, why, next: "Don't send the guest to a booking page. Ask which days and times work for them and use request_appointment with preferred_times." } };
     const out = handleTool('get_booking_link', { service_id: service.id }, ctx);
     return { ...out, result: { ...out.result, openings_shown: false, why } };
   };
@@ -130,7 +133,7 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
     consult: !!consult,
     durationMinutes: target.durationMinutes,
     days: shown,
-    ...(ctx.holds ? { selectable: true } : {}),
+    ...(ctx.inChat ? { selectable: true } : {}),
   };
   return {
     cards: [card],
@@ -142,7 +145,7 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
       soonest: `${shown[0]!.label} at ${shown[0]!.times[0]!.label}`,
       ...(noFit ? { no_openings_in: p.data.time_of_day, showing: 'the soonest times at other parts of the day; say so' } : {}),
       days: shown.map((d) => `${d.label} (${d.date}): ${d.times.map((t) => `${t.label} [${t.time}]`).join(', ')}`),
-      note: ctx.holds
+      note: ctx.inChat
         ? "The card shows these times; the guest can tap one (or name one from these days) to pick it. Then collect first and last name and phone (email optional) and call request_appointment with slot {date, time}; the time is held on the calendar only after they tap Confirm. Mention at most the soonest time, and only from this list."
         : "The card shows these times; tapping one opens the booking page, where the guest confirms it. You can't hold or book a time. Mention at most the soonest time, and only from this list.",
     },

@@ -707,10 +707,13 @@ function OpeningsCard({ card, s, h }: Props & { card: Extract<Card, { type: 'ope
           </div>
         ))}
         <p class="muted small openings-note">{card.selectable ? s.openingsPickNote : s.openingsNote}</p>
-        <a class="btn ghost openings-all" href={card.url} {...external}>
-          <CalendarIcon size={16} />
-          {s.seeAllTimes}
-        </a>
+        {/* With in-chat booking there's no link to the booking page at all (Cameron, Nov 11). */}
+        {!card.selectable && (
+          <a class="btn ghost openings-all" href={card.url} {...external}>
+            <CalendarIcon size={16} />
+            {s.seeAllTimes}
+          </a>
+        )}
       </div>
     </section>
   );
@@ -743,7 +746,15 @@ function ConfirmCard({ card, s, h }: Props & { card: Extract<Card, { type: 'conf
       <p class="note">{card.note}</p>
       {card.status === 'pending' && (
         <div class="actions">
-          <button type="button" class="btn primary" disabled={busy} onClick={() => h.onConfirm(card.actionId)}>
+          {/* In preview, the whole booking flow runs but Confirm is greyed out (nothing is held or sent). */}
+          <button
+            type="button"
+            class="btn primary"
+            disabled={busy || card.preview}
+            aria-disabled={card.preview ? 'true' : undefined}
+            title={card.preview ? card.note : undefined}
+            onClick={() => !card.preview && h.onConfirm(card.actionId)}
+          >
             {busy ? s.sending : s.confirm}
           </button>
           <button type="button" class="btn ghost" disabled={busy} onClick={h.onChangeDetails}>

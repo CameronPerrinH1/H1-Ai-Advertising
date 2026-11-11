@@ -28,6 +28,9 @@ export interface ToolContext {
   // Live openings from the booking platform, where it's connected (show_openings).
   availability?: AvailabilitySource;
   holds?: HoldWriter; // where holds are on: a confirmed time is blocked on the calendar
+  // In-chat booking (holds on, test, or preview): times are picked in the chat, never a booking link.
+  // In preview the confirm card is shown with Confirm greyed out, and nothing is held or sent.
+  inChat?: 'hold' | 'preview';
   now?: () => number;
   // Staff mode only: this month's report of what visitors asked (D65).
   insights?: () => Card;
@@ -325,7 +328,7 @@ const handlers: Record<string, Handler> = {
         const label = (l: Lang) => `${dayLabel(date, l)} at ${timeLabel(time, l)}`;
         emailTimes = `${label('en')}${target.id !== service.id ? ` (${target.name})` : ''}${extra ? `. Guest note: ${extra}` : ''}`;
         cardTimes = label(lang);
-        if (ctx.holds) {
+        if (ctx.inChat) {
           const minutes = shown.minutes ?? target.durationMinutes ?? 30;
           const [h, m] = time.split(':').map(Number) as [number, number];
           const endMin = Math.min(h * 60 + m + minutes, 23 * 60 + 59);
@@ -381,7 +384,9 @@ const handlers: Record<string, Handler> = {
     return {
       result: {
         status: 'awaiting_confirmation',
-        note: hold
+        note: hold && ctx.inChat === 'preview'
+          ? "A summary card is shown, but booking in the chat is in preview: Confirm is greyed out and nothing is held or sent. Tell the guest their details are ready and that booking in the chat is coming soon; don't ask them to tap Confirm. Offer a callback if they'd like the team to book it now."
+          : hold
           ? "A confirmation card is shown. Ask the guest to review it and tap Confirm, which holds the time on the calendar; the team then texts to confirm the appointment. Until they tap Confirm, nothing is held."
           : "A confirmation card is shown. Ask the guest to review it and tap Confirm. It's a request; the team confirms the appointment.",
       },
@@ -391,8 +396,9 @@ const handlers: Record<string, Handler> = {
           actionId: id,
           kind: 'appointment',
           fields,
-          note: hold ? S.holdNote(time) : needsConsult ? `${S.appointmentNote(time)} ${S.consultNote}` : S.appointmentNote(time),
+          note: hold && ctx.inChat === 'preview' ? S.previewNote : hold ? S.holdNote(time) : needsConsult ? `${S.appointmentNote(time)} ${S.consultNote}` : S.appointmentNote(time),
           status: 'pending',
+          ...(hold && ctx.inChat === 'preview' ? { preview: true } : {}),
         },
       ],
     };

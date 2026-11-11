@@ -62,7 +62,7 @@ export interface OrchestratorDeps {
   // Holds (booking.availability.holds): a confirmed time is blocked on the provider's calendar.
   // `test` marks them "TEST –" and releases them after 10 minutes (staging trials).
   holds?: HoldWriter;
-  holdMode?: 'on' | 'test';
+  holdMode?: 'on' | 'test' | 'preview';
 }
 
 interface TurnResult {
@@ -103,7 +103,8 @@ export class Orchestrator {
   private readonly staffFixed: string;
 
   constructor(private readonly deps: OrchestratorDeps) {
-    this.fixed = fixedBlock(deps.catalog, { openings: !!deps.availability && !!deps.catalog.config.booking.availability });
+    const openings = !!deps.availability && !!deps.catalog.config.booking.availability;
+    this.fixed = fixedBlock(deps.catalog, { openings, inChat: openings && !!deps.holdMode && !!deps.catalog.config.booking.availability?.holds.enabled && (deps.holdMode === 'preview' || !!deps.holds) });
     this.staffFixed = staffFixedBlock(deps.catalog);
   }
 
@@ -120,9 +121,23 @@ export class Orchestrator {
     return !!this.deps.availability && !!this.deps.catalog.config.booking.availability;
   }
 
-  // Holds need openings, a writer, the spa's switch (config), and the deployment's (holdMode).
+  // In-chat booking needs openings, the spa's switch (config), and the deployment's (holdMode).
+  private get inChat(): 'hold' | 'preview' | undefined {
+    if (!this.openingsOn || !this.deps.holdMode || !this.deps.catalog.config.booking.availability?.holds.enabled) return undefined;
+    if (this.deps.holdMode === 'preview') return 'preview';
+    return this.deps.holds ? 'hold' : undefined;
+  }
+
+  // Holds are written only with a writer and holds really on (or test), never in preview.
   private get holdsOn() {
-    return this.openingsOn && !!this.deps.holds && !!this.deps.holdMode && !!this.deps.catalog.config.booking.availability?.holds.enabled;
+    return this.inChat === 'hold';
+  }
+
+  // With in-chat booking there's no booking-link tool: every booking stays in the chat.
+  private get guestTools() {
+    if (!this.openingsOn) return LINK_HANDOFF_TOOLS;
+    const tools = this.inChat ? LINK_HANDOFF_TOOLS.filter((t) => t.toolSpec?.name !== 'get_booking_link') : LINK_HANDOFF_TOOLS;
+    return [...tools, OPENINGS_TOOL];
   }
 
   // Rechecks the picked time and blocks it on the calendar. 'taken' when it's no longer open;
@@ -318,7 +333,7 @@ export class Orchestrator {
 
     const clock = this.clock();
     const staff = session.audience === 'staff';
-    const system = buildSystem(this.catalog, { clock, lang, page: session.page, openings: this.openingsOn, holds: this.holdsOn }, staff ? this.staffFixed : this.fixed);
+    const system = buildSystem(this.catalog, { clock, lang, page: session.page, openings: this.openingsOn, holds: !!this.inChat }, staff ? this.staffFixed : this.fixed);
     // Tools run synchronously, so the staff report is read before the turn.
     const report = staff && this.deps.insights ? await this.deps.insights(lang) : undefined;
     const ctx: ToolContext = {
@@ -331,6 +346,7 @@ export class Orchestrator {
       extraAmounts: guestAmounts([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       availability: this.openingsOn ? this.deps.availability : undefined,
       holds: this.holdsOn ? this.deps.holds : undefined,
+      inChat: this.inChat,
       now: this.deps.now ? () => this.deps.now!().getTime() : undefined,
       guestPhones: guestPhones([...session.display.filter((m) => m.role === 'guest').map((m) => m.text), clean]),
       insights: report ? () => report : undefined,
@@ -405,7 +421,7 @@ export class Orchestrator {
         modelId: c.model.id,
         system,
         messages: [...input, ...added],
-        toolConfig: { tools: ctx.session.audience === 'staff' ? STAFF_TOOLS : this.openingsOn ? [...LINK_HANDOFF_TOOLS, OPENINGS_TOOL] : LINK_HANDOFF_TOOLS },
+        toolConfig: { tools: ctx.session.audience === 'staff' ? STAFF_TOOLS : this.guestTools },
         // Claude 5.5 models don't accept temperature; sampling is left at the model default.
         inferenceConfig: { maxTokens: c.model.max_output_tokens },
         additionalModelRequestFields: (c.model.thinking === 'off'
@@ -485,6 +501,12 @@ export class Orchestrator {
     if (action.kind === 'appointment' && session.counts.requests >= limits.max_bookings_per_session) return expired();
     if (action.kind === 'callback' && session.counts.callbacks >= limits.max_callbacks_per_session) return expired();
 
+    // In preview, Confirm is greyed out; if a confirm arrives anyway, nothing is held or sent.
+    if (action.kind === 'appointment' && action.payload.hold && this.inChat === 'preview') {
+      const reply: Reply = { replyId: newReplyId(), text: S.previewOff, cards: [], quickReplies: [] };
+      session.display.push({ role: 'assistant', ...reply });
+      return { actionId, status: 'expired', reply };
+    }
     // A picked time is held on the calendar first; if it was just taken, nothing is sent.
     let held: { id: string } | undefined;
     if (action.kind === 'appointment' && action.payload.hold && this.holdsOn) {
@@ -572,6 +594,8 @@ async function safeOpenings(input: unknown, ctx: ToolContext): Promise<ToolOutco
   try {
     return await showOpenings(input, ctx);
   } catch {
+    // With in-chat booking there's no link to fall back to: the team takes the guest's times instead.
+    if (ctx.inChat) return { result: { openings_shown: false, next: 'Ask which days and times work and use request_appointment with preferred_times.' } };
     return safeHandle('get_booking_link', { service_id: (input as { service_id?: string })?.service_id }, ctx);
   }
 }
