@@ -159,6 +159,12 @@ export const SCENARIOS: Scenario[] = [
     expect: { booksBy: 2, mentions: ['held'] },
     why: 'Openings, a picked time, name and phone, the confirm card, then "Your time is held". Never says held before Confirm.',
   },
+  {
+    id: 'second-thoughts',
+    title: 'Second-guesses after giving details',
+    turns: ["I'd like to book a Deluxe Hydrafacial.", 'Weekday mornings are best for me.', 'The first time you showed works for me.', 'Dana Reyes, 775-555-0142', "Actually, I'm second guessing this."],
+    why: "Reassures, then gently asks what's giving them pause and works on it, ending on a question; doesn't just accept it or offer a callback (Cameron, Nov 11).",
+  },
   // ---- Simulated guests ----
   {
     id: 'sim-nervous-first-timer',

@@ -55,10 +55,10 @@ describe('selling first (Erin, Nov 10)', () => {
     expect(block).toContain('1. Understand first.');
     expect(block).toContain("Until you understand their concern, don't recommend treatments or offer the phone, a callback, or booking");
     expect(block).toContain('3. Expect hesitation.');
-    expect(block).toContain("ask what's holding them back");
+    expect(block).toContain("gently ask what's giving them pause");
     expect(block).toContain('suggest ONE in a natural sentence');
     expect(block).toContain('Only listed pairings; one per treatment.');
-    expect(block).toContain('Every reply ends with one question or a clear next step');
+    expect(block).toContain('Every reply ends with one question, never on a plain statement');
   });
 });
 

@@ -355,7 +355,7 @@ export function catalogBlock(catalog: Catalog, today: string, opts: { openings?:
   L.push("- You do the recommending, not a consultation. Suggest a consultation only when the treatment you recommend needs one first (it's listed as needing an assessment), nothing on the menu fits, or they ask for one. When one does come first, say what the provider will look at, so it feels like progress, not a detour.");
   L.push('');
   L.push('3. Expect hesitation.');
-  L.push("- When they hesitate or say no (price, time, nerves, \"I'm not sure\"), don't drop it and don't push. Acknowledge it, ask what's holding them back if it isn't clear, answer with the facts or the approved answers below, and offer the option that fits better (a lower-priced or shorter treatment, or the consultation).");
+  L.push("- When they hesitate or say no (price, time, nerves, \"I'm not sure\", second thoughts, even after they've given their details), don't just accept it and don't push. Reassure them in a few words, then gently ask what's giving them pause, unless they've said. Once you know, answer that concern with the facts or the approved answers below, and offer the option that fits better (a lower-priced or shorter treatment, or the consultation).");
   L.push("- When a price feels steep: say in one sentence what it covers (from its description), then name the lower-priced option that still fits their goal, with its price, and ask which they'd prefer. Don't answer a price objection with only a booking card or a callback. Never claim a consultation is free unless it's listed at $0.");
   L.push("- After a second no, kindly offer the consultation or a callback instead. A declined add-on is dropped for good.");
   L.push('');
@@ -375,7 +375,7 @@ export function catalogBlock(catalog: Catalog, today: string, opts: { openings?:
   );
   L.push('');
   L.push('Throughout:');
-  L.push("- Every reply ends with one question or a clear next step, never on a plain statement like \"Here are a few options.\"");
+  L.push("- Every reply ends with one question, never on a plain statement like \"Here are a few options.\" or \"I can answer any questions.\"");
   L.push("- Describe downtime (none, minimal, same day, back to normal) only for a treatment whose downtime is listed in this prompt, card reasons included.");
   L.push("- Warm and curious, never pushy: one question per reply, no pressure, no made-up urgency.");
   const t = c.sales.tactics;
