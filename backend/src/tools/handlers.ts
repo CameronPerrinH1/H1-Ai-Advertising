@@ -394,7 +394,7 @@ const handlers: Record<string, Handler> = {
         note: hold && ctx.inChat === 'preview'
           ? "A summary card is shown, but booking in the chat is in preview: Confirm is greyed out and nothing is held or sent. Tell the guest their details are ready and that booking in the chat is coming soon; don't ask them to tap Confirm. Offer a callback if they'd like the team to book it now."
           : hold
-          ? "A confirmation card is shown. Ask the guest to review it and tap Confirm, which holds the time on the calendar; the team then texts to confirm the appointment. Until they tap Confirm, nothing is held."
+          ? "A confirmation card is shown. Ask the guest to review it and tap Confirm, which holds the time on the calendar; the team then texts to confirm the appointment (say when only as the card does). Until they tap Confirm, nothing is held: never call it held, booked, or on file before then."
           : "A confirmation card is shown. Ask the guest to review it and tap Confirm. It's a request; the team confirms the appointment.",
       },
       cards: [

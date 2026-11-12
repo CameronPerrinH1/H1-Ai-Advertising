@@ -364,7 +364,8 @@ export class Orchestrator {
     let stored: Message[];
     try {
       const first = await this.runTurn(system, turnMessages, ctx);
-      let check = withConsistency(this.check(first.text, clock.date, ctx), first);
+      const pendingOnScreen = session.display.some((m) => m.cards?.some((c) => c.type === 'confirm' && c.status === 'pending'));
+      let check = withConsistency(this.check(first.text, clock.date, ctx), first, pendingOnScreen);
       let final = first;
       stored = [...turnMessages, ...first.added];
 
@@ -374,8 +375,25 @@ export class Orchestrator {
         const retryInput = withFeedback([...turnMessages, ...beforeFinal], check.problems);
         const retry = await this.runTurn(system, retryInput, ctx);
         final = { ...retry, cards: [...first.cards, ...retry.cards], quickReplies: retry.quickReplies.length ? retry.quickReplies : first.quickReplies, urgent: first.urgent || retry.urgent };
-        check = withConsistency(this.check(retry.text, clock.date, ctx), final);
+        check = withConsistency(this.check(retry.text, clock.date, ctx), final, pendingOnScreen);
         stored = [...turnMessages, ...beforeFinal, ...retry.added];
+      }
+
+      // Every reply ends with a question (Cameron, Nov 11). Haiku often lets a card close the reply
+      // instead (a third of replies in the Nov 12 sales review), so a reply that ends on a statement
+      // gets one rewrite. It's kept only if it passes every check, ends on a question, and adds no
+      // cards (a second tool call could repeat a request); otherwise the first reply stands.
+      if (check.ok && final === first && needsQuestion(first, staff)) {
+        const beforeFinal = first.endsWithAssistant ? first.added.slice(0, -1) : first.added;
+        const retry = await this.runTurn(system, withFeedback([...turnMessages, ...beforeFinal], [QUESTION_NOTE]), ctx);
+        const retryCheck = withConsistency(this.check(retry.text, clock.date, ctx), { cards: first.cards, text: retry.text }, pendingOnScreen);
+        const kept = retry.completed && retryCheck.ok && retry.cards.length === 0 && ENDS_ON_QUESTION.test(retry.text.trim());
+        log('question_retry', { session: session.hash.slice(0, 8), status: kept ? 'kept' : 'dropped' });
+        if (kept) {
+          final = { ...first, text: retry.text, quickReplies: retry.quickReplies.length ? retry.quickReplies : first.quickReplies };
+          check = retryCheck;
+          stored = [...turnMessages, ...beforeFinal, ...retry.added];
+        }
       }
 
       if (!final.completed || !check.ok || (!final.text && final.cards.length === 0)) {
@@ -592,8 +610,10 @@ const newReplyId = () => randomUUID().replace(/-/g, '').slice(0, 16);
 // card was produced (for example, the request tool rejected its input) is blocked and retried.
 const ASKS_TO_CONFIRM = /\b(tap|click|press|hit|toca|pulsa|presiona|haz clic en)\b[^.!?\n]{0,30}\bconfirm/i;
 
-function withConsistency(check: ReturnType<typeof checkText>, turn: Pick<TurnResult, 'cards' | 'text'>): ReturnType<typeof checkText> {
-  if (ASKS_TO_CONFIRM.test(turn.text) && !turn.cards.some((c) => c.type === 'confirm' && c.status === 'pending')) {
+// A card still waiting from an earlier reply counts (Nov 12 sales review: "nothing's held until you
+// tap Confirm" after a guest's second thoughts was blocked, and the chat fell back).
+function withConsistency(check: ReturnType<typeof checkText>, turn: Pick<TurnResult, 'cards' | 'text'>, pendingOnScreen = false): ReturnType<typeof checkText> {
+  if (ASKS_TO_CONFIRM.test(turn.text) && !pendingOnScreen && !turn.cards.some((c) => c.type === 'confirm' && c.status === 'pending')) {
     const problems = [...check.problems, 'it asks the guest to tap Confirm, but no confirmation card is shown; the request tool did not succeed, so fix the request or ask for what is missing'];
     return { ...check, ok: false, problems };
   }
@@ -662,7 +682,12 @@ const BOOK_CHIP = /\b(book|schedule|reserve|reservar|agendar)\b/i;
 export async function bookingFromChips(reply: Reply, ctx: ToolContext): Promise<Reply> {
   const closed = reply.cards.some((c) => c.type === 'booking_link' || c.type === 'openings' || c.type === 'confirm' || c.type === 'urgent');
   const chips = reply.quickReplies.filter((q) => BOOK_CHIP.test(q));
-  if (closed || !chips.length) return reply;
+  if (!chips.length) return reply;
+  const dropped = { ...reply, quickReplies: reply.quickReplies.filter((q) => !BOOK_CHIP.test(q)) };
+  // A booking card is already shown, so a booking chip only repeats it (Nov 12 sales review).
+  if (closed) return dropped;
+  // In-chat booking asks the guest's days first, so a chip never jumps straight to openings.
+  if (ctx.inChat && !ctx.session.askedTimes) return dropped;
   const { catalog } = ctx;
   const services = [...catalog.services.values()];
   const byName = (q: string) => services.filter((s) => q.toLowerCase().includes(s.name.toLowerCase()));
@@ -685,6 +710,13 @@ export async function bookingFromChips(reply: Reply, ctx: ToolContext): Promise<
   const named = (card.type === 'booking_link' || card.type === 'openings') && card.serviceName ? card.serviceName : target.name;
   ctx.session.events.push(card.type === 'openings' ? `Openings for ${named} were shown under your last reply (soonest ${String(out.result.soonest ?? '')}).` : `A booking button for ${named} was shown under your last reply.`);
   return { ...reply, cards: [...reply.cards, ...out.cards], quickReplies: reply.quickReplies.filter((q) => !BOOK_CHIP.test(q)) };
+}
+
+const ENDS_ON_QUESTION = /\?[\s"”'’)\]]*$/;
+const QUESTION_NOTE = 'it ends on a statement; write the same reply, ending with one short question that fits it (for example, which time works, or whether that sounds right)';
+function needsQuestion(turn: TurnResult, staff: boolean): boolean {
+  if (staff || turn.urgent || !turn.completed || !turn.text.trim()) return false;
+  return !ENDS_ON_QUESTION.test(turn.text.trim());
 }
 
 // Adds check feedback to the last user message for a retry; the stored history never keeps it.

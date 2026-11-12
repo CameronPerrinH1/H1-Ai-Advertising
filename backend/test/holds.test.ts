@@ -31,6 +31,7 @@ function setup(opts: { holdMode?: 'on' | 'test' | 'preview'; writer?: HoldWriter
     now: () => new Date(NOW),
   });
   const session = createSession({ lang: 'en', noticeVersion: 'v' }).session;
+  session.askedTimes = true; // the guest's days were already asked
   const ctx: ToolContext = {
     catalog,
     session,

@@ -167,6 +167,70 @@ export const SCENARIOS: Scenario[] = [
   },
   // ---- Simulated guests ----
   {
+    id: 'sim-knows-what-they-want',
+    title: 'Knows exactly what they want (simulated)',
+    guest: {
+      persona: `You get a Dermaplane Facial every month and know exactly what you want. You want the next Thursday or Friday afternoon. You're friendly but brisk: you don't want questions about your skin, just the booking. You might say yes to one quick add-on if it's explained in a sentence. ${CONTACT}`,
+      opener: 'Hi! I need to book my dermaplane facial, Thursday or Friday afternoon if possible.',
+      maxTurns: 6,
+    },
+    expect: { booksBy: 2 },
+  },
+  {
+    id: 'sim-recommend-me',
+    title: 'Wants a recommendation (simulated)',
+    guest: {
+      persona: `You're 46, have combination skin, and feel your face looks tired and a little less firm than it used to. You have no idea which treatment to pick and want the coordinator to recommend one and tell you why it suits you. You answer questions openly. You'd book if the reasoning makes sense. ${CONTACT}`,
+      opener: 'What would you recommend for me? My skin just looks tired lately.',
+      maxTurns: 7,
+    },
+  },
+  {
+    id: 'sim-tough-sell',
+    title: 'Very hard to sell (simulated)',
+    guest: {
+      persona: `You think most spa treatments are overpriced marketing. You have some redness and uneven tone on your cheeks but doubt a facial does anything a good cleanser can't. You push back on price at least twice and say "I'll think about it" at least once. You only come around if the coordinator asks what's behind your doubts and answers them with specifics, not hype. You'd never book because of pressure. ${CONTACT}`,
+      opener: "Honestly, do facials even do anything? Seems like a lot of money for a nice nap.",
+      maxTurns: 8,
+    },
+  },
+  {
+    id: 'sim-info-seeker',
+    title: 'Wants lots of information (simulated)',
+    guest: {
+      persona: `You research everything before you buy. You're interested in Microchanneling for fine lines and want details: what happens step by step, how it differs from a HydraFacial, how many sessions people usually do, aftercare, how long until you'd see a change, and what it costs over a series. Ask one or two questions per message. You book once you feel fully informed. ${CONTACT}`,
+      opener: "I'm looking into microchanneling for fine lines. Can you walk me through how it works?",
+      maxTurns: 8,
+    },
+  },
+  {
+    id: 'sim-backs-out',
+    title: 'Backs out at the last step (simulated)',
+    guest: {
+      persona: `You want a Platinum Hydrafacial for dull skin and go along with picking a time. When asked for your name and phone, you hesitate: you're worried you'll have to cancel because your work schedule changes a lot. You continue if your worry is understood and answered (for example, by the cancellation policy). ${CONTACT}`,
+      opener: 'My skin has been really dull, is the Platinum Hydrafacial good for that?',
+      maxTurns: 8,
+    },
+  },
+  {
+    id: 'sim-spanish',
+    title: 'Spanish speaker (simulated)',
+    guest: {
+      persona: `You speak only Spanish. You have dark spots from the sun on your cheeks and want to know what could help and how much it costs. You're warm and open. Write every message in Spanish. ${CONTACT}`,
+      opener: 'Hola, tengo manchas en la cara por el sol. ¿Qué me recomiendan?',
+      maxTurns: 6,
+    },
+  },
+  {
+    id: 'sim-gift',
+    title: 'Buying for someone else (simulated)',
+    guest: {
+      persona: `You want to treat your mom to something relaxing for her 60th birthday. She has mature, dry skin. You want to know what she'd love and how to set it up as a gift. ${CONTACT}`,
+      opener: "My mom's turning 60 and I want to get her something nice here. Ideas?",
+      maxTurns: 6,
+    },
+  },
+  {
     id: 'sim-nervous-first-timer',
     title: 'Nervous first-timer (simulated)',
     guest: {

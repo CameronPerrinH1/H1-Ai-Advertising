@@ -51,3 +51,38 @@ describe('no booking links (booking.links: false)', () => {
     expect(reply.text).not.toMatch(/book online/i);
   });
 });
+
+describe('second thoughts with a confirm card on screen (Nov 12)', () => {
+  it("lets Mila mention the card that's still waiting, instead of falling back", async () => {
+    const s = session();
+    s.display.push({ role: 'assistant', text: 'Please review the card and tap Confirm.', cards: [{ type: 'confirm', actionId: 'a1', kind: 'appointment', status: 'pending', fields: [] } as never], quickReplies: [] });
+    const said = "No problem, nothing is held until you tap Confirm. What's giving you pause?";
+    const model = scriptedModel([{ content: [text(said)] }]);
+    const o = new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'test', availability: new FixedAvailability(() => '2026-11-12'), now: () => new Date(NOW) });
+    const { reply } = await o.handleMessage(s, { id: 'm1-xxxxxxxx', text: "Actually, I'm second guessing this.", lang: 'en' });
+    expect(reply.text).toBe(said);
+  });
+});
+
+describe('every reply ends on a question (Nov 12)', () => {
+  const make = (replies: string[]) => {
+    const model = scriptedModel(replies.map((t) => ({ content: [text(t)] })));
+    return { model, o: new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'test', now: () => new Date(NOW) }) };
+  };
+  it('rewrites a reply that ends on a statement', async () => {
+    const { o, model } = make(['The Platinum Hydrafacial is designed for dull skin.', 'The Platinum Hydrafacial is designed for dull skin. Does that sound like a fit?']);
+    const { reply } = await o.handleMessage(session(), { id: 'm1-xxxxxxxx', text: 'My skin is dull', lang: 'en' });
+    expect(reply.text).toBe('The Platinum Hydrafacial is designed for dull skin. Does that sound like a fit?');
+    expect(model.calls).toHaveLength(2);
+  });
+  it('keeps the first reply when the rewrite still has no question', async () => {
+    const { o } = make(['The Platinum Hydrafacial is designed for dull skin.', 'It is designed for dull skin.']);
+    const { reply } = await o.handleMessage(session(), { id: 'm1-xxxxxxxx', text: 'My skin is dull', lang: 'en' });
+    expect(reply.text).toBe('The Platinum Hydrafacial is designed for dull skin.');
+  });
+  it('leaves a reply that already asks alone', async () => {
+    const { o, model } = make(['What are you hoping to change?']);
+    await o.handleMessage(session(), { id: 'm1-xxxxxxxx', text: 'hi', lang: 'en' });
+    expect(model.calls).toHaveLength(1);
+  });
+});

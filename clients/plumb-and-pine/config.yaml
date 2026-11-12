@@ -135,7 +135,7 @@ sales:
   promotions: []
   tactics:
     promotions: never
-    offer_contact: early
+    offer_contact: when_asked # Nov 12: Mila explains and books in the chat; a callback only when asked
     suggest_booking: most_replies
     urgency: never
 

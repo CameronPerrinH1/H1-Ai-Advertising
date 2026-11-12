@@ -116,7 +116,7 @@ describe('show_openings', () => {
   });
 
   it('is offered to the model only when the spa’s platform is connected', async () => {
-    const model = scriptedModel([{ content: [text('Happy to help!')] }]);
+    const model = scriptedModel([{ content: [text('Happy to help! What brings you in?')] }]);
     const make = (availability?: AvailabilitySource) =>
       new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'test', availability, now: () => new Date(NOW) });
     await make().handleMessage(session(), { id: 'm1-xxxxxxxx', text: 'hi', lang: 'en' });
@@ -128,12 +128,25 @@ describe('show_openings', () => {
 
   it('runs inside a turn and ends it once the reply is written', async () => {
     const model = scriptedModel([
-      { content: [text("Let's get you in for a Deluxe Hydrafacial. Here are Jen's soonest openings."), toolUse('show_openings', { service_id: 'deluxe-hydrafacial' })], stop: 'tool_use' },
+      { content: [text("Let's get you in for a Deluxe Hydrafacial. Which of Jen's soonest mornings works for you?"), toolUse('show_openings', { service_id: 'deluxe-hydrafacial', time_of_day: 'morning' })], stop: 'tool_use' },
       { content: [text('This should never be sent.')] },
     ]);
     const o = new Orchestrator({ catalog, model, outbox: new MemoryOutbox(), phoneKey: 'test', availability: new FixedAvailability(() => '2026-11-11'), now: () => new Date(NOW) });
     const { reply } = await o.handleMessage(session(), { id: 'm1-xxxxxxxx', text: 'Book me a Deluxe Hydrafacial', lang: 'en' });
     expect(model.calls).toHaveLength(1);
     expect(reply.cards.map((c) => c.type)).toEqual(['openings']);
+  });
+});
+
+describe('show_openings with in-chat booking (Nov 12)', () => {
+  it("asks the guest's days first, once, then shows the times", async () => {
+    const c = { ...ctx(new FixedAvailability(() => '2026-11-11')), inChat: 'preview' as const };
+    const first = await showOpenings({ service_id: 'deluxe-hydrafacial' }, c);
+    expect(first.cards).toBeUndefined();
+    expect(String(first.result.next)).toMatch(/Ask which days or times/);
+    const again = await showOpenings({ service_id: 'deluxe-hydrafacial' }, c); // they said any time works
+    expect(again.cards?.[0]?.type).toBe('openings');
+    const withPrefs = await showOpenings({ service_id: 'deluxe-hydrafacial', weekday: 'saturday' }, { ...ctx(new FixedAvailability(() => '2026-11-11')), inChat: 'preview' as const });
+    expect(withPrefs.cards?.[0]?.type).toBe('openings');
   });
 });

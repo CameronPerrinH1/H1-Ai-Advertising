@@ -65,6 +65,7 @@ export interface Session {
   events: string[]; // told to the model at the start of the next turn
   // Times show_openings offered in this chat; a hold may only be placed on one of them (D11).
   shownSlots?: ShownSlot[];
+  askedTimes?: boolean; // the chat was told to ask the guest's days and times before showing openings
   counts: { messages: number; requests: number; callbacks: number; fallbacks: number; openings?: number }; // openings: availability searches (D22)
   phoneHashes: Set<string>; // lets a deletion request find this session (7.2)
   seenMessageIds: Set<string>;

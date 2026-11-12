@@ -65,6 +65,18 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
     const out = handleTool('get_booking_link', { service_id: service.id }, ctx);
     return { ...out, result: { ...out.result, openings_shown: false, why } };
   };
+  // With in-chat booking, the guest's days and times come first (Cameron: "book with ideal
+  // times"): the first search without any preference asks for them instead. If the guest has
+  // already said any time works, the chat calls again and the times are shown.
+  if (ctx.inChat && !p.data.date && !p.data.weekday && !p.data.time_of_day && !session.askedTimes) {
+    session.askedTimes = true;
+    return {
+      result: {
+        openings_shown: false,
+        next: "Ask which days or times usually work for them first (one question; chips like 'Weekday mornings'), then call show_openings with their weekday, date, or time_of_day. If they've already said any time works, call show_openings again now.",
+      },
+    };
+  }
   const config = catalog.config.booking.availability;
   const platformId = config?.service_ids[target.id];
   if (!config || !ctx.availability || !platformId) return link('live openings are not available for this service; the booking button shows them');
