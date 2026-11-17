@@ -1,0 +1,239 @@
+/* H1 motion + interaction layer. Shared by index, terms and privacy.
+   Everything that moves sits behind prefers-reduced-motion: no-preference.
+   Hidden-until-revealed states also need html.hb-js, which the inline head
+   script sets and removes again if motion.js never loads, so content is
+   never stuck invisible. */
+
+:root{
+  --hb-ease:cubic-bezier(.16,1,.3,1);
+  --hb-ease-soft:cubic-bezier(.2,.7,.2,1);
+}
+::selection{background:rgba(133,109,247,.35);color:inherit}
+
+/* ---------- Buttons ---------- */
+.hb-primary,.hb-primary-light,.hb-ghost,.hb-ghost-light,.hb-night,.hb-onband{
+  transition:background-color .25s ease,color .25s ease,border-color .25s ease,box-shadow .35s var(--hb-ease),transform .35s var(--hb-ease)
+}
+/* Gradient buttons: lift, deepen the glow, and sweep a soft sheen across. */
+.hb-primary,.hb-primary-light{position:relative;overflow:hidden;isolation:isolate}
+.hb-primary::after,.hb-primary-light::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.32) 50%,transparent 70%);
+  transform:translateX(-110%)
+}
+.hb-primary:hover::after,.hb-primary-light:hover::after{transform:translateX(110%);transition:transform .9s var(--hb-ease-soft)}
+.hb-primary:hover,.hb-primary-light:hover{
+  color:#ffffff !important;transform:translateY(-2px);
+  box-shadow:0 18px 44px rgba(83,48,249,.5),inset 0 0 0 1px rgba(255,255,255,.18) !important
+}
+.hb-ghost:hover{border-color:#856df7 !important;color:#ffffff !important;background-color:rgba(133,109,247,.08) !important;box-shadow:0 0 0 3px rgba(133,109,247,.16);transform:translateY(-2px)}
+.hb-ghost-light:hover{border-color:#5330f9 !important;color:#5330f9 !important;box-shadow:0 10px 26px rgba(83,48,249,.12);transform:translateY(-2px)}
+.hb-night:hover{background:#ffffff !important;color:#0d0a17 !important;box-shadow:0 14px 34px rgba(13,10,23,.35);transform:translateY(-2px)}
+.hb-onband:hover{background:rgba(255,255,255,.16) !important;border-color:#ffffff !important;transform:translateY(-2px)}
+.hb-primary:active,.hb-primary-light:active,.hb-ghost:active,.hb-ghost-light:active,.hb-night:active,.hb-onband:active{transform:translateY(0) scale(.98);transition-duration:.1s}
+
+.hb-primary:focus-visible,.hb-ghost:focus-visible,.hb-night:focus-visible,.hb-onband:focus-visible,.hb-nav:focus-visible{outline:2px solid #856df7;outline-offset:2px}
+.hb-primary-light:focus-visible,.hb-ghost-light:focus-visible{outline:2px solid #5330f9;outline-offset:2px}
+
+/* Header nav: gradient underline draws in from the left. */
+.hb-nav{
+  background-image:linear-gradient(90deg,#5330f9,#b47cff);background-repeat:no-repeat;
+  background-position:12px calc(100% - 8px);background-size:0 2px;
+  transition:background-size .4s var(--hb-ease),color .2s ease
+}
+.hb-nav:hover{background-size:calc(100% - 24px) 2px;color:#ffffff !important}
+
+header a:first-child img,footer a[aria-label] img{transition:opacity .25s ease,transform .4s var(--hb-ease)}
+header a:first-child:hover img,footer a[aria-label]:hover img{opacity:.85}
+
+/* Footer links carry inline colors, so hover needs !important to win. */
+footer a{transition:color .2s ease}
+footer a:hover{color:#ffffff !important}
+
+/* ---------- Cards ---------- */
+.hb-lift{transition:translate .45s var(--hb-ease),box-shadow .45s var(--hb-ease),border-color .3s ease}
+.hb-lift:hover{translate:0 -4px;box-shadow:0 22px 48px rgba(83,48,249,.16)}
+
+/* Pointer spotlight: a soft glow plus a lit edge that follow the cursor
+   (motion.js sets --mx/--my). Dark cards by default, .hb-spot-light on paper. */
+.hb-spot{position:relative;isolation:isolate;--spot-fill:rgba(133,109,247,.14);--spot-edge:rgba(180,124,255,.75)}
+.hb-spot-light{--spot-fill:rgba(83,48,249,.06);--spot-edge:rgba(83,48,249,.55)}
+.hb-spot::before,.hb-spot::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  opacity:0;transition:opacity .4s ease
+}
+.hb-spot::before{z-index:-1;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),var(--spot-fill),transparent 62%)}
+.hb-spot::after{
+  inset:-1px;padding:1px;
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),var(--spot-edge),transparent 65%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude
+}
+@media (hover:hover){.hb-spot:hover::before,.hb-spot:hover::after{opacity:1}}
+
+.hb-num{transition:border-color .3s ease,background-color .3s ease,color .3s ease,box-shadow .4s var(--hb-ease)}
+.hb-spot:hover .hb-num{border-color:#856df7 !important;background-color:rgba(133,109,247,.14);color:#ffffff !important;box-shadow:0 0 0 5px rgba(133,109,247,.1)}
+
+.hb-phone{transition:translate .5s var(--hb-ease),box-shadow .5s var(--hb-ease)}
+.hb-phone:hover{translate:0 -6px;box-shadow:0 36px 70px -24px rgba(83,48,249,.5)}
+
+.hb-track figure{transition:border-color .3s ease,box-shadow .4s var(--hb-ease)}
+.hb-track figure:hover{border-color:#b9a9ff !important;box-shadow:0 18px 40px rgba(83,48,249,.12)}
+
+/* Trust badges: the conic ring turns once on hover. */
+@property --hb-a{syntax:'<angle>';inherits:false;initial-value:210deg}
+.hb-ring{transition:--hb-a 1.4s var(--hb-ease)}
+.hb-trust:hover .hb-ring{--hb-a:570deg}
+
+/* ---------- Header: sticky, frosts once the page scrolls ---------- */
+.hb-header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(13,10,23,.9);border-bottom:1px solid #241e36;
+  transition:background-color .4s ease,border-color .4s ease,box-shadow .4s ease
+}
+.hb-header>div{flex-wrap:nowrap !important;transition:padding .4s var(--hb-ease)}
+.hb-header.is-scrolled{
+  background:rgba(13,10,23,.62);
+  -webkit-backdrop-filter:saturate(160%) blur(18px);backdrop-filter:saturate(160%) blur(18px);
+  border-color:rgba(133,109,247,.2);box-shadow:0 12px 32px -14px rgba(0,0,0,.6)
+}
+.hb-header.is-scrolled>div{padding-top:8px !important;padding-bottom:8px !important}
+.hb-logo{transition:height .4s var(--hb-ease),opacity .25s ease}
+.hb-header.is-scrolled .hb-logo{height:46px !important}
+/* Anchor jumps land below the sticky header. */
+[id]{scroll-margin-top:88px}
+
+.hb-bar-cta,.hb-burger{display:none}
+.hb-bar-cta{
+  margin-left:auto;min-height:44px;box-sizing:border-box;align-items:center;padding:10px 18px;border-radius:999px;
+  background:linear-gradient(105deg,#5330f9,#856df7);color:#ffffff;text-decoration:none;white-space:nowrap;
+  font-family:'Sweet Sans Pro','Montserrat',Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  box-shadow:0 10px 26px rgba(83,48,249,.3)
+}
+.hb-burger{
+  position:relative;flex:none;width:44px;height:44px;padding:0;border-radius:999px;cursor:pointer;
+  border:1px solid #322b47;background:transparent;color:#f0eef8;
+  transition:border-color .25s ease,background-color .25s ease
+}
+.hb-burger:hover{border-color:#856df7;background:rgba(133,109,247,.1)}
+.hb-burger:focus-visible{outline:2px solid #856df7;outline-offset:2px}
+.hb-burger span{
+  position:absolute;left:13px;right:13px;height:1.5px;border-radius:2px;background:currentColor;
+  transition:top .45s var(--hb-ease),transform .45s var(--hb-ease)
+}
+.hb-burger span:first-child{top:calc(50% - 4.75px)}
+.hb-burger span:last-child{top:calc(50% + 3.25px)}
+.menu-open .hb-burger span{top:calc(50% - .75px)}
+.menu-open .hb-burger span:first-child{transform:rotate(45deg)}
+.menu-open .hb-burger span:last-child{transform:rotate(-45deg)}
+
+@media (max-width:959px){
+  .hb-header>div{padding-left:20px !important;padding-right:20px !important;gap:12px !important}
+  .hb-logo{height:48px !important}
+  .hb-header.is-scrolled .hb-logo{height:40px !important}
+  .hb-bar-cta{display:inline-flex}
+  .hb-burger{display:inline-block}
+  /* The nav becomes a dropdown panel that wipes down from the header. */
+  .hb-header nav{
+    position:absolute;top:100%;left:0;right:0;
+    flex-direction:column;flex-wrap:nowrap !important;align-items:stretch !important;gap:0 !important;
+    box-sizing:border-box;max-height:calc(100dvh - 80px);overflow-y:auto;padding:4px 20px 24px;
+    /* Solid: a backdrop blur can't work inside the already-frosted header. */
+    background:#0d0a17;
+    border-bottom:1px solid #322b47;box-shadow:0 30px 60px -20px rgba(0,0,0,.7);
+    visibility:hidden;opacity:0;clip-path:inset(0 0 100% 0);
+    transition:clip-path .45s var(--hb-ease),opacity .3s ease,visibility 0s .45s
+  }
+  .hb-header.menu-open nav{
+    visibility:visible;opacity:1;clip-path:inset(0 0 -60px 0);
+    transition:clip-path .6s var(--hb-ease),opacity .2s ease,visibility 0s
+  }
+  .hb-header nav .hb-nav{font-size:13px !important;padding:18px 2px !important;border-bottom:1px solid #241e36;background-image:none}
+  .hb-header nav .hb-primary{margin:20px 0 0 !important;min-height:52px !important;justify-content:center}
+  /* Stacked layouts: a sticky column would sit on top of the content. */
+  .hb-faq-side,.toc{position:static !important}
+}
+@media (max-width:359px){.hb-bar-cta{display:none}}
+
+/* ---------- FAQ accordion (motion.js animates height) ---------- */
+[data-accordion]>details{box-sizing:border-box}
+summary{border-radius:12px}
+summary:focus-visible{outline:2px solid #5330f9;outline-offset:4px}
+summary span[aria-hidden]{transition:transform .5s var(--hb-ease),background-color .3s ease,border-color .3s ease,color .3s ease}
+summary:hover span[aria-hidden]{border-color:#5330f9 !important;background-color:#f3f0fe}
+details[open]:not(.hb-closing) summary span[aria-hidden]{transform:rotate(45deg);background-color:#5330f9;border-color:#5330f9 !important;color:#ffffff !important}
+summary>span:first-child{transition:color .25s ease}
+summary:hover>span:first-child{color:#5330f9}
+
+/* ---------- Motion (opt-in) ---------- */
+@keyframes hb-rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes hb-rise-soft{from{opacity:0;transform:translateY(28px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes hb-float{0%,100%{translate:0 0}50%{translate:0 -10px}}
+@keyframes hb-drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes hb-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-36px,28px,0) scale(1.07)}100%{transform:translate3d(24px,-18px,0) scale(.97)}}
+@keyframes hb-pulse{0%{box-shadow:0 0 0 0 rgba(133,109,247,.6)}70%,100%{box-shadow:0 0 0 8px rgba(133,109,247,0)}}
+@keyframes hb-pan{from{background-position:0% 50%}to{background-position:100% 50%}}
+@keyframes hb-msg{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes hb-swap{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes hb-menu-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes hb-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+@media (prefers-reduced-motion: no-preference){
+  html{scroll-behavior:smooth}
+
+  header{animation:hb-drop .8s var(--hb-ease) both}
+
+  /* Hero: staggered rise on load, headline un-blurs. */
+  .hb-hero-in>*{animation:hb-rise .9s var(--hb-ease-soft) both}
+  .hb-hero-in>h1{animation-name:hb-rise-soft;animation-duration:1.1s}
+  .hb-hero-in>*:nth-child(2){animation-delay:.08s}
+  .hb-hero-in>*:nth-child(3){animation-delay:.18s}
+  .hb-hero-in>*:nth-child(4){animation-delay:.28s}
+  .hb-hero-in>*:nth-child(5){animation-delay:.38s}
+  .hb-float{animation:hb-rise 1.1s .35s var(--hb-ease-soft) both,hb-float 6s 1.45s ease-in-out infinite}
+  .hb-pulse{animation:hb-pulse 2.4s ease-out infinite}
+
+  /* Ambient glows drift slowly so dark sections feel alive. */
+  .hb-orb{animation:hb-drift 24s ease-in-out infinite alternate;will-change:transform}
+
+  /* CTA band gradient pans very slowly. */
+  .hb-band{background:linear-gradient(115deg,#5330f9,#856df7 45%,#6a4cf8 70%,#5330f9) 0 50%/220% 220% !important;animation:hb-pan 16s ease-in-out infinite alternate}
+
+  /* Scroll reveals, batched and staggered by motion.js (--hb-d). */
+  .hb-js .hb-reveal{
+    opacity:0;transform:translate3d(0,26px,0);
+    transition:opacity .9s var(--hb-ease) var(--hb-d,0s),transform 1.1s var(--hb-ease) var(--hb-d,0s),filter .9s var(--hb-ease) var(--hb-d,0s)
+  }
+  .hb-js h2.hb-reveal{filter:blur(8px)}
+  .hb-js .hb-reveal.hb-lift{
+    transition:opacity .9s var(--hb-ease) var(--hb-d,0s),transform 1.1s var(--hb-ease) var(--hb-d,0s),translate .45s var(--hb-ease),box-shadow .45s var(--hb-ease),border-color .3s ease
+  }
+  .hb-js .hb-reveal.is-in{opacity:1;transform:none;filter:none}
+
+  /* Founder portrait settles in from a slight zoom. */
+  .hb-js .hb-kb{opacity:0;transform:scale(1.08);transition:opacity 1.2s ease,transform 2.2s var(--hb-ease)}
+  .hb-js .hb-kb.is-in{opacity:1;transform:none}
+
+  /* Mobile menu links cascade in after the panel opens. */
+  .hb-header.menu-open nav>*{animation:hb-menu-in .55s var(--hb-ease) both}
+  .hb-header.menu-open nav>:nth-child(2){animation-delay:.04s}
+  .hb-header.menu-open nav>:nth-child(3){animation-delay:.08s}
+  .hb-header.menu-open nav>:nth-child(4){animation-delay:.12s}
+  .hb-header.menu-open nav>:nth-child(5){animation-delay:.16s}
+
+  /* Reading progress hairline (scroll-driven where supported). */
+  @supports (animation-timeline: scroll()){
+    body::before{
+      content:"";position:fixed;top:0;left:0;right:0;height:2px;z-index:100;pointer-events:none;
+      background:linear-gradient(90deg,#5330f9,#b47cff);transform-origin:0 50%;
+      animation:hb-progress linear both;animation-timeline:scroll(root)
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .hb-primary,.hb-primary-light,.hb-ghost,.hb-ghost-light,.hb-night,.hb-onband,.hb-nav,.hb-lift,.hb-phone,.hb-ring{transition:none}
+  .hb-primary:hover,.hb-primary-light:hover,.hb-ghost:hover,.hb-ghost-light:hover,.hb-night:hover,.hb-onband:hover{transform:none}
+  .hb-lift:hover,.hb-phone:hover{translate:none}
+  .hb-primary::after,.hb-primary-light::after{display:none}
+}
