@@ -33,10 +33,17 @@
   // competes with fonts and CSS for bandwidth. Reduced motion keeps the still.
   var demo = document.querySelector('img[data-anim]');
   if (demo && !reduce) {
+    // Swap on the download finishing, not on decode(): mobile Safari can reject
+    // decode() for large animated images that aren't in the DOM yet, which left
+    // the still frame in place on phones. decode() is only a head start here.
     var swap = function () {
       var anim = new Image();
+      var done = false;
+      var go = function () { if (!done) { done = true; demo.src = anim.src; } };
+      anim.onload = function () {
+        if (anim.decode) anim.decode().then(go, go); else go();
+      };
       anim.src = demo.getAttribute('data-anim');
-      (anim.decode ? anim.decode() : Promise.resolve()).then(function () { demo.src = anim.src; }, function () {});
     };
     if (document.readyState === 'complete') swap(); else window.addEventListener('load', swap);
   }
