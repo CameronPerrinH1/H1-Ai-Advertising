@@ -155,6 +155,30 @@ footer a:hover{color:#ffffff !important}
 }
 @media (max-width:359px){.hb-bar-cta{display:none}}
 
+/* Phones: 20px side gutters. Layout padding is inline in the pages, so these
+   overrides match the page containers by their max-width and need !important. */
+@media (max-width:599px){
+  [style*="max-width: 1320px"],[style*="max-width: 1180px"]{padding-left:20px !important;padding-right:20px !important}
+  [style*="padding: 88px 64px 88px 40px"]{padding:56px 20px !important}
+  .hb-band{padding:36px 24px !important}
+  [role=tabpanel]{padding:28px 20px !important}
+  .hb-spot{padding:28px 24px !important}
+  .hb-track figure{width:min(440px,84vw) !important;padding:26px 22px !important}
+}
+
+/* ---------- Scrollbar ---------- */
+/* Chrome, Edge, Safari: slim ink track with a brand-gradient thumb. */
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-track{background:#0d0a17}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#5330f9,#856df7);border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#6a4cf8,#b47cff);background-clip:padding-box;border-width:2px}
+::-webkit-scrollbar-corner{background:transparent}
+/* Firefox has no gradient support, so it gets the flat accent instead. */
+@supports not selector(::-webkit-scrollbar){
+  html{scrollbar-color:#856df7 #0d0a17;scrollbar-width:thin}
+}
+
 /* ---------- FAQ accordion (motion.js animates height) ---------- */
 [data-accordion]>details{box-sizing:border-box}
 summary{border-radius:12px}
