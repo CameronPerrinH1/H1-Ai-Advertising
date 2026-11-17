@@ -43,8 +43,13 @@
 }
 .hb-nav:hover{background-size:calc(100% - 24px) 2px;color:#ffffff !important}
 
-header a:first-child img,footer a[aria-label] img{transition:opacity .25s ease,transform .4s var(--hb-ease)}
+footer a[aria-label] img{transition:opacity .25s ease}
 header a:first-child:hover img,footer a[aria-label]:hover img{opacity:.85}
+
+/* Underline enters from the side the pointer came in on and leaves toward
+   the side it exits (motion.js sets data-edge). At full width both anchors
+   look identical, so switching anchor mid-hover is invisible. */
+.hb-nav[data-edge=r]{background-position:calc(100% - 12px) calc(100% - 8px)}
 
 /* Footer links carry inline colors, so hover needs !important to win. */
 footer a{transition:color .2s ease}
@@ -98,7 +103,8 @@ footer a:hover{color:#ffffff !important}
   border-color:rgba(133,109,247,.2);box-shadow:0 12px 32px -14px rgba(0,0,0,.6)
 }
 .hb-header.is-scrolled>div{padding-top:8px !important;padding-bottom:8px !important}
-.hb-logo{transition:height .4s var(--hb-ease),opacity .25s ease}
+/* Scoped under .hb-header so no other header img rule can replace this transition. */
+.hb-header .hb-logo{transition:height .5s var(--hb-ease),opacity .25s ease}
 .hb-header.is-scrolled .hb-logo{height:46px !important}
 /* Anchor jumps land below the sticky header. */
 [id]{scroll-margin-top:88px}
@@ -233,6 +239,10 @@ summary:hover>span:first-child{color:#5330f9}
     transition:opacity .9s var(--hb-ease) var(--hb-d,0s),transform 1.1s var(--hb-ease) var(--hb-d,0s),translate .45s var(--hb-ease),box-shadow .45s var(--hb-ease),border-color .3s ease
   }
   .hb-js .hb-reveal.is-in{opacity:1;transform:none;filter:none}
+
+  /* Footer glow blooms last, once the footer itself is in view. */
+  .hb-js .hb-glow-late{opacity:0;scale:.55;transition:opacity 1.8s ease .25s,scale 2.4s var(--hb-ease) .25s}
+  .hb-js .hb-glow-late.is-in{opacity:1;scale:1}
 
   /* Founder portrait settles in from a slight zoom. */
   .hb-js .hb-kb{opacity:0;transform:scale(1.08);transition:opacity 1.2s ease,transform 2.2s var(--hb-ease)}

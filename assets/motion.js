@@ -28,6 +28,33 @@
     targets.forEach(function (el) { io.observe(el); });
   }
 
+  // Footer glow waits until the footer itself is on screen, so it lands last.
+  var glow = document.querySelector('.hb-glow-late');
+  // Watch the copyright row (the very bottom), not the whole footer: on tall
+  // screens the footer top is already visible alongside the CTA band.
+  var foot = document.querySelector('footer');
+  foot = foot && (foot.lastElementChild || foot);
+  if (glow && foot) {
+    if (reduce || !('IntersectionObserver' in window)) {
+      glow.classList.add('is-in');
+    } else {
+      var gio = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) { glow.classList.add('is-in'); gio.disconnect(); }
+      }, { threshold: 1 });
+      gio.observe(foot);
+    }
+  }
+
+  // Nav underlines follow the pointer: record which half it entered or left by.
+  document.querySelectorAll('.hb-nav').forEach(function (a) {
+    function edge(e) {
+      var r = a.getBoundingClientRect();
+      a.setAttribute('data-edge', e.clientX < r.left + r.width / 2 ? 'l' : 'r');
+    }
+    a.addEventListener('pointerenter', edge);
+    a.addEventListener('pointerleave', edge);
+  });
+
   // Sticky header frosts once the page has scrolled.
   var header = document.querySelector('.hb-header');
   if (header) {
