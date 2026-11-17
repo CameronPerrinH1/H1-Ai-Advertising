@@ -28,6 +28,19 @@
     targets.forEach(function (el) { io.observe(el); });
   }
 
+  // Hero demo: a 24 KB still (the animation's first frame) paints first; the
+  // 500 KB animation loads after the page and swaps in seamlessly, so it never
+  // competes with fonts and CSS for bandwidth. Reduced motion keeps the still.
+  var demo = document.querySelector('img[data-anim]');
+  if (demo && !reduce) {
+    var swap = function () {
+      var anim = new Image();
+      anim.src = demo.getAttribute('data-anim');
+      (anim.decode ? anim.decode() : Promise.resolve()).then(function () { demo.src = anim.src; }, function () {});
+    };
+    if (document.readyState === 'complete') swap(); else window.addEventListener('load', swap);
+  }
+
   // Footer glow waits until the footer itself is on screen, so it lands last.
   var glow = document.querySelector('.hb-glow-late');
   // Watch the copyright row (the very bottom), not the whole footer: on tall

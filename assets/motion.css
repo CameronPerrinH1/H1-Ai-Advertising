@@ -4,6 +4,12 @@
    script sets and removes again if motion.js never loads, so content is
    never stuck invisible. */
 
+/* Metric-matched fallbacks: local Arial / Georgia Italic resized to occupy the
+   same space as DM Sans / DM Serif Display, so text doesn't reflow (layout
+   shift) when the web fonts arrive. Values measured from the font files. */
+@font-face{font-family:'DM Sans Fallback';src:local('Arial'),local('ArialMT');size-adjust:106.77%;ascent-override:92.91%;descent-override:29.03%;line-gap-override:0%}
+@font-face{font-family:'DM Serif Fallback';font-style:italic;src:local('Georgia Italic'),local('Georgia-Italic');size-adjust:95.38%;ascent-override:108.62%;descent-override:35.12%;line-gap-override:0%}
+
 :root{
   --hb-ease:cubic-bezier(.16,1,.3,1);
   --hb-ease-soft:cubic-bezier(.2,.7,.2,1);
@@ -53,6 +59,8 @@ header a:first-child:hover img,footer a[aria-label]:hover img{opacity:.85}
 
 /* Footer links carry inline colors, so hover needs !important to win. */
 footer a{transition:color .2s ease}
+/* Footer text links: at least 24px tall so taps land (WCAG 2.2 target size). */
+footer a:not([aria-label]){display:inline-flex;align-items:center;min-height:24px}
 footer a:hover{color:#ffffff !important}
 
 /* ---------- Cards ---------- */
@@ -197,7 +205,11 @@ summary:hover>span:first-child{color:#5330f9}
 
 /* ---------- Motion (opt-in) ---------- */
 @keyframes hb-rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-@keyframes hb-rise-soft{from{opacity:0;transform:translateY(28px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+/* LCP-safe entrances: Chrome ignores paints at opacity 0 and a compositor fade
+   never repaints, so a hero that fades from 0 never reports Largest Contentful
+   Paint. Starting at .02 looks identical and is counted from the first frame. */
+@keyframes hb-rise-soft{from{opacity:.02;transform:translateY(28px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes hb-rise-lcp{from{opacity:.02;transform:translateY(28px)}to{opacity:1;transform:none}}
 @keyframes hb-float{0%,100%{translate:0 0}50%{translate:0 -10px}}
 @keyframes hb-drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
 @keyframes hb-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-36px,28px,0) scale(1.07)}100%{transform:translate3d(24px,-18px,0) scale(.97)}}
@@ -220,7 +232,7 @@ summary:hover>span:first-child{color:#5330f9}
   .hb-hero-in>*:nth-child(3){animation-delay:.18s}
   .hb-hero-in>*:nth-child(4){animation-delay:.28s}
   .hb-hero-in>*:nth-child(5){animation-delay:.38s}
-  .hb-float{animation:hb-rise 1.1s .35s var(--hb-ease-soft) both,hb-float 6s 1.45s ease-in-out infinite}
+  .hb-float{animation:hb-rise-lcp 1.1s .35s var(--hb-ease-soft) both,hb-float 6s 1.45s ease-in-out infinite}
   .hb-pulse{animation:hb-pulse 2.4s ease-out infinite}
 
   /* Ambient glows drift slowly so dark sections feel alive. */

@@ -4,39 +4,144 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Book a Discovery Call — H1 AI Advertising</title>
-<meta name="description" content="Meta ads that turn into booked appointments through your own AI Treatment Coordinator, built for independent med spas by H1 AI Advertising.">
-<meta property="og:title" content="Book a Discovery Call — H1 AI Advertising">
-<meta property="og:description" content="Meta ads that turn into booked appointments through your own AI Treatment Coordinator, built for independent med spas by H1 AI Advertising.">
+<meta name="description" content="Book a 30-minute discovery call with H1 AI Advertising. We’ll review your Meta ads, website and booking flow, and show where leads drop off.">
+<link rel="canonical" href="https://h1aiadvertising.com/book">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0d0a17">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<meta property="og:image" content="/og-image.jpg">
+<meta property="og:site_name" content="H1 AI Advertising">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://h1aiadvertising.com/book">
+<meta property="og:title" content="Book a Discovery Call — H1 AI Advertising">
+<meta property="og:description" content="Book a 30-minute discovery call with H1 AI Advertising. We’ll review your Meta ads, website and booking flow, and show where leads drop off.">
+<meta property="og:image" content="https://h1aiadvertising.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="H1 AI Advertising: the MedSpa AI Booking Engine">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=WindSong:wght@500&amp;family=Instrument+Serif&amp;family=DM+Serif+Display:ital@1&amp;family=Montserrat:wght@500;600&amp;family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<meta name="twitter:title" content="Book a Discovery Call — H1 AI Advertising">
+<meta name="twitter:description" content="Book a 30-minute discovery call with H1 AI Advertising. We’ll review your Meta ads, website and booking flow, and show where leads drop off.">
+<meta name="twitter:image" content="https://h1aiadvertising.com/og-image.jpg">
+<meta name="theme-color" content="#0d0a17">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/dm-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/dm-serif-display-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/SweetSansPro-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-@font-face{font-family:'Sweet Sans Pro';src:url('/assets/fonts/SweetSansPro-Light.woff') format('woff');font-weight:300;font-style:normal;font-display:swap}
-@font-face{font-family:'Sweet Sans Pro';src:url('/assets/fonts/SweetSansPro-Medium.woff') format('woff');font-weight:500;font-style:normal;font-display:swap}
+/* Self-hosted Google Fonts (OFL): no third-party connection, and preloadable so text renders in its final font. */
+@font-face{font-family:'DM Sans';src:url('/assets/fonts/dm-sans-latin-var.woff2') format('woff2');font-weight:300 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'DM Serif Display';src:url('/assets/fonts/dm-serif-display-italic-latin.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Sweet Sans Pro';src:url('/assets/fonts/SweetSansPro-Light.woff2') format('woff2'),url('/assets/fonts/SweetSansPro-Light.woff') format('woff');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Sweet Sans Pro';src:url('/assets/fonts/SweetSansPro-Medium.woff2') format('woff2'),url('/assets/fonts/SweetSansPro-Medium.woff') format('woff');font-weight:500;font-style:normal;font-display:swap}
 body{margin:0;background:#0d0a17}
 a{color:#856df7}a:hover{color:#b9a9ff}
+/* Reserve the calendar's settled height on the card itself (measured: ~828px phone, ~929px desktop, plus 26px card padding and border).
+   The widget script lays its iframe out of flow at first, so a min-height on the iframe alone doesn't hold the space. */
+.hb-cal-card{min-height:856px}
+@media (min-width:600px){.hb-cal-card{min-height:956px}}
 .hb-textlink{color:#5330f9;font-weight:600;text-decoration:none;align-self:flex-start;background:linear-gradient(#5330f9,#5330f9) 0 100%/0 1px no-repeat;transition:background-size .35s cubic-bezier(.16,1,.3,1),color .2s}
 .hb-textlink:hover{color:#0d0a17;background-size:100% 1px}
 .hb-textlink:focus-visible{outline:2px solid #5330f9;outline-offset:2px}
 </style>
 <script>document.documentElement.classList.add('hb-js');setTimeout(function(){if(!window.hbMotion)document.documentElement.classList.remove('hb-js')},3000)</script>
-<link rel="stylesheet" href="/assets/motion.css?v=4">
-<script src="/assets/motion.js?v=4" defer></script>
+<link rel="stylesheet" href="/assets/motion.css?v=7">
+<script src="/assets/motion.js?v=5" defer></script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "ProfessionalService",
+   "@id": "https://h1aiadvertising.com/#organization",
+   "name": "H1 AI Advertising",
+   "url": "https://h1aiadvertising.com/",
+   "logo": {
+    "@type": "ImageObject",
+    "url": "https://h1aiadvertising.com/assets/img/h1-ai-advertising-logo.svg"
+   },
+   "image": "https://h1aiadvertising.com/og-image.jpg",
+   "description": "Meta advertising and custom AI Treatment Coordinators that turn ad clicks into booked appointments for independent med spas.",
+   "email": "hello@h1aiconsulting.com",
+   "telephone": "+1-303-225-9372",
+   "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "201 Columbine Street, Suite 300",
+    "addressLocality": "Denver",
+    "addressRegion": "CO",
+    "postalCode": "80206",
+    "addressCountry": "US"
+   },
+   "founder": {
+    "@type": "Person",
+    "name": "Erin Silva",
+    "jobTitle": "President & Founder"
+   },
+   "parentOrganization": {
+    "@type": "Organization",
+    "name": "H1 AI Consulting",
+    "url": "https://www.h1aiconsulting.com/"
+   }
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://h1aiadvertising.com/#website",
+   "url": "https://h1aiadvertising.com/",
+   "name": "H1 AI Advertising",
+   "publisher": {
+    "@id": "https://h1aiadvertising.com/#organization"
+   },
+   "inLanguage": "en-US"
+  },
+  {
+   "@type": [
+    "WebPage",
+    "ContactPage"
+   ],
+   "@id": "https://h1aiadvertising.com/book#webpage",
+   "url": "https://h1aiadvertising.com/book",
+   "name": "Book a Discovery Call — H1 AI Advertising",
+   "description": "Book a 30-minute discovery call with H1 AI Advertising. We’ll review your Meta ads, website and booking flow, and show where leads drop off.",
+   "isPartOf": {
+    "@id": "https://h1aiadvertising.com/#website"
+   },
+   "primaryImageOfPage": {
+    "@type": "ImageObject",
+    "url": "https://h1aiadvertising.com/og-image.jpg"
+   },
+   "inLanguage": "en-US",
+   "breadcrumb": {
+    "@id": "https://h1aiadvertising.com/book#breadcrumb"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://h1aiadvertising.com/book#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://h1aiadvertising.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Book a Discovery Call",
+     "item": "https://h1aiadvertising.com/book"
+    }
+   ]
+  }
+ ]
+}
+</script>
 </head>
 <body>
-<div style="width: 100%; background: #0d0a17; color: #f0eef8; font-family: 'DM Sans', Helvetica, Arial, sans-serif; overflow-x: hidden; overflow-x: clip">
+<div style="width: 100%; background: #0d0a17; color: #f0eef8; font-family: 'DM Sans', 'DM Sans Fallback', Helvetica, Arial, sans-serif; overflow-x: hidden; overflow-x: clip">
 
 <!-- HEADER -->
 <header class="hb-header">
 <div style="max-width: 1320px; margin: 0 auto; box-sizing: border-box; padding: 14px 40px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
-<a href="/" style="display: flex"><img class="hb-logo" src="/assets/img/h1-ai-advertising-logo.svg" alt="H1 AI Advertising" style="height: 58px; width: auto; display: block"></a>
+<a href="/" style="display: flex"><img width="95" height="58" class="hb-logo" src="/assets/img/h1-ai-advertising-logo.svg" alt="H1 AI Advertising" style="height: 58px; width: auto; display: block"></a>
 <nav id="hb-menu" aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
 <a class="hb-nav" href="/#system" style="color: #f0eef8; text-decoration: none; font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; padding: 14px 12px">How It Works</a>
 <a class="hb-nav" href="/#coordinator" style="color: #f0eef8; text-decoration: none; font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; padding: 14px 12px">The Coordinator</a>
@@ -55,7 +160,7 @@ a{color:#856df7}a:hover{color:#b9a9ff}
 <div class="hb-orb" aria-hidden="true" style="position: absolute; width: 760px; height: 760px; right: -200px; top: -380px; border-radius: 50%; background: radial-gradient(circle, rgba(83,48,249,0.36) 0%, rgba(83,48,249,0) 66%)"></div>
 <div class="hb-hero-in" style="position: relative; max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 72px 40px 64px; display: flex; flex-direction: column; gap: 18px">
 <span style="font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.16em; color: #856df7">Discovery Call · 30 Minutes</span>
-<h1 style="margin: 0; font-weight: 600; font-size: clamp(36px, 4.4vw + 20px, 56px); line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; max-width: 18ch">Book Your <span style="font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.02em; color: #856df7">Discovery Call</span></h1>
+<h1 style="margin: 0; font-weight: 600; font-size: clamp(36px, 4.4vw + 20px, 56px); line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; max-width: 18ch">Book Your <span style="font-family: 'DM Serif Display', 'DM Serif Fallback', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.02em; color: #856df7">Discovery Call</span></h1>
 <p style="margin: 0; font-size: clamp(17px, 0.5vw + 15px, 19px); line-height: 1.6; color: #a79fbf; max-width: 52ch">Pick a time that works for you. We’ll talk through your current Meta ads, your website and your booking flow.</p>
 </div>
 </section>
@@ -64,14 +169,14 @@ a{color:#856df7}a:hover{color:#b9a9ff}
 <section style="background: #f0eef5; color: #0d0a17">
 <div style="max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 64px 40px 96px; display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: flex-start">
 
-<div class="hb-reveal" style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; background: #ffffff; border: 1px solid #dedbe9; border-radius: 28px; padding: 12px; box-shadow: 0 30px 70px -40px rgba(83,48,249,0.35)">
-<iframe src="https://go.h1aiadvertising.com/widget/booking/ODinOKGs8B7E1o8tgiKn" allow="payment" title="Book a discovery call with H1 AI Advertising" style="width: 100%; min-height: 680px; border: none; overflow: hidden; display: block; border-radius: 18px" scrolling="no" id="ODinOKGs8B7E1o8tgiKn_1794937038098"></iframe>
+<div class="hb-reveal hb-cal-card" style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; background: #ffffff; border: 1px solid #dedbe9; border-radius: 28px; padding: 12px; box-shadow: 0 30px 70px -40px rgba(83,48,249,0.35)">
+<iframe src="https://go.h1aiadvertising.com/widget/booking/ODinOKGs8B7E1o8tgiKn" allow="payment" title="Book a discovery call with H1 AI Advertising" style="width: 100%; border: none; overflow: hidden; display: block; border-radius: 18px" scrolling="no" id="ODinOKGs8B7E1o8tgiKn_1794937038098"></iframe>
 <script src="https://go.h1aiadvertising.com/js/form_embed.js" type="text/javascript"></script>
 </div>
 
 <aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
 <div class="hb-reveal" style="display: flex; flex-direction: column; gap: 16px">
-<span style="font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.16em; color: #5330f9">What We’ll Cover</span>
+<h2 style="margin: 0; font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.16em; color: #5330f9">What We’ll Cover</h2>
 <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px">
 <li style="display: flex; gap: 12px; font-size: 17px; line-height: 1.55; color: #423c54"><span aria-hidden="true" style="color: #5330f9; font-weight: 600">✓</span><span>What your Meta ads produce today</span></li>
 <li style="display: flex; gap: 12px; font-size: 17px; line-height: 1.55; color: #423c54"><span aria-hidden="true" style="color: #5330f9; font-weight: 600">✓</span><span>Where leads drop off between the click and a booking</span></li>
@@ -80,7 +185,7 @@ a{color:#856df7}a:hover{color:#b9a9ff}
 </ul>
 </div>
 <div class="hb-reveal" style="display: flex; flex-direction: column; gap: 10px; padding-top: 24px; border-top: 1px solid #dedbe9">
-<span style="font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.16em; color: #5330f9">Prefer to Reach Out Directly?</span>
+<h2 style="margin: 0; font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.16em; color: #5330f9">Prefer to Reach Out Directly?</h2>
 <a class="hb-textlink" href="mailto:hello@h1aiconsulting.com" style="font-size: 16px">hello@h1aiconsulting.com</a>
 <a class="hb-textlink" href="tel:+13032259372" style="font-size: 16px">(303) 225-9372</a>
 </div>
@@ -102,7 +207,7 @@ a{color:#856df7}a:hover{color:#b9a9ff}
 <a href="mailto:hello@h1aiconsulting.com" style="color: #dad5e8; text-decoration: none; font-size: 15px">hello@h1aiconsulting.com</a>
 </div>
 </div>
-<a href="/" aria-label="H1 AI Advertising home" style="display: flex; justify-content: center"><img src="/assets/img/h1-ai-advertising-logo.svg" alt="H1 AI Advertising" style="height: 132px; width: auto; display: block"></a>
+<a href="/" aria-label="H1 AI Advertising home" style="display: flex; justify-content: center"><img width="216" height="132" loading="lazy" decoding="async" src="/assets/img/h1-ai-advertising-logo.svg" alt="H1 AI Advertising" style="height: 132px; width: auto; display: block"></a>
 <nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 32px 48px; justify-content: flex-end; align-items: flex-start">
 <div style="display: flex; flex-direction: column; gap: 12px">
 <span style="font-family: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.16em; color: #8a7ea8">The Engine</span>
