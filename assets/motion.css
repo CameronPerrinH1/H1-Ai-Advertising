@@ -169,6 +169,15 @@ footer a:hover{color:#ffffff !important}
 }
 @media (max-width:359px){.hb-bar-cta{display:none}}
 
+/* Footer: the desktop contact | logo | links row stacks on narrow screens,
+   logo first, with the two link columns side by side. */
+@media (max-width:859px){
+  .hb-foot-grid{grid-template-columns:1fr !important;gap:40px !important}
+  .hb-foot-grid>a{order:-1;justify-content:flex-start !important}
+  .hb-foot-grid>a img{height:88px !important;width:auto !important}
+  .hb-foot-grid>nav{justify-content:flex-start !important;gap:32px 64px !important}
+}
+
 /* Phones: 20px side gutters. Layout padding is inline in the pages, so these
    overrides match the page containers by their max-width and need !important. */
 @media (max-width:599px){
@@ -178,6 +187,8 @@ footer a:hover{color:#ffffff !important}
   [role=tabpanel]{padding:28px 20px !important}
   .hb-spot{padding:28px 24px !important}
   .hb-track figure{width:min(440px,84vw) !important;padding:26px 22px !important}
+  /* The hero badge is a one-line pill; on phones keep just the audience so it never wraps. */
+  .hb-badge-extra{display:none}
 }
 
 /* ---------- Scrollbar ---------- */
