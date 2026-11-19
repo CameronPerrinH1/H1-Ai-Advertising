@@ -65,7 +65,7 @@ export function App() {
     return () => ro.disconnect();
   });
 
-  const s = strings(lang);
+  const s = strings(lang, config?.soloName);
 
   const restore = useCallback(async () => {
     const state = await api.getSession();

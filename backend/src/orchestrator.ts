@@ -197,6 +197,7 @@ export class Orchestrator {
       demo: c.demo,
       businessName: c.business.name,
       phone: c.business.phone,
+      ...(this.catalog.solo ? { soloName: this.catalog.solo.name } : {}),
       bookingUrl: c.booking.direct_links.default,
       concierge: {
         name: c.concierge.name,

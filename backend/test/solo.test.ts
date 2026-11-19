@@ -6,6 +6,9 @@ import { loadClient } from '../src/config/load.ts';
 import { strings } from '../src/i18n.ts';
 import { catalogBlock, fixedBlock } from '../src/prompt.ts';
 import { soloize, TEAM_TALK } from '../src/solo.ts';
+import { MemoryOutbox } from '../src/handoff/email.ts';
+import { Orchestrator } from '../src/orchestrator.ts';
+import { scriptedModel } from './helpers.ts';
 
 const plumb = () => new Catalog(loadClient('plumb-and-pine'));
 const lumen = () => new Catalog(loadClient('lumen-aesthetics'));
@@ -59,6 +62,12 @@ describe('a solo business', () => {
     expect(strings('en', 'Jen').consultNote).toBe('Your visit starts with a consultation with Jen.');
     expect(strings('es', 'Jen').callbackNote('pronto')).toBe('Jen te llamará pronto.');
     expect(strings('en').callbackNote('soon')).toBe('The team will call you soon.');
+  });
+
+  it('tells the widget her name, so its own text says Jen too', () => {
+    const orch = (c: Catalog) => new Orchestrator({ catalog: c, model: scriptedModel([]), outbox: new MemoryOutbox(), phoneKey: 'test' });
+    expect(orch(plumb()).publicConfig().soloName).toBe('Jen');
+    expect(orch(lumen()).publicConfig().soloName).toBeUndefined();
   });
 
   it('has a reply that says "our team" sent back', () => {

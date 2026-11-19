@@ -198,6 +198,8 @@ export interface PublicConfig {
   demo: boolean;
   businessName: string;
   phone: string;
+  // A one-person business: the owner's name, used where the widget would say "your provider".
+  soloName?: string;
   bookingUrl: string; // shown if the chat itself fails (D23)
   concierge: {
     name: string;
