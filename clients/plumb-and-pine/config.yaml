@@ -49,6 +49,7 @@ booking:
     screening:
       - id: botox-filler
         question: Have you had Botox or filler in the last 14 days?
+        why: Jen books appointments before Botox or filler, or at least 14 days after
         wait_days_after_yes: 14
     # Jen, Nov 19: said every time a facial is booked. CONFIRM: facials = everything but the
     # consultations and the hair and scalp treatments.

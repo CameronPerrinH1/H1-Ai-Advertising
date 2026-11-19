@@ -69,7 +69,7 @@ function knowledge(catalog: Catalog): string[] {
   // The spa's booking rules (tools/screening.ts); code enforces the dates and prints the reminders.
   const names = (ids?: string[]) => (ids ? ` for ${ids.map((sid) => catalog.services.get(sid)?.name ?? sid).join(', ')}` : '');
   for (const q of c.booking.rules.screening) {
-    L.push(`- Booking question${names(q.services)}, approved by the spa (asking it isn't asking for medical history): once they want to book, before showing openings or preparing a request, ask exactly "${q.question}" and pass the answer to the booking tool as screening id "${q.id}". If yes, the appointment must be at least ${q.wait_days_after_yes} days after it, and only those dates are shown. Ask nothing else about their health.`);
+    L.push(`- Booking question${names(q.services)}, approved by the spa (asking it isn't asking for medical history): once they want to book, before showing openings or preparing a request, ask exactly "${q.question}" and pass the answer to the booking tool as screening id "${q.id}" (for someone else's booking, ask about them).${q.why ? ` Why, if asked or if they skip it: ${q.why}.` : ''} If yes, the appointment must be at least ${q.wait_days_after_yes} days after it, and only those dates are shown. Ask nothing else about their health.`);
   }
   for (const r of c.booking.rules.reminders) L.push(`- Booking reminder${names(r.services)}: when they pick a time or a request is prepared, tell them: "${r.text}"`);
   for (const m of c.sales.memberships) {

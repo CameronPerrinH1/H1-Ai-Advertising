@@ -41,7 +41,7 @@ const addDays = (date: string, n: number) => new Date(new Date(`${date}T12:00:00
 const appliesTo = (services: string[] | undefined, ids: string[]) => !services || ids.some((id) => services.includes(id));
 
 export type ScreeningResult =
-  | { ask: { id: string; question: string } }
+  | { ask: { id: string; question: string; why?: string } }
   | { ask?: undefined; notBefore?: string };
 
 /**
@@ -60,7 +60,7 @@ export function screen(catalog: Catalog, session: Session, serviceIds: string[],
   for (const rule of rules) {
     if (!appliesTo(rule.services, serviceIds)) continue;
     const got = session.screening?.[rule.id];
-    if (!got) return { ask: { id: rule.id, question: rule.question } };
+    if (!got) return { ask: { id: rule.id, question: rule.question, ...(rule.why ? { why: rule.why } : {}) } };
     if (got.notBefore && (!notBefore || got.notBefore > notBefore)) notBefore = got.notBefore;
   }
   return notBefore ? { notBefore } : {};
@@ -72,5 +72,5 @@ export function remindersFor(catalog: Catalog, serviceIds: string[]): string[] {
 }
 
 /** What the model is told to do when a question hasn't been answered yet. */
-export const askFirst = (q: { id: string; question: string }, tool: string) =>
-  `Before showing times or preparing a request, ask the guest exactly this, as its own short question: "${q.question}" Then call ${tool} again with screening [{id: "${q.id}", answer, days_ago if they said}]. Don't ask anything else about their health.`;
+export const askFirst = (q: { id: string; question: string; why?: string }, tool: string) =>
+  `Before showing times or preparing a request, ask the guest this, as its own short question: "${q.question}" If they're booking for someone else, ask it about that person. Then call ${tool} again with screening [{id: "${q.id}", answer, days_ago if they said}]. If they skip it, say why in one sentence${q.why ? ` ("${q.why}")` : ''} and ask once more; if they still don't answer, offer a callback instead. Don't ask anything else about their health.`;
