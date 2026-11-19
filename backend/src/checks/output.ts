@@ -1,6 +1,7 @@
 // Output checks (D13): every reply, card reason, and chip is checked in code before it's shown.
 import { type Catalog, minutesOf, money, TIME_SPAN } from '../catalog.ts';
 import { containsCardNumber } from '../safety/cardNumbers.ts';
+import { TEAM_TALK } from '../solo.ts';
 
 export interface CheckResult {
   ok: boolean;
@@ -57,6 +58,11 @@ export function checkText(
     const ok = allowedUrls.some((a) => url === a || url.startsWith(`${a}/`)) || allowedDomains.has(host);
     if (!ok) problems.push(`the link ${raw} isn't one of the business's links`);
   }
+
+  // A one-person business has no team to hand guests to (solo.ts).
+  const solo = catalog.solo;
+  const team = guest && solo ? TEAM_TALK.exec(text) : null;
+  if (team && solo) problems.push(`it says "${team[0]}", but ${solo.fullName} runs ${catalog.config.business.name} alone; say ${solo.name} instead`);
 
   // A length of time must come from the spa's own data, never a guess. In a sentence that names a
   // treatment, it must be that treatment's own length (or a time in its own details).

@@ -230,3 +230,23 @@ describe('concerns without a lead treatment (Nov 11)', () => {
     expect(block).toContain('Good for: fine lines, acne scars');
   });
 });
+
+describe('retail rules (Plumb + Pine, Nov 19)', () => {
+  const productLines = (c: Catalog) => fixedBlock(c, { openings: true, inChat: true }).split('\n').filter((l) => /^ *- (Products sold|Buying a product)/.test(l));
+
+  it('sells in the studio only, with a Skin Consultation first, then offers to schedule it', () => {
+    const [header, rule] = productLines(new Catalog(loadClient('plumb-and-pine')));
+    expect(header).toBe('- Products sold (in the spa only: never online, shipped, or held for pickup):');
+    expect(rule).toContain('a guest has a Skin Consultation ($40 per session) first');
+    expect(rule).toContain('Jen does a Skin Consultation before anyone buys products. Then ask if they\'d like to schedule the Skin Consultation');
+    expect(rule).toContain('Give a product\'s price only if they ask.');
+  });
+
+  it('leaves a spa without the setting as it was', () => {
+    expect(productLines(new Catalog(loadClient('glow-med-spa')))).toEqual(['- Products sold:']);
+  });
+
+  it('refuses a consultation that isn’t on the menu', () => {
+    expect(demoWith((c) => { c.retail = { in_store_only: true, consult_to_buy: 'no-such-consult' }; })).toThrow('retail.consult_to_buy: unknown service no-such-consult');
+  });
+});

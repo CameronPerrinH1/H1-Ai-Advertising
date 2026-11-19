@@ -132,6 +132,16 @@ export class Catalog {
     return this.bundle.config;
   }
 
+  // A one-person business (business.team): the one provider, and the name the chat calls her by.
+  get solo(): { name: string; fullName: string } | null {
+    const { team, solo_name } = this.config.business;
+    const only = this.providers.size === 1 ? [...this.providers.values()][0] : undefined;
+    if (team === 'team' || (team === 'auto' && !only)) return null;
+    const fullName = only?.name ?? solo_name;
+    if (!fullName) return null;
+    return { name: solo_name ?? fullName.split(/\s+/)[0]!, fullName };
+  }
+
   // Active means today's local date is within the promotion's dates (no end date: always, once started). For covered entities,
   // third-party-funded promotions stay out unless approved (D58); the pilot has no approvals yet.
   activePromotions(today: string): ActivePromo[] {

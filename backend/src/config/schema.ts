@@ -92,6 +92,11 @@ export const configSchema = z
         name: z.string(),
         // What kind of business it is, as the chat describes it ("a med spa", "a skin and scalp studio").
         kind: z.string().default('a med spa'),
+        // One person or a team. auto: solo when providers.yaml lists one provider. A solo business's
+        // chat names that person ("Jen will text you") instead of "our team" (Cameron, Nov 19).
+        team: z.enum(['auto', 'solo', 'team']).default('auto'),
+        // The name the chat uses for the owner of a solo business; default: the provider's first name.
+        solo_name: z.string().min(1).optional(),
         phone: z.string(),
         urgent_line: z.string(),
         crisis_line: z.string().default('988'),
@@ -192,6 +197,16 @@ export const configSchema = z
         policies: z.record(z.string(), z.string()),
       })
       .strict(),
+    // How the spa sells retail products (H1's settings, from the spa; Plumb + Pine, Nov 19).
+    retail: z
+      .object({
+        // Every product is sold in the spa only, whatever products.yaml says per product.
+        in_store_only: z.boolean().default(false),
+        // A guest needs this consultation (a service id) before buying any product.
+        consult_to_buy: id.optional(),
+      })
+      .strict()
+      .default({ in_store_only: false }),
     sales: z
       .object({
         featured_services: z.array(id).default([]),

@@ -197,6 +197,7 @@ export class Orchestrator {
       demo: c.demo,
       businessName: c.business.name,
       phone: c.business.phone,
+      ...(this.catalog.solo ? { soloName: this.catalog.solo.name } : {}),
       bookingUrl: c.booking.direct_links.default,
       concierge: {
         name: c.concierge.name,
@@ -272,7 +273,7 @@ export class Orchestrator {
   }
 
   private fallback(lang: Lang): Reply {
-    const S = strings(lang);
+    const S = strings(lang, this.catalog.solo?.name);
     if (!this.links) return { text: S.fallbackNoLink(this.catalog.config.business.phone), cards: [], quickReplies: [] };
     return {
       text: S.fallback,
@@ -292,7 +293,7 @@ export class Orchestrator {
 
   // The reply while another request is still working on this session.
   busyReply(lang: Lang): MessageResponse {
-    return { reply: { text: strings(lang).busy, cards: [], quickReplies: [] } };
+    return { reply: { text: strings(lang, this.catalog.solo?.name).busy, cards: [], quickReplies: [] } };
   }
 
   async handleMessage(session: Session, req: MessageRequest): Promise<MessageResponse> {
@@ -315,7 +316,7 @@ export class Orchestrator {
     session.lang = this.lang(req.lang, session.lang);
     if (req.page) session.page = req.page.slice(0, 200);
     const lang = session.lang;
-    const S = strings(lang);
+    const S = strings(lang, this.catalog.solo?.name);
 
     session.counts.messages += 1;
     if (session.counts.messages > MAX_MESSAGES) {
@@ -517,7 +518,7 @@ export class Orchestrator {
   }
 
   async confirm(session: Session, actionId: string): Promise<ConfirmResponse> {
-    const S = strings(session.lang);
+    const S = strings(session.lang, this.catalog.solo?.name);
     const action = session.pendingActions.get(actionId);
     const limits = this.catalog.config.booking.limits;
     const time = pick(this.catalog.config.handoff.callback_response_time, session.lang);

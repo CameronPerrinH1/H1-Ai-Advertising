@@ -1,5 +1,6 @@
 // Visitor-facing text that code (not the model) writes: confirmations, fallbacks, limits.
 import type { Lang } from '@concierge/shared';
+import { soloize } from './solo.ts';
 
 export interface Strings {
   appointmentNote: (time: string) => string;
@@ -101,6 +102,12 @@ const es: Strings = {
   },
 };
 
-export function strings(lang: Lang): Strings {
-  return lang === 'es' ? es : en;
+// solo: the owner's name for a one-person business (Catalog.solo), which replaces "the team".
+export function strings(lang: Lang, solo?: string | null): Strings {
+  const base = lang === 'es' ? es : en;
+  if (!solo) return base;
+  const fix = (t: string) => soloize(t, solo);
+  return Object.fromEntries(
+    Object.entries(base).map(([k, v]) => [k, typeof v === 'string' ? fix(v) : typeof v === 'function' ? (...a: string[]) => fix((v as (...x: string[]) => string)(...a)) : v]),
+  ) as unknown as Strings;
 }

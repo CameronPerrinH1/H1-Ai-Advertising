@@ -340,8 +340,23 @@ const es: UiStrings = {
   min: 'min',
 };
 
-export function strings(lang: Lang): UiStrings {
-  return lang === 'es' ? es : en;
+// solo: a one-person business's owner (PublicConfig.soloName), named instead of "your provider" and "the team".
+export function strings(lang: Lang, solo?: string): UiStrings {
+  const base = lang === 'es' ? es : en;
+  if (!solo) return base;
+  return lang === 'es'
+    ? {
+        ...base,
+        optionsNote: `Opciones para conversar con ${solo}.`,
+        unavailableBody: (name) => `Aún puedes reservar en línea o llamar a ${name}; ${solo} te ayudará.`,
+        careNote: (biz) => `De las instrucciones de cuidado de ${biz}. ¿Preguntas sobre tu salud? Consulta a ${solo}.`,
+      }
+    : {
+        ...base,
+        optionsNote: `Options to discuss with ${solo}.`,
+        unavailableBody: (name) => `You can still book online, or call ${name} and ${solo} will help.`,
+        careNote: (biz) => `From ${biz}'s care instructions. Questions about your own health? Ask ${solo}.`,
+      };
 }
 
 export function money(amount: number): string {

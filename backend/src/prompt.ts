@@ -4,6 +4,7 @@
 import type { SystemContentBlock } from '@aws-sdk/client-bedrock-runtime';
 import type { Lang } from '@concierge/shared';
 import { type Catalog, type LocalClock, money, pick, pickList, priceText } from './catalog.ts';
+import { soloize, soloRule } from './solo.ts';
 
 const DAY_NAMES: Record<string, string> = {
   mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday',
@@ -74,14 +75,19 @@ function knowledge(catalog: Catalog): string[] {
     L.push(`- First visit: arrive ${fv.arrive_minutes_early} minutes early.${fv.parking ? ` Parking: ${pick(fv.parking, 'en')}` : ''} Bring: ${pickList(fv.bring, 'en').join('; ')}.${fv.intake_form_url ? ' New guests can fill out the intake form ahead of time (the first-visit card has the button).' : ''}`);
   }
   if (b.products.length) {
-    L.push('- Products sold:');
+    const retail = c.retail;
+    const consult = retail.consult_to_buy ? catalog.services.get(retail.consult_to_buy) : undefined;
+    L.push(retail.in_store_only ? '- Products sold (in the spa only: never online, shipped, or held for pickup):' : '- Products sold:');
+    if (consult) {
+      L.push(`  - Buying a product: a guest has a ${consult.name} (${priceText(consult.price)}) first, so a provider can match products to their skin. When a guest asks about a product or whether the spa carries one, say yes if it's listed here, that it's sold in the spa only, and that a provider does a ${consult.name} before anyone buys products. Then ask if they'd like to schedule the ${consult.name}, and book it like any treatment. Give a product's price only if they ask. Never suggest buying a product without the consultation. If a product isn't listed, say you don't see it and offer to have the team follow up.`);
+    }
     for (const p of b.products) {
       const after = p.after_services.map((sid) => catalog.services.get(sid)?.name).filter(Boolean);
       const bits = [
         p.note,
         p.helps_with.length ? `helps with ${p.helps_with.join(', ').toLowerCase()}` : '',
         after.length ? `suggest after ${after.join(', ')}` : '',
-        p.sold === 'in_store' ? 'sold in the spa only' : p.sold === 'online' ? 'sold online only' : '',
+        retail.in_store_only ? '' : p.sold === 'in_store' ? 'sold in the spa only' : p.sold === 'online' ? 'sold online only' : '',
         p.priority === 'high' ? 'one the spa likes to recommend' : p.priority === 'none' ? "don't recommend it unless asked" : '',
       ].filter(Boolean);
       L.push(`  - ${p.brand ? `${p.brand} ` : ''}${p.name} (${money(p.price)})${bits.length ? `: ${bits.join('; ')}` : ''}`);
@@ -281,7 +287,11 @@ export function fixedBlock(catalog: Catalog, opts: { openings?: boolean; inChat?
   L.push('');
   L.push('# Language');
   L.push("Reply in the language the guest writes in (English or Spanish); if unsure, use the selected language below. Keep treatment and provider names as listed.");
-  return L.join('\n');
+  const solo = catalog.solo;
+  if (!solo) return L.join('\n');
+  // A one-person business: every line names the owner, and her rule follows the introduction.
+  const [intro, ...rest] = L.map((line) => soloize(line, solo.name));
+  return [intro, '', ...soloRule(c.business.name, solo.fullName, solo.name), ...rest].join('\n');
 }
 
 // Staff mode (D64): the same knowledge, for the spa team. No guest data, no requests.
@@ -452,7 +462,13 @@ export function catalogBlock(catalog: Catalog, today: string, opts: { openings?:
       L.push(`  - ${e.name} (id: ${e.id}): ${when}${e.time ? `, ${e.time}` : ''}${e.location ? `, at ${e.location}` : ''}. ${e.description}${who}${rsvp}`);
     }
   }
-  return L.join('\n');
+  return withSolo(catalog, L.join('\n'));
+}
+
+/** A one-person business's wording (solo.ts); other spas' text is unchanged. */
+function withSolo(catalog: Catalog, text: string): string {
+  const solo = catalog.solo;
+  return solo ? soloize(text, solo.name) : text;
 }
 
 export interface RequestContext {
@@ -491,7 +507,7 @@ export function requestBlock(catalog: Catalog, ctx: RequestContext): string {
   if (ctx.page) L.push(`The guest is viewing this page of the website: ${ctx.page.slice(0, 100)}`);
   // Read last, so it weighs most (Nov 12 sales review: a third of replies ended on a statement).
   L.push('Before you reply: answer what they asked, keep it to about three sentences unless you are explaining a treatment, and end with one question, even when a card is shown.');
-  return L.join('\n');
+  return withSolo(catalog, L.join('\n'));
 }
 
 export function buildSystem(catalog: Catalog, ctx: RequestContext, fixed: string): SystemContentBlock[] {
