@@ -37,6 +37,12 @@ try {
 
   console.log(`Imported the playbook for ${parsed.data.spa.name} into clients/${clientId}: ${bundle.services.services.length} treatments, ${bundle.config.sales.promotions.length} promotions, ${bundle.config.sales.events.length} events, ${bundle.concerns.concerns.length} concerns.`);
   if (warnings.length) console.log(`\nTo review:\n${warnings.map((w) => `  - ${w}`).join('\n')}`);
+  const notes = parsed.data.notes;
+  if (notes?.personalityProtocol || notes?.salesPlaybook) {
+    console.log('\nThe spa\'s comments for H1 (not given to the chat):');
+    if (notes.personalityProtocol) console.log(`  Personality Protocol: ${notes.personalityProtocol}`);
+    if (notes.salesPlaybook) console.log(`  Sales Playbook: ${notes.salesPlaybook}`);
+  }
   console.log('\nNext: pnpm check, then the evals (EVAL_SUITE=playbook for the demo spa).');
 } catch (err) {
   if (err instanceof PlaybookError || err instanceof ConfigError) {

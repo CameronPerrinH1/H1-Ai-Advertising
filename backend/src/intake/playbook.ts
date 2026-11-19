@@ -123,6 +123,8 @@ export const playbookSchema = z
     handoff: z
       .object({ cant_answer: text, medical: text, not_offered: text, consult_required: text, callback: text, complaint: text })
       .strict(),
+    // The spa's comments for H1 (Nov 19); the importer leaves them in intake-playbook.json only.
+    notes: z.object({ personalityProtocol: text.optional(), salesPlaybook: text.optional() }).strict().optional(),
     urgent: z
       .object({
         line: text,
