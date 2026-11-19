@@ -150,3 +150,20 @@ describe('access and abuse limits (6.4, D4)', () => {
     expect(Object.keys(t.findResources('AWS::CloudWatch::Alarm')).length).toBeGreaterThanOrEqual(8);
   });
 });
+
+describe('the session cookie across sites (app.ts)', () => {
+  const apiEnv = (tpl: Template) => {
+    const fn = Object.values(tpl.findResources('AWS::Lambda::Function', { Properties: { Handler: 'index.api' } }))[0]!;
+    return (fn.Properties as { Environment: { Variables: Record<string, unknown> } }).Environment.Variables;
+  };
+  const prod = { stage: 'production' as const, audit: { days: 2192, mode: 'compliance' as const } };
+
+  it('is cross-site for a client stack tested on its CloudFront address before go-live', () => {
+    expect(apiEnv(synth(prod)).CROSS_SITE_COOKIE).toBe('1');
+  });
+
+  it('is same-site once the stack serves chat.<domain>', () => {
+    const domain = { name: 'chat.glowmedspa.example', certificateArn: 'arn:aws:acm:us-east-1:111111111111:certificate/abc' };
+    expect(apiEnv(synth({ ...prod, domain })).CROSS_SITE_COOKIE).toBeUndefined();
+  });
+});
