@@ -4,6 +4,9 @@
 export interface Deployment {
   clientId: string;
   stage: 'staging' | 'production';
+  // The AWS account this deployment belongs in. The app refuses to synth into any other, so a
+  // deploy with the wrong login fails before it touches anything.
+  account?: string;
   domain?: { name: string; certificateArn: string };
   alarmEmail?: string; // alarms, and budget alerts when a budget is set (D40)
   monthlyBudgetUsd?: number;
@@ -37,5 +40,19 @@ export const DEPLOYMENTS: Record<string, Deployment> = {
     // Jen's Vagaro keys (read-only openings; no guest data is sent to Vagaro, so D29 holds).
     bookingSecretName: 'concierge/plumb-and-pine-staging/vagaro',
     holds: 'preview', // Cameron, Nov 11: book in the chat, Confirm greyed out until it goes live
+  },
+  // Plumb + Pine's own stack, in Jen's AWS account (Nov 19). Until go-live it runs on a hidden page of
+  // her site: deploy with -c handoffEmail=<H1 inbox> so test handoffs never reach Jen, and without a
+  // domain (the CloudFront address). chat.plumbandpine.com and its certificate are added at go-live.
+  'plumb-and-pine': {
+    clientId: 'plumb-and-pine',
+    stage: 'production',
+    account: '609344448048',
+    alarmEmail: 'cameron@h1webdev.com',
+    monthlyBudgetUsd: 50,
+    audit: { days: 2192, mode: 'compliance' }, // 6 years (D54)
+    // Created by hand in her account, with the same keys as the staging secret.
+    bookingSecretName: 'concierge/plumb-and-pine/vagaro',
+    holds: 'preview', // Confirm greyed out; nothing is held on her calendar until she's live
   },
 };

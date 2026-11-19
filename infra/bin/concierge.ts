@@ -1,8 +1,9 @@
 // CDK app. Examples:
 //   pnpm --filter @concierge/infra synth -c deployment=glow-med-spa-staging
 //   pnpm --filter @concierge/infra deploy -c deployment=glow-med-spa-staging -c handoffEmail=test@agency.example
-// handoffEmail (staging only): a verified test address that receives the handoff emails, so a staging
-// stack never emails the spa itself (a real client's staging stack must set it).
+// handoffEmail: a verified test address that receives the handoff emails. A real client's staging stack
+// must set it (D29); a production stack may, while it's tested before go-live, so test handoffs never
+// reach the spa. Deploy again without it at go-live.
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { App } from 'aws-cdk-lib';
@@ -16,9 +17,13 @@ const deploymentName: string = app.node.tryGetContext('deployment') ?? 'glow-med
 const d = DEPLOYMENTS[deploymentName];
 if (!d) throw new Error(`Unknown deployment "${deploymentName}". Known: ${Object.keys(DEPLOYMENTS).join(', ')}`);
 
+if (d.account && process.env.CDK_DEFAULT_ACCOUNT && process.env.CDK_DEFAULT_ACCOUNT !== d.account) {
+  throw new Error(`${deploymentName} belongs in account ${d.account}, but you're signed in to ${process.env.CDK_DEFAULT_ACCOUNT}. Use the right profile (--profile).`);
+}
+
 const c = loadClient(d.clientId).config;
 const handoffEmail: string | undefined = app.node.tryGetContext('handoffEmail');
-if (handoffEmail && d.stage !== 'staging') throw new Error('handoffEmail is only for staging stacks.');
+if (handoffEmail && d.stage === 'production') console.warn(`Testing before go-live: handoffs go to ${handoffEmail}, not the spa. Deploy again without handoffEmail at go-live.`);
 // D29: H1's staging account never emails a real spa; its handoffs go to a test inbox.
 if (d.stage === 'staging' && !c.demo && !handoffEmail) throw new Error(`Staging ${d.clientId} needs -c handoffEmail=<test inbox>, so it never emails the spa.`);
 const senderDomain = c.handoff.email_from.split('@')[1]!;
