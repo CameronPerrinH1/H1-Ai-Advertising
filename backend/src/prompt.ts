@@ -4,6 +4,7 @@
 import type { SystemContentBlock } from '@aws-sdk/client-bedrock-runtime';
 import type { Lang } from '@concierge/shared';
 import { type Catalog, type LocalClock, money, pick, pickList, priceText } from './catalog.ts';
+import { soloize, soloRule } from './solo.ts';
 
 const DAY_NAMES: Record<string, string> = {
   mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday',
@@ -281,7 +282,11 @@ export function fixedBlock(catalog: Catalog, opts: { openings?: boolean; inChat?
   L.push('');
   L.push('# Language');
   L.push("Reply in the language the guest writes in (English or Spanish); if unsure, use the selected language below. Keep treatment and provider names as listed.");
-  return L.join('\n');
+  const solo = catalog.solo;
+  if (!solo) return L.join('\n');
+  // A one-person business: every line names the owner, and her rule follows the introduction.
+  const [intro, ...rest] = L.map((line) => soloize(line, solo.name));
+  return [intro, '', ...soloRule(c.business.name, solo.fullName, solo.name), ...rest].join('\n');
 }
 
 // Staff mode (D64): the same knowledge, for the spa team. No guest data, no requests.
@@ -452,7 +457,13 @@ export function catalogBlock(catalog: Catalog, today: string, opts: { openings?:
       L.push(`  - ${e.name} (id: ${e.id}): ${when}${e.time ? `, ${e.time}` : ''}${e.location ? `, at ${e.location}` : ''}. ${e.description}${who}${rsvp}`);
     }
   }
-  return L.join('\n');
+  return withSolo(catalog, L.join('\n'));
+}
+
+/** A one-person business's wording (solo.ts); other spas' text is unchanged. */
+function withSolo(catalog: Catalog, text: string): string {
+  const solo = catalog.solo;
+  return solo ? soloize(text, solo.name) : text;
 }
 
 export interface RequestContext {
@@ -491,7 +502,7 @@ export function requestBlock(catalog: Catalog, ctx: RequestContext): string {
   if (ctx.page) L.push(`The guest is viewing this page of the website: ${ctx.page.slice(0, 100)}`);
   // Read last, so it weighs most (Nov 12 sales review: a third of replies ended on a statement).
   L.push('Before you reply: answer what they asked, keep it to about three sentences unless you are explaining a treatment, and end with one question, even when a card is shown.');
-  return L.join('\n');
+  return withSolo(catalog, L.join('\n'));
 }
 
 export function buildSystem(catalog: Catalog, ctx: RequestContext, fixed: string): SystemContentBlock[] {

@@ -92,6 +92,11 @@ export const configSchema = z
         name: z.string(),
         // What kind of business it is, as the chat describes it ("a med spa", "a skin and scalp studio").
         kind: z.string().default('a med spa'),
+        // One person or a team. auto: solo when providers.yaml lists one provider. A solo business's
+        // chat names that person ("Jen will text you") instead of "our team" (Cameron, Nov 19).
+        team: z.enum(['auto', 'solo', 'team']).default('auto'),
+        // The name the chat uses for the owner of a solo business; default: the provider's first name.
+        solo_name: z.string().min(1).optional(),
         phone: z.string(),
         urgent_line: z.string(),
         crisis_line: z.string().default('988'),

@@ -270,7 +270,7 @@ const handlers: Record<string, Handler> = {
     const p = parse(schemas.request_callback, input);
     if (!p.ok) return fail(p.error);
     const { catalog, session, lang } = ctx;
-    const S = strings(lang);
+    const S = strings(lang, catalog.solo?.name);
     if (!NAME.test(p.data.first_name)) return fail('Ask the guest for their first name as they write it.');
     const phone = normalizePhone(p.data.phone, catalog.config.booking.allowed_phone_countries);
     if (!phone) return fail("That phone number isn't valid. Ask the guest to check it.");
@@ -306,7 +306,7 @@ const handlers: Record<string, Handler> = {
     const p = parse(schemas.request_appointment, input);
     if (!p.ok) return fail(p.error);
     const { catalog, session, lang } = ctx;
-    const S = strings(lang);
+    const S = strings(lang, catalog.solo?.name);
 
     // One treatment, or every treatment in this chat's countdown plan (D62).
     let serviceIds: string[];
@@ -570,7 +570,7 @@ const handlers: Record<string, Handler> = {
 };
 
 export function urgentCard(kind: 'post_treatment' | 'emergency' | 'crisis', catalog: Catalog, lang: Lang): Card {
-  const S = strings(lang);
+  const S = strings(lang, catalog.solo?.name);
   const b = catalog.config.business;
   const msg = catalog.bundle.urgent[kind];
   const fill = (s: string) =>
