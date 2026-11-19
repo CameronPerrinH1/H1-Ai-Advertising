@@ -197,6 +197,16 @@ export const configSchema = z
         policies: z.record(z.string(), z.string()),
       })
       .strict(),
+    // How the spa sells retail products (H1's settings, from the spa; Plumb + Pine, Nov 19).
+    retail: z
+      .object({
+        // Every product is sold in the spa only, whatever products.yaml says per product.
+        in_store_only: z.boolean().default(false),
+        // A guest needs this consultation (a service id) before buying any product.
+        consult_to_buy: id.optional(),
+      })
+      .strict()
+      .default({ in_store_only: false }),
     sales: z
       .object({
         featured_services: z.array(id).default([]),

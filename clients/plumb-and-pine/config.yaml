@@ -110,6 +110,12 @@ knowledge:
     before_facials: "No Botox or filler within 14 days before a facial."
     urgent_line: The urgent line is answered 24/7.
 
+# Jen, Nov 19: every product is sold in the studio only, and a guest has a Skin Consultation before
+# buying any product. The chat says so, then offers to schedule the consultation.
+retail:
+  in_store_only: true
+  consult_to_buy: skin-consultation
+
 sales:
   featured_services: []
   fit_rules_file: fit-rules.yaml
