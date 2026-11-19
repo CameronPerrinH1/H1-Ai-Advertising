@@ -79,6 +79,38 @@ export function Bar({ config, s, lang, value, setValue, disabled, placeholder, o
   );
 }
 
+interface PhoneBarProps {
+  config: PublicConfig;
+  lang: Lang;
+  hint: string;
+  onOpen: () => void;
+}
+
+// On a phone the bar is a button that opens the chat full screen (Cameron, Nov 19: the card over
+// the page was hard to read and the prompt was cut off). The AI label stays beside the face (D45),
+// on its own line above the hint, so the hint gets the bar's full width.
+export function PhoneBar({ config, lang, hint, onOpen }: PhoneBarProps) {
+  return (
+    <button type="button" class="askbar-bar phone" onClick={onOpen}>
+      <span class="askbar-face" aria-hidden="true">
+        <span class="avatar">
+          <Face c={config.concierge} />
+        </span>
+        <span class="online" />
+      </span>
+      <span class="phone-text">
+        <span class="phone-who">
+          {config.concierge.name} · {config.concierge.disclosureLabel[lang]}
+        </span>
+        <span class="phone-hint">{hint}</span>
+      </span>
+      <span class="askbar-send" aria-hidden="true">
+        <ArrowUpIcon size={18} />
+      </span>
+    </button>
+  );
+}
+
 interface IntroProps {
   config: PublicConfig;
   s: UiStrings;
