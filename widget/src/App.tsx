@@ -6,7 +6,7 @@ import { applyTheme } from './theme';
 import { saveCardImage } from './saveImage';
 import { Composer, Header, NoticeLine, Unavailable, Welcome } from './components/Chrome';
 import { MessageList, type UiMessage } from './components/Chat';
-import { Bar, CardTop, Intro } from './components/AskBar';
+import { Bar, CardTop, Intro, PhoneBar } from './components/AskBar';
 import { copyForPage, forPage } from '@concierge/shared';
 
 const params = new URLSearchParams(location.search);
@@ -22,6 +22,20 @@ const uid = () => `${Date.now().toString(36)}${(seq++).toString(36)}${Math.rando
 // Only UI events cross to the host page; never conversation content or the session (D30, D53).
 function toParent(type: 'concierge:close' | 'concierge:open' | 'concierge:size', extra: Record<string, string | number> = {}) {
   window.parent?.postMessage({ type, ...extra }, '*');
+}
+
+// A phone-sized ask bar (its frame is as wide as the screen there) opens the chat full screen.
+const PHONE = '(max-width: 600px)';
+function usePhone(): boolean {
+  const [phone, setPhone] = useState(() => typeof matchMedia === 'function' && matchMedia(PHONE).matches);
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const m = matchMedia(PHONE);
+    const on = () => setPhone(m.matches);
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, []);
+  return phone;
 }
 
 function pickLang(config: PublicConfig): Lang {
@@ -50,6 +64,7 @@ export function App() {
   const [introShown, setIntroShown] = useState(false);
   const introPlayed = useRef(false); // the greeting pops up once; reopened, it just fades in
   const root = useRef<HTMLDivElement | null>(null);
+  const phone = usePhone();
 
   // The ask bar's frame is only as tall as what it shows, so the page around it stays usable.
   useEffect(() => {
@@ -285,6 +300,15 @@ export function App() {
 
   if (MODE === 'askbar') {
     const copy = copyForPage(config.display.pages, PAGE);
+    // On a phone: just the bar. Tapping it opens the chat full screen, where the notice shows
+    // before the first message (D35) and a running conversation picks up where it was.
+    if (phone && config.display.modes.includes('fullscreen')) {
+      return (
+        <div class="shell askbar phone" lang={lang} ref={root}>
+          <PhoneBar config={config} lang={lang} hint={active ? s.continueChat : copy?.placeholder?.[lang] ?? s.placeholder} onOpen={() => toParent('concierge:open')} />
+        </div>
+      );
+    }
     const ask = () => {
       const q = draft.trim();
       if (!q) return;
@@ -373,7 +397,7 @@ export function App() {
               onQuickReply={send}
               onRate={rate}
             />
-            <Composer s={s} value={draft} setValue={setDraft} disabled={waiting} onSubmit={() => send(draft)} inputRef={inputRef} />
+            <Composer s={s} value={draft} setValue={setDraft} disabled={waiting} onSubmit={() => send(draft)} inputRef={inputRef} placeholder={phone ? s.followUp : undefined} />
           </>
         ) : (
           <Welcome config={config} s={s} lang={lang} suggestions={suggestions} starting={starting} onStart={(q) => start(q ?? PRESET)} />
