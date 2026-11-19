@@ -1,4 +1,4 @@
-# Retail products: prices from H1's price list, the rest from the spa. From the intake playbook 6ab580b0b67d (2026-11-09); edit in the wizard, not here.
+# Retail products: prices from H1's price list, the rest from the spa. From the intake playbook a34bced50e6f (2026-11-19); edit in the wizard, not here.
 products:
   - name: ÂN-Gloss Ceramide Lip Treatment
     price: 45
@@ -7,7 +7,7 @@ products:
     priority: normal
     after_services: []
     helps_with: []
-    sold: both
+    sold: in_store
   - name: Color Balm
     price: 42
     brand: Colorescience
@@ -164,14 +164,6 @@ products:
     price: 79
     brand: Colorescience
     category: Eye care
-    priority: normal
-    after_services: []
-    helps_with: []
-    sold: both
-  - name: Antioxidant Peptide Serum
-    price: 56
-    brand: Face Reality
-    category: Serums
     priority: normal
     after_services: []
     helps_with: []
@@ -436,6 +428,14 @@ products:
     price: 75
     brand: Epicutis
     category: Toners
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Antioxidant Peptide Serum
+    price: 56
+    brand: Face Reality
+    category: Serums
     priority: normal
     after_services: []
     helps_with: []

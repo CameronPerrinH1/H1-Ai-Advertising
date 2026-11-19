@@ -217,11 +217,14 @@ describe("the spa's own emergency symptoms (D14)", () => {
 
 describe('concerns without a lead treatment (Nov 11)', () => {
   it('are matched to treatments on Plumb + Pine, except conditions that rule treatment out', async () => {
+    // Jen's concerns (Nov 13) lead with treatments except Thin lips, and she removed the two
+    // not-now conditions from her list; the chat keeps those anyway.
     const { fixedBlock } = await import('../src/prompt.ts');
     const { loadClient } = await import('../src/config/load.ts');
     const { Catalog } = await import('../src/catalog.ts');
     const block = fixedBlock(new Catalog(loadClient('plumb-and-pine')), { openings: true, inChat: true });
-    expect(block).toContain('- Acne scars: recommend the treatments whose "Good for" covers it');
+    expect(block).toContain('- Thin lips: recommend the treatments whose "Good for" covers it');
+    expect(block).toContain('- Acne scars: lead with Microchanneling.');
     expect(block).toContain("- Active cold sore or infection: don't suggest a treatment for now; suggest a consultation.");
     expect(block).toContain("- Recent sun exposure or tanning: don't suggest a treatment for now");
     expect(block).toContain('Good for: fine lines, acne scars');

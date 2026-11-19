@@ -1859,6 +1859,12 @@ button.time-chip {
   display: block;
 }
 
+.avatar .avatar-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* ---------- Ask bar (display mode "askbar") ----------
    The frame is docked at the bottom of the spa's page and sized to this content (loader.js), so
    everything sits in normal flow, bottom-aligned, with room for the shadows. */

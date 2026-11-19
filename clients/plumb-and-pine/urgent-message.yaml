@@ -1,13 +1,12 @@
 # Fixed help messages shown by show_urgent_help (D14). Placeholders: {urgent_line}, {crisis_line}, {business_name}.
 # PLACEHOLDER: replaced by the intake import with the wording Plumb + Pine signs off. Not approved for launch (D38).
-approved_by: Erin Silva, Owner, 2026-11-09 (intake 6ab580b0b67d)
+approved_by: Jennifer, owner, 2026-11-13 (intake a34bced50e6f)
 post_treatment:
   title:
     en: "Let's get you help right away"
   body:
-    en: Please call our urgent line now at {urgent_line}. A member of our clinical
-      team will help you right away. If symptoms get worse or you have trouble
-      breathing, call 911.
+    en: Please contact us right away at {urgent_line}, and we’ll help you as soon as
+      we can. If symptoms get worse or you have trouble breathing, call 911.
 emergency:
   title:
     en: "This sounds like an emergency"
@@ -27,7 +26,7 @@ emergency_symptoms:
   - Fainting
   - Sudden vision changes
 urgent_symptoms:
-  - Skin turning white, gray, or blue near an injection site
   - Severe or worsening pain
   - Signs of infection
-  - Unusual swelling
+  - Blistering or open skin
+  - Unusual swelling or a rash that spreads

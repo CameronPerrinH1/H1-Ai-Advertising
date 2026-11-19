@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import { CLIENTS_DIR, loadClient } from '../src/config/load.ts';
+import { configSchema } from '../src/config/schema.ts';
 import { Catalog } from '../src/catalog.ts';
 import { MemoryOutbox } from '../src/handoff/email.ts';
 import { Orchestrator } from '../src/orchestrator.ts';
@@ -143,5 +144,19 @@ describe('the portrait the spa picked (D45)', () => {
   it('a client with no portrait shows the initial', () => {
     const orchestrator = new Orchestrator({ catalog: new Catalog(loadClient('glow-med-spa')), model: scriptedModel([]), outbox: new MemoryOutbox(), phoneKey: 'test' });
     expect(orchestrator.publicConfig().concierge.avatarUrl).toBeUndefined();
+  });
+
+  it('an icon picked in the wizard reaches the widget by name (Plumb + Pine, Nov 13)', () => {
+    const orchestrator = new Orchestrator({ catalog: new Catalog(loadClient('plumb-and-pine')), model: scriptedModel([]), outbox: new MemoryOutbox(), phoneKey: 'test' });
+    expect(orchestrator.publicConfig().concierge).toMatchObject({ avatarMode: 'illustrated', avatarIcon: 'sparkle' });
+    expect(orchestrator.publicConfig().concierge.avatarUrl).toBeUndefined();
+  });
+
+  it('refuses an id that doesn’t fit the avatar mode', () => {
+    const avatar = configSchema.shape.concierge.shape.avatar;
+    expect(avatar.safeParse({ mode: 'illustrated', id: 'sparkle' }).success).toBe(true);
+    expect(avatar.safeParse({ mode: 'portrait', id: 'look-9' }).success).toBe(false);
+    expect(avatar.safeParse({ mode: 'portrait', id: 'sparkle' }).success).toBe(false);
+    expect(avatar.safeParse({ mode: 'illustrated', id: 'look-1' }).success).toBe(false);
   });
 });

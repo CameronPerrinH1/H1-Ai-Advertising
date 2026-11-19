@@ -206,6 +206,8 @@ export interface PublicConfig {
     // A portrait from H1's set, served with the widget (/avatars/look-N.jpg; D45). Without one the
     // avatar shows the initial. The AI label shows either way.
     avatarUrl?: string;
+    // An icon the spa picked in the wizard (sparkle, leaf, …), drawn by the widget in the brand colour.
+    avatarIcon?: string;
     disclosureLabel: Record<Lang, string>;
   };
   notice: { version: string; text: Record<Lang, string>; privacyUrl: string };

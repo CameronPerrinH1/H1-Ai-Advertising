@@ -90,6 +90,8 @@ export const configSchema = z
     business: z
       .object({
         name: z.string(),
+        // What kind of business it is, as the chat describes it ("a med spa", "a skin and scalp studio").
+        kind: z.string().default('a med spa'),
         phone: z.string(),
         urgent_line: z.string(),
         crisis_line: z.string().default('988'),
@@ -262,7 +264,13 @@ export const configSchema = z
         name: z.string(),
         // portrait: an AI-generated face from H1's approved set, always beside the AI label (D45).
         // id: one of H1's portraits (widget/public/avatars/look-1.jpg to look-8.jpg) when mode is portrait.
-        avatar: z.object({ mode: z.enum(['portrait', 'illustrated', 'brand_mark', 'none']), id: z.string().regex(/^look-[1-8]$/).optional() }).strict(),
+        // id: an icon from the wizard's set (sparkle, bubble, leaf, droplet, syringe, serum, jar) when mode is illustrated.
+        avatar: z
+          .object({ mode: z.enum(['portrait', 'illustrated', 'brand_mark', 'none']), id: z.string().optional() })
+          .strict()
+          .refine((a) => !a.id || (a.mode === 'portrait' ? /^look-[1-8]$/ : a.mode === 'illustrated' ? /^(sparkle|bubble|leaf|droplet|syringe|serum|jar)$/ : /^$/).test(a.id), {
+            message: 'a portrait takes look-1 to look-8, an illustrated avatar one of the wizard’s icons, and other modes no id',
+          }),
         greeting: langMap,
         disclosure_label: langMap,
         chat_notice: z.object({ version: z.string(), en: z.string(), es: z.string().optional() }).strict(),

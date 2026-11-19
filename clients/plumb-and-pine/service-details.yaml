@@ -79,8 +79,8 @@ platinum-hydrafacial:
   requires_assessment: false
   timing: { min_days_before_event: 1, ideal_days_before_event: 3 }
 deluxe-hydrafacial:
-  summary: "A results-driven HydraFacial with deep cleansing, exfoliation,
-    gentle extractions, and intense hydration."
+  summary: "A results-driven HydraFacial with deep cleansing, exfoliation, gentle
+    extractions, and intense hydration."
   what_to_expect: "About 45 minutes, with personalized boosters and LED light
     therapy for fine lines, dark spots, acne, and uneven tone."
   good_for: [ fine lines, dark spots, acne, uneven tone, dehydration ]

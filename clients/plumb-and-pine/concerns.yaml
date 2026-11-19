@@ -1,50 +1,46 @@
-# Concerns guests describe, and the treatments to lead with. From the intake playbook 6ab580b0b67d (2026-11-09); edit in the wizard, not here.
+# Concerns guests describe, and the treatments to lead with. From the intake playbook a34bced50e6f (2026-11-19); edit in the wizard, not here.
 concerns:
   - name: Acne and breakouts
     services:
-      - platinum-hydrafacial
+      - oxygen-facial-glo2
     otherwise: consult
   - name: Acne scars
-    services: []
+    services:
+      - microchanneling
     otherwise: consult
   - name: Fine lines and wrinkles
-    services: []
+    services:
+      - platinum-hydrafacial
+      - the-ageless-facial
     otherwise: consult
   - name: Thin lips
     services: []
     otherwise: consult
   - name: Hair thinning and loss
-    services: []
+    services:
+      - hydrascalp-keravive-full-scalp
+      - hair-restoration-microchanneling
     otherwise: consult
   - name: Redness and pigmentation
     services:
-      - platinum-hydrafacial
+      - the-ageless-facial
     otherwise: consult
   - name: Sun damage and dark spots
-    services: []
+    services:
+      - custom-infusion-facial
     otherwise: consult
   - name: Texture and large pores
     services:
-      - platinum-hydrafacial
+      - deluxe-hydrafacial
+      - custom-infusion-facial
     otherwise: consult
   - name: Dull skin
     services:
-      - platinum-hydrafacial
-    otherwise: consult
-  - name: Unwanted hair
-    services: []
-    otherwise: consult
-  - name: Under-eye hollows and dark circles
-    services: []
+      - oxygen-facial-glo2
     otherwise: consult
   - name: Loose or sagging skin
-    services: []
-    otherwise: consult
-  - name: Active cold sore or infection
-    services: []
-    otherwise: consult
-  - name: Recent sun exposure or tanning
-    services: []
+    services:
+      - dmk-enzyme-therapy
     otherwise: consult
 pregnancy:
   services: []

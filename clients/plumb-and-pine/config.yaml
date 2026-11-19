@@ -7,16 +7,18 @@ client_id: plumb-and-pine
 
 business:
   name: Plumb + Pine
+  kind: a skin and scalp studio run by Jen Jeffers, an advanced esthetician (not a
+    med spa)
   phone: "(775) 300-1096" # the business phone in her Vagaro account (Nov 10); her Jotform gave (775) 409-2640
   urgent_line: (775) 409-2640
   crisis_line: "988"
   privacy_policy_url: "https://www.plumbandpine.com/privacy-policy"
   consumer_health_privacy_policy_url: null
   terminology:
-    clients: patients
-    services: procedures
-    providers: injectors
-    booking: schedule a visit
+    clients: clients
+    services: treatments
+    providers: estheticians
+    booking: book an appointment
   locations:
     - id: loc-main
       name: Plumb + Pine
@@ -112,21 +114,22 @@ sales:
   featured_services: []
   fit_rules_file: fit-rules.yaml
   memberships: []
-  do_not_promote: []
+  do_not_promote:
+    - hydrascalp-keravive-full-scalp
+    - dmk-muscle-banding
   pricing:
     default: exact
-    services:
-      sugar-plumb-express-facial: exact
+    services: {}
   # TEST pairings for trying the upsell on staging (Nov 10). Jen's form answers replace them on import.
-  pairings:
-    deluxe-hydrafacial:
-      - dmk-enzyme-therapy
-    hydrascalp-keravive-full-scalp:
-      - hair-restoration-microchanneling
+  pairings: {}
   add_on_suggestions: {}
   growth:
     packages: []
-    differentiators: []
+    differentiators:
+      - Years in business
+      - Comfort-first approach
+      - Transparent pricing
+      - Personalized plans
     in_their_words: Science-backed, personalized skincare from Jen Jeffers, a
       licensed cosmetologist and advanced esthetician. Every treatment is built
       around what your skin needs that day, with a focus on scalp restoration
@@ -134,10 +137,10 @@ sales:
   events: []
   promotions: []
   tactics:
-    promotions: never
-    offer_contact: when_asked # Nov 12: Mila explains and books in the chat; a callback only when asked
-    suggest_booking: most_replies
-    urgency: never
+    promotions: when_relevant
+    offer_contact: after_first_answer
+    suggest_booking: after_educating
+    urgency: real_deadlines_only
 
 first_visit:
   arrive_minutes_early: 5 # CONFIRM
@@ -151,12 +154,13 @@ first_visit:
     - "Please don't have Botox or filler within 14 days before a facial"
 
 voice:
-  tone: 'Balanced: friendly, clear, and professional. For example: "Good question.
-    Most patients feel a brief pinch, and treatment takes just a few minutes.
-    Would you like help to schedule a visit?"'
+  tone: 'Warm and relaxed, while still clear and professional. For example: "Great
+    question! Most clients feel a quick pinch, and treatment only takes a few
+    minutes. Our estheticians can use ice or numbing for extra comfort. Would
+    you like help to book an appointment?"'
   dos:
-    - Say the treatment type (for example, neurotoxin) rather than brand names.
-    - Leave guests feeling confident, excited, like talking to a doctor.
+    - Use brand names, like Botox, when guests do.
+    - Leave guests feeling like talking to a friend, cared for, welcomed.
   donts:
     - Never guarantee results
     - Never say “painless” or “no pain”
@@ -167,23 +171,23 @@ voice:
     - Never ask a patient’s medical history
   examples_file: voice-examples.md
   emoji: occasionally
-  exclamation: yes
-  length: short
+  exclamation: sparingly
+  length: detail
   sign_off: We can’t wait to see you!
 
 concierge:
   # PLACEHOLDER apart from chat_notice
-  name: Mila
+  name: Sophie
   avatar:
-    mode: portrait
-    id: look-4
+    mode: illustrated
+    id: sparkle
   greeting:
-    en: Welcome to Plumb + Pine! 😊 I’m Mila, your AI Treatment Coordinator. Ask me
-      anything about our procedures, pricing, or booking.
+    en: Welcome to Plumb + Pine! 😊 I’m Sophie, your AI Treatment Coordinator. Ask
+      me anything about our treatments, pricing, or booking.
   disclosure_label:
     en: AI Treatment Coordinator
   chat_notice:
-    version: 2026-11-09.2
+    version: 2026-11-19.1
     en: You're chatting with Plumb + Pine's AI assistant. This chat is recorded to
       help us respond.
 
@@ -194,9 +198,12 @@ branding:
   # font, until her license is confirmed to cover chat.plumbandpine.com (D53: no hosted fonts).
   colors: { primary: "#AE7F54", secondary: "#F7F6F3", accent: "#032E5B" }
   fonts:
-    heading: "'Neutra Text', 'Avenir Next', Avenir, 'Century Gothic', -apple-system, 'Segoe UI', sans-serif"
-    body: "'Avenir Next', Avenir, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-    license: "System fonts only (Avenir where available); Neutra Text needs Jen's web license to cover the chat domain (D53)"
+    heading: "'Neutra Text', 'Avenir Next', Avenir, 'Century Gothic', -apple-system,
+      'Segoe UI', sans-serif"
+    body: "'Avenir Next', Avenir, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, sans-serif"
+    license: "System fonts only (Avenir where available); Neutra Text needs Jen's
+      web license to cover the chat domain (D53)"
 
 display:
   modes: [ askbar, fullscreen, inline ]
@@ -205,16 +212,21 @@ display:
   # Paths are exact, or a prefix ending in "*". {name} is the coordinator's name.
   pages:
     "/":
-      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or
+        scalp, and I'll point you to the right treatment."
       placeholder: "Ask about facials, scalp care, pricing…"
     "/jen-home":
-      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or
+        scalp, and I'll point you to the right treatment."
       placeholder: "Ask about facials, scalp care, pricing…"
-    "/home-chat": # unlisted preview page on her live site (Nov 10), pointed at the staging stack
-      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or scalp, and I'll point you to the right treatment."
+    "/home-chat":
+      # unlisted preview page on her live site (Nov 10), pointed at the staging stack
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or
+        scalp, and I'll point you to the right treatment."
       placeholder: "Ask about facials, scalp care, pricing…"
     "/services*":
-      greeting: "Have a question about a treatment? I can explain what it does, what it costs, and how to book."
+      greeting: "Have a question about a treatment? I can explain what it does, what
+        it costs, and how to book."
       placeholder: "Ask about a treatment…"
       topic: "treatments"
     "/treatments/hydrafacial-treatments":
@@ -233,11 +245,13 @@ display:
       topic: "DMK"
       placeholder: "Ask about DMK treatments…"
     "/treatments*":
-      greeting: "Have a question about this treatment? I can explain what it does, what it costs, and how to book."
+      greeting: "Have a question about this treatment? I can explain what it does,
+        what it costs, and how to book."
       placeholder: "Ask about this treatment…"
       topic: "treatments"
     "/about*":
-      greeting: "Curious about Jen? Ask about her training, her approach, or what to expect at your visit."
+      greeting: "Curious about Jen? Ask about her training, her approach, or what to
+        expect at your visit."
       placeholder: "Ask about Jen, her training, her approach…"
       topic: "Jen"
   suggested_questions:
@@ -248,36 +262,53 @@ display:
         - What should I know before my first visit?
     pages:
       "/services*":
-        en: [ "Which facial is right for me?", "What's the difference between the HydraFacials?", "What's the most affordable option?" ]
+        en:
+          [
+            "Which facial is right for me?",
+            "What's the difference between the HydraFacials?",
+            "What's the most affordable option?"
+          ]
       "/treatments*":
-        en: [ "Is this right for my skin?", "How much does it cost?", "Can I book online?" ]
+        en:
+          [
+            "Is this right for my skin?",
+            "How much does it cost?",
+            "Can I book online?"
+          ]
       "/about*":
-        en: [ "Who is Jen?", "What does Jen specialize in?", "What should I know before my first visit?" ]
+        en:
+          [
+            "Who is Jen?",
+            "What does Jen specialize in?",
+            "What should I know before my first visit?"
+          ]
 
 handoff:
   email_from: "concierge@h1aiconsulting.com" # CONFIRM: the sending address H1 sets up
   email_to: "plumbandpine@gmail.com"
-  email_to_exception: # D87: off her domain, approved by H1
+  email_to_exception:
+    # D87: off her domain, approved by H1
     address: plumbandpine@gmail.com
     approved_by: Cameron Perrin, H1
     approved_on: 2026-11-09
-    reason: Solo owner with no email on her own domain; the address is from her Jotform.
+    reason: Solo owner with no email on her own domain; the address is from her
+      Jotform.
   email_provider_baa_confirmed: false
   callback_response_time: { en: "within 2 business days" }
   categories: [ reschedule, cancel, complaint, other ]
   extra_handoff_topics: [ "group bookings" ]
   wording:
-    cant_answer: I’d rather get you the right answer than guess. Can I have our team
-      follow up with you?
-    medical: I’m not able to give medical advice, but our injectors can answer that
-      at a consult or by phone. Would you like them to reach out within
-      {response_time}?
+    cant_answer: That’s a great one for our team. Can I have someone reach out to you?
+    medical: That’s a great question for one of our estheticians, and I want to make
+      sure you get the right answer. Can I have someone from our clinical team
+      follow up within {response_time}?
     not_offered: We don’t offer that here, but I’d love to connect you with our team
       to find the best fit for your goals. Would you like them to follow up?
-    consult_required: We always begin with a consult for this one, so your injector
-      can make sure it’s the right fit. Would you like me to help you schedule a
-      visit?
-    callback: Happy to set that up. Our team will call you back within {response_time}.
+    consult_required: We always begin with a consult for this one, so your
+      esthetician can make sure it’s the right fit. Would you like me to help
+      you book an appointment?
+    callback: Absolutely. Share your number and a good time below, and our team will
+      call within {response_time}.
     complaint: Thank you for telling us. This deserves a real person’s attention, so
       I’m sharing it with our team now. Expect to hear back within
       {response_time}.
@@ -311,10 +342,10 @@ compliance_profile:
   call_recording_consent: one-party # CONFIRM for Nevada
   pilot_review_consent: { granted: false, expires: null }
   medical_director_approval:
-    approver: Erin Silva, Owner
-    approved_on: 2026-11-09
-    content_hash: 6ab580b0b67dcbc7917d71554d7734943af2096c19a282b25e2a2fb37646644c
+    approver: Jennifer, owner
+    approved_on: 2026-11-13
+    content_hash: a34bced50e6f5a52cd8d0ff2ac4f44668b0bf8f6c8587a5339c337bccbc2d22b
   owner_approval:
-    approver: Erin Silva, Owner
-    approved_on: 2026-11-09
-    content_hash: 6ab580b0b67dcbc7917d71554d7734943af2096c19a282b25e2a2fb37646644c
+    approver: Jennifer, owner
+    approved_on: 2026-11-13
+    content_hash: a34bced50e6f5a52cd8d0ff2ac4f44668b0bf8f6c8587a5339c337bccbc2d22b

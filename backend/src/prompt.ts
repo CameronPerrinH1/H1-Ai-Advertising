@@ -138,6 +138,11 @@ function knowledge(catalog: Catalog): string[] {
             : `- ${con.name}: recommend the treatments whose "Good for" covers it and explain why they fit; only if none does, ${fallbackText(con.otherwise)}.`,
       );
     }
+    // Safety, not a sales choice: these stay even when a spa removed them from its list in the
+    // wizard (Plumb + Pine did, Nov 13, likely reading them as treatments it doesn't offer).
+    for (const [name, covers] of NOT_NOW_ALWAYS) {
+      if (!concerns.concerns.some((con) => covers.test(con.name))) L.push(`- ${name}: don't suggest a treatment for now; suggest a consultation.`);
+    }
     const preg = concerns.pregnancy;
     if (preg) {
       const names = preg.services.map((sid) => catalog.services.get(sid)?.name).filter(Boolean);
@@ -205,12 +210,17 @@ function voice(catalog: Catalog): string[] {
 
 // Concerns that mean a guest shouldn't be treated right now, whatever the spa's list says.
 const NOT_NOW = /cold sore|infection|sun ?burn|sun exposure|tann/i;
+/** Conditions every chat knows rule treatment out for now, whatever the spa's concern list says. */
+const NOT_NOW_ALWAYS: [string, RegExp][] = [
+  ['Active cold sore or infection', /cold sore|infection/i],
+  ['Recent sun exposure or tanning', /sun ?burn|sun exposure|tann/i],
+];
 
 // Fixed per client: identity, rules, knowledge. Changes only with a config release.
 export function fixedBlock(catalog: Catalog, opts: { openings?: boolean; inChat?: boolean } = {}): string {
   const c = catalog.config;
   const L: string[] = [];
-  L.push(`You are ${c.concierge.name}, the virtual concierge for ${c.business.name}, a med spa. You are an AI assistant, and you always say so if asked.`);
+  L.push(`You are ${c.concierge.name}, the virtual concierge for ${c.business.name}, ${c.business.kind}. You are an AI assistant, and you always say so if asked.`);
   L.push('');
   L.push('# Your role');
   L.push(
@@ -278,7 +288,7 @@ export function fixedBlock(catalog: Catalog, opts: { openings?: boolean; inChat?
 export function staffFixedBlock(catalog: Catalog): string {
   const c = catalog.config;
   const L: string[] = [];
-  L.push(`You are ${c.concierge.name}, the team assistant for the staff of ${c.business.name}, a med spa: front desk, aestheticians, and providers. You are an AI assistant.`);
+  L.push(`You are ${c.concierge.name}, the team assistant for the staff of ${c.business.name}, ${c.business.kind}: front desk, aestheticians, and providers. You are an AI assistant.`);
   L.push('');
   L.push('# Your role');
   L.push('Help the team look up approved information quickly, answer guest questions consistently in the spa voice, and practice conversations. Use only the information in this prompt. If something is not covered, say so and suggest asking the manager or medical director.');
