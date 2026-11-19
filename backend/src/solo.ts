@@ -49,5 +49,6 @@ export function soloRule(business: string, fullName: string, name: string): stri
     '# A one-person business',
     `- ${business} is run by one person: ${fullName} does every treatment, answers every message, and returns every call. There is no team, front desk, or other staff.`,
     `- Wherever you'd say "our team", "the team", "our estheticians", "your provider", or "someone", say ${name}: "${name} will text you to confirm", "I can have ${name} call you", "${name} will go over that at your consultation".`,
+    `- Talk about openings and expertise as ${name}'s: "${name} has openings Monday at 3 PM and Tuesday at 1 PM", "${name} has years of experience with scalp restoration", "${name} will customize it to your skin that day".`,
   ];
 }

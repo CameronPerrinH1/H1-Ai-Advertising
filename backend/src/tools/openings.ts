@@ -7,12 +7,14 @@ import type { Card, Lang } from '@concierge/shared';
 import { zonedToUtc, type OpeningDay } from '../booking/availability.ts';
 import { log } from '../log.ts';
 import { handleTool, type ToolContext, type ToolOutcome } from './handlers.ts';
+import { askFirst, remindersFor, screen, screeningInput } from './screening.ts';
 
 const input = z.object({
   service_id: z.string(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   time_of_day: z.enum(['morning', 'afternoon', 'evening']).optional(),
   weekday: z.enum(['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'weekday', 'weekend']).optional(),
+  screening: screeningInput,
 });
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const weekdayOf = (date: string) => new Date(`${date}T12:00:00Z`).getUTCDay();
@@ -57,6 +59,10 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
   if (!service) return { result: { error: `Unknown service_id "${p.data.service_id}".` }, isError: true };
   const consult = service.details.requires_assessment ? catalog.consultFor(service.id) : undefined;
   const target = consult ?? service;
+  // The spa's booking questions come before any times (tools/screening.ts).
+  const screened = screen(catalog, session, [service.id, target.id], p.data.screening, ctx.today);
+  if (screened.ask) return { result: { openings_shown: false, next: askFirst(screened.ask, 'show_openings') } };
+  const notBefore = screened.notBefore;
 
   // Without openings: the booking button, or, with in-chat booking, no link at all: the guest's
   // preferred times go to the team through request_appointment instead.
@@ -89,7 +95,9 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
   const { min_notice_hours, max_days_ahead } = catalog.config.booking.rules;
   const earliest = now + min_notice_hours * 3_600_000;
   const lastDate = addDays(ctx.today, max_days_ahead);
-  const from = p.data.date && p.data.date > ctx.today ? p.data.date : undefined;
+  const asked = p.data.date && p.data.date > ctx.today ? p.data.date : undefined;
+  // A "yes" to a booking question moves the search to its earliest allowed day.
+  const from = notBefore && (!asked || asked < notBefore) ? notBefore : asked;
 
   const fits = p.data.time_of_day ? PART[p.data.time_of_day]! : () => true;
   // One named day is searched directly (the platform returns the first openings on or after a
@@ -106,7 +114,7 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
       const found = await ctx.availability.search(platformId, next);
       if (!found.length) break;
       for (const d of found) {
-        if (d.date > lastDate || days.some((x) => x.date === d.date)) continue;
+        if (d.date > lastDate || (notBefore && d.date < notBefore) || days.some((x) => x.date === d.date)) continue;
         if (daySet && !daySet.includes(weekdayOf(d.date))) continue;
         const allowed = d.times.filter((t) => zonedToUtc(d.date, t, tz) >= earliest);
         const times = allowed.filter(fits);
@@ -157,6 +165,8 @@ export async function showOpenings(raw: unknown, ctx: ToolContext): Promise<Tool
       soonest: `${shown[0]!.label} at ${shown[0]!.times[0]!.label}`,
       ...(noFit ? { no_openings_in: p.data.time_of_day, showing: 'the soonest times at other parts of the day; say so' } : {}),
       days: shown.map((d) => `${d.label} (${d.date}): ${d.times.map((t) => `${t.label} [${t.time}]`).join(', ')}`),
+      ...(notBefore ? { earliest_allowed: `${notBefore}: the spa's booking rule after their answer; times start then` } : {}),
+      ...(remindersFor(catalog, [service.id, target.id]).length ? { when_they_pick_a_time_say: remindersFor(catalog, [service.id, target.id]) } : {}),
       note: ctx.inChat
         ? "The card shows these times; the guest can tap one (or name one from these days) to pick it. Then collect first and last name and phone (email optional) and call request_appointment with slot {date, time}; the time is held on the calendar only after they tap Confirm. Mention at most the soonest time, and only from this list."
         : "The card shows these times; tapping one opens the booking page, where the guest confirms it. You can't hold or book a time. Mention at most the soonest time, and only from this list.",

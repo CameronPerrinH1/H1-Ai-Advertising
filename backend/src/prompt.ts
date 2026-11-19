@@ -66,6 +66,12 @@ function knowledge(catalog: Catalog): string[] {
     const r = catalog.services.get(pr.requires);
     if (s && r) L.push(`- ${s.name} needs a ${r.name} first (often the same visit if it's a fit).`);
   }
+  // The spa's booking rules (tools/screening.ts); code enforces the dates and prints the reminders.
+  const names = (ids?: string[]) => (ids ? ` for ${ids.map((sid) => catalog.services.get(sid)?.name ?? sid).join(', ')}` : '');
+  for (const q of c.booking.rules.screening) {
+    L.push(`- Booking question${names(q.services)}, approved by the spa (asking it isn't asking for medical history): once they want to book, before showing openings or preparing a request, ask exactly "${q.question}" and pass the answer to the booking tool as screening id "${q.id}". If yes, the appointment must be at least ${q.wait_days_after_yes} days after it, and only those dates are shown. Ask nothing else about their health.`);
+  }
+  for (const r of c.booking.rules.reminders) L.push(`- Booking reminder${names(r.services)}: when they pick a time or a request is prepared, tell them: "${r.text}"`);
   for (const m of c.sales.memberships) {
     const s = catalog.services.get(m.includes.service_id);
     L.push(`- Membership: ${m.name}, ${money(m.monthly_price)} a month, includes ${m.includes.per_month} ${s?.name ?? m.includes.service_id} each month${m.member_discount_percent ? `, plus ${m.member_discount_percent}% off extra visits for that treatment` : ''}.${m.terms ? ` Terms: ${m.terms}` : ''}`);

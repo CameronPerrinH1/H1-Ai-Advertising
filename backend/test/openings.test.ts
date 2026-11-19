@@ -14,7 +14,8 @@ process.env.CONCIERGE_SILENT = '1';
 const catalog = new Catalog(loadClient('plumb-and-pine'));
 // Tuesday, Nov 10 2026, 3:00 PM in Reno. Her rule is 24 hours' notice.
 const NOW = Date.UTC(2026, 10, 10, 23, 0);
-const session = () => createSession({ lang: 'en', noticeVersion: 'v' }).session;
+// Jen's booking question (Nov 19) is answered "no" here; test/screening.test.ts covers the rule itself.
+const session = () => ({ ...createSession({ lang: 'en', noticeVersion: 'v' }).session, screening: { 'botox-filler': { answer: 'no' as const } } });
 const ctx = (availability?: AvailabilitySource): ToolContext => ({
   catalog,
   session: session(),

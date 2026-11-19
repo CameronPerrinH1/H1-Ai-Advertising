@@ -44,6 +44,31 @@ booking:
     prerequisites:
       - service: sugar-plumb-express-facial
         requires: skin-consultation
+    # Jen, Nov 19 (by phone): appointments are before Botox or filler, or at least 14 days after,
+    # so the chat asks before every booking; a "yes" keeps the appointment 14+ days out.
+    screening:
+      - id: botox-filler
+        question: Have you had Botox or filler in the last 14 days?
+        wait_days_after_yes: 14
+    # Jen, Nov 19: said every time a facial is booked. CONFIRM: facials = everything but the
+    # consultations and the hair and scalp treatments.
+    reminders:
+      - text: Please stop using any vitamin A or retinol products at least 72 hours before your appointment.
+        services:
+          - sugar-plumb-express-facial
+          - the-miracle-facial
+          - lift-and-restore
+          - custom-infusion-facial
+          - the-ageless-facial
+          - oxygen-facial-glo2
+          - dermaplane-facial
+          - platinum-hydrafacial
+          - deluxe-hydrafacial
+          - express-hydrafacial
+          - back-hydrafacial
+          - microchanneling
+          - dmk-enzyme-therapy
+          - dmk-muscle-banding
   allowed_phone_countries: [ US ]
   # Live openings from Jen's Vagaro account (read only; the API keys are in AWS Secrets Manager, named
   # per deployment in infra/lib/deployments.ts). Ids from the Vagaro API, 2026-11-10.
@@ -91,8 +116,8 @@ knowledge:
   urgent_message_file: urgent-message.yaml
   concerns_file: concerns.yaml
   policies:
-    hours: "By appointment only; days and times vary. There's no front desk: Jen
-      lets guests in for their appointment."
+    hours: "By appointment only, with no walk-ins; days and times vary. There's no
+      front desk: Jen lets guests in for their appointment."
     cancellation: "Cancel at least 24 hours ahead and there's no charge. Same-day
       cancellations are charged 100% of the service to the card on file."
     no_show: "No-shows are charged 100% of the missed service by invoice or the card
@@ -157,7 +182,8 @@ first_visit:
     - "A list of your current prescriptions"
     - "A list of the skincare products you use at home"
   notes:
-    - "Please don't have Botox or filler within 14 days before a facial"
+    - "Stop using any vitamin A or retinol products at least 72 hours before a facial"
+    - "Book your appointment before Botox or filler, or at least 14 days after"
 
 voice:
   tone: 'Warm and relaxed, while still clear and professional. For example: "Great

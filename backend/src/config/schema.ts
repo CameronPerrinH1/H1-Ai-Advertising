@@ -142,6 +142,13 @@ export const configSchema = z
             min_notice_hours: z.number(),
             max_days_ahead: z.number(),
             prerequisites: z.array(z.object({ service: id, requires: id }).strict()).default([]),
+            // Asked before openings are shown or an appointment is prepared (tools/screening.ts). A "yes"
+            // keeps the appointment at least wait_days_after_yes days out. services: default all.
+            screening: z
+              .array(z.object({ id, question: z.string(), wait_days_after_yes: z.number().int().min(1).max(180), services: z.array(id).optional() }).strict())
+              .default([]),
+            // Said when a time is picked and printed on the confirmation card. services: default all.
+            reminders: z.array(z.object({ text: z.string(), services: z.array(id).optional() }).strict()).default([]),
           })
           .strict(),
         secret_name: z.string().optional(),

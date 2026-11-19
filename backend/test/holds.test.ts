@@ -30,7 +30,8 @@ function setup(opts: { holdMode?: 'on' | 'test' | 'preview'; writer?: HoldWriter
     holdMode: opts.holdMode,
     now: () => new Date(NOW),
   });
-  const session = createSession({ lang: 'en', noticeVersion: 'v' }).session;
+  // Jen's booking question (Nov 19) is answered "no" here; test/screening.test.ts covers the rule itself.
+  const session = { ...createSession({ lang: 'en', noticeVersion: 'v' }).session, screening: { 'botox-filler': { answer: 'no' as const } } };
   session.askedTimes = true; // the guest's days were already asked
   const ctx: ToolContext = {
     catalog,

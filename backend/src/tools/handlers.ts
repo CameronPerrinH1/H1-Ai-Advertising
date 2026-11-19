@@ -12,6 +12,7 @@ import { planEvent, PlanError } from '../planning.ts';
 import { strings } from '../i18n.ts';
 import type { AppointmentPayload, Session } from '../session/store.ts';
 import { dayLabel, timeLabel } from './openings.ts';
+import { askFirst, remindersFor, screen, screeningInput } from './screening.ts';
 
 import type { AvailabilitySource, HoldWriter } from '../booking/availability.ts';
 
@@ -115,6 +116,7 @@ const schemas = {
       phone: z.string().trim().min(7).max(40),
       email: z.string().trim().email().optional(),
       slot: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), time: z.string().regex(/^\d{2}:\d{2}$/) }).optional(),
+      screening: screeningInput,
     })
     .refine((d) => d.use_event_plan || d.service_id, { message: 'service_id is required unless use_event_plan is true' }),
   show_urgent_help: z.object({ kind: z.enum(['post_treatment', 'emergency', 'crisis']) }),
@@ -349,6 +351,18 @@ const handlers: Record<string, Handler> = {
       }
     }
 
+    // The spa's booking questions (tools/screening.ts): asked first, and a "yes" sets the earliest day.
+    const screened = screen(catalog, session, serviceIds.flatMap((sid) => [sid, catalog.consultFor(sid)?.id ?? sid]), p.data.screening, ctx.today);
+    if (screened.ask) return fail(askFirst(screened.ask, 'request_appointment'));
+    const notBefore = screened.notBefore;
+    if (notBefore && p.data.slot && p.data.slot.date < notBefore) return fail(`That date is too soon after their answer to the booking question; it has to be on or after ${notBefore}. Show openings again.`);
+    if (notBefore && p.data.use_event_plan && session.lastPlan?.items.some((i) => i.date < notBefore)) return fail(`Part of the plan is before ${notBefore}, the earliest day after their answer to the booking question. Build the plan again or request a later date.`);
+    if (notBefore && !p.data.slot) {
+      emailTimes = `${emailTimes}. Earliest date: ${shortDate(notBefore, 'en')} (booking rule)`;
+      cardTimes = `${cardTimes} · ${shortDate(notBefore, lang)}+`;
+    }
+    const reminders = remindersFor(catalog, serviceIds);
+
     const provider = p.data.staff_id ? catalog.providers.get(p.data.staff_id) : undefined;
     if (p.data.staff_id && !provider) return fail(`Unknown staff_id "${p.data.staff_id}".`);
     if (provider && !serviceIds.some((id) => provider.services.includes(id))) return fail(`${provider.name} doesn't do these treatments.`);
@@ -403,7 +417,7 @@ const handlers: Record<string, Handler> = {
           actionId: id,
           kind: 'appointment',
           fields,
-          note: hold && ctx.inChat === 'preview' ? S.previewNote : hold ? S.holdNote(time) : needsConsult ? `${S.appointmentNote(time)} ${S.consultNote}` : S.appointmentNote(time),
+          note: [hold && ctx.inChat === 'preview' ? S.previewNote : hold ? S.holdNote(time) : needsConsult ? `${S.appointmentNote(time)} ${S.consultNote}` : S.appointmentNote(time), ...reminders].join(' '),
           status: 'pending',
           ...(hold && ctx.inChat === 'preview' ? { preview: true } : {}),
         },

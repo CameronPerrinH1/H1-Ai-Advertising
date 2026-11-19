@@ -2,6 +2,7 @@
 // plus the pilot's card tools (07-pilot-v1.md, D59). The pilot runs in link_handoff mode, so the
 // booking tools (check_availability, create_booking) aren't offered.
 import type { Tool } from '@aws-sdk/client-bedrock-runtime';
+import { screeningProperty } from './screening.ts';
 
 function tool(name: string, description: string, properties: Record<string, unknown>, required: string[] = []): Tool {
   return {
@@ -110,6 +111,7 @@ export const LINK_HANDOFF_TOOLS: Tool[] = [
         properties: { date: { type: 'string' }, time: { type: 'string' } },
         required: ['date', 'time'],
       },
+      screening: screeningProperty,
     },
     ['first_name', 'last_name', 'phone'],
   ),
@@ -137,6 +139,7 @@ export const OPENINGS_TOOL: Tool = tool(
     date: { type: 'string', description: 'Optional. A date the guest asked about, YYYY-MM-DD.' },
     time_of_day: { type: 'string', enum: ['morning', 'afternoon', 'evening'], description: 'Optional. The part of the day that works for the guest.' },
     weekday: { type: 'string', enum: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'weekday', 'weekend'], description: "Optional. The day of the week that works for the guest, or 'weekday' (Monday to Friday) or 'weekend'." },
+    screening: screeningProperty,
   },
   ['service_id'],
 );

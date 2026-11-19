@@ -12,7 +12,8 @@ import { scriptedModel, text, toolUse } from './helpers.ts';
 process.env.CONCIERGE_SILENT = '1';
 const catalog = new Catalog(loadClient('plumb-and-pine'));
 const NOW = Date.UTC(2026, 10, 10, 23, 0);
-const session = () => createSession({ lang: 'en', noticeVersion: 'v' }).session;
+// Jen's booking question (Nov 19) is answered "no" here; test/screening.test.ts covers the rule itself.
+const session = () => ({ ...createSession({ lang: 'en', noticeVersion: 'v' }).session, screening: { 'botox-filler': { answer: 'no' as const } } });
 const links = (cards: { type: string }[]) => cards.filter((c) => c.type === 'booking_link').length;
 
 describe('no booking links (booking.links: false)', () => {
