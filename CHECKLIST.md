@@ -40,22 +40,24 @@ The Jotform intake form and the chat's hosting on AWS don't change in this plan.
 ## Milestone 1: Static HTML to Next.js (same look, same URLs)
 Current site: `index.html` (6 sections: system, coordinator, skills, results, faq, book), `book.html` (embedded booking widget from go.h1aiadvertising.com), `terms.html`, `privacy.html`. Shared `assets/motion.css` and `motion.js`, one inline `<style>` per page, self-hosted fonts, JSON-LD on every page.
 
-- [ ] **Decide:** styling approach. Plain CSS with tokens matches Consulting and ports the existing CSS directly. Tailwind would mean rewriting every style.
-- [ ] **Decide:** JS or TypeScript (TypeScript matches Consulting and makes porting the onboarding easier)
-- [ ] Scaffold Next.js (App Router, same major version as Consulting: 15.x, React 19)
-- [ ] Move static files to `public/` (favicon, apple-touch-icon, og-image) and keep `/assets/...` paths working
-- [ ] Fonts: load through `next/font/local` (or keep `@font-face` in global CSS). Keep the WindSong and Cormorant subsets as they are.
-- [ ] Root layout: shared `<head>` metadata, fonts, global CSS (motion.css plus shared tokens pulled out of the inline styles)
-- [ ] Split `index.html` into section components (Hero, System, Coordinator, Skills, Results, FAQ, Book, Nav, Footer)
-- [ ] Port `motion.js` into a client component or hook (scroll reveals, nav, the hero poster-to-animation swap)
-- [ ] Pages: `/`, `/book` (booking widget through `next/script`), `/terms`, `/privacy`
-- [ ] SEO parity: per-page `metadata` (title, description, canonical, OG, Twitter), JSON-LD via `<script type="application/ld+json">`, `app/sitemap.ts` and `app/robots.ts` replacing the static files
-- [ ] FAQ JSON-LD generated from the same data as the FAQ section (no more editing it twice)
-- [ ] Replace `vercel.json` cleanUrls and cache headers with `next.config` (`headers()`, `trailingSlash: false`)
-- [ ] Images: `next/image` where it helps, keeping the hero poster-first behaviour
-- [ ] Visual check of every page against the live static site (desktop and mobile), plus a Lighthouse check
-- [ ] Vercel: switch the framework preset to Next.js, deploy a preview, then promote
-- [ ] Update `README.md` for the new structure (it still says "Static site, no build step")
+- [x] **Decided (2026-11-24):** plain CSS. The static site's inline styles and CSS carried over as they were; pulling shared tokens out of the inline styles is left for later.
+- [x] **Decided (2026-11-24):** TypeScript
+- [x] Scaffold Next.js (App Router, 15.5, React 19, pnpm)
+- [x] Move static files to `public/` and keep `/assets/...` paths working
+- [x] Fonts: kept `@font-face` in global CSS (`app/globals.css`, signature subsets in `app/home.css`), with the same three preloads
+- [x] Root layout: `<head>` metadata defaults, font preloads, the `hb-js` flag, global CSS
+- [x] Split the pages into components (`components/home/*`, shared `Header`, `Footer`, `FooterSection`), converted from the HTML by a script so nothing was retyped
+- [x] Motion: `motion.js` is kept as the original plain script (`public/assets/motion.js`, deferred from the layout) rather than a React port, so reveals don't wait for React to load. Elements it changes carry `suppressHydrationWarning`. The skills explorer is a React client component.
+- [x] Pages: `/`, `/book` (booking widget through `next/script`), `/terms`, `/privacy`
+- [x] SEO parity: per-page `metadata` (`lib/site.ts`), JSON-LD (`lib/structured-data.ts`), `app/sitemap.ts`, `app/robots.ts`. Checked against the static pages: titles, descriptions, Open Graph, Twitter and JSON-LD identical. The home canonical is written without its final `/` (same URL).
+- [x] FAQ JSON-LD generated from the same data as the FAQ section (`components/home/faq-data.ts`)
+- [x] `next.config.ts`: cache headers as before, `trailingSlash: false`, and 308 redirects from the old `.html` addresses
+- [x] Images: kept as plain `<img>` (no `next/image`). The images are already small WebP files, and the hero swap works on a plain `<img>`.
+- [x] Visual check against the static site, desktop (1440) and phone (390): every page matches pixel for pixel (2026-11-24). Behaviour matches too: reveals, hero swap, skills explorer, FAQ accordion, header and mobile menu. No console errors or hydration warnings.
+  - Found and fixed on the way: two phone rules in `motion.css` matched containers by their style text, which React writes differently; they now use the `hb-wrap` and `hb-pad-founder` classes.
+- [x] Lighthouse (mobile, simulated throttling): home 93–94 (was 97), book 96 (was 99); accessibility, best practices and SEO unchanged. LCP is about 0.5 s later in the simulation because Next.js and React add ~100 KB of JavaScript that shares the slow network with the fonts. Unthrottled, both paint at ~114 ms.
+- [ ] Vercel: `vercel.json` now sets the framework to Next.js. Push the branch for a preview deploy, check it, then merge to `main` to go live
+- [x] Update `README.md` for the new structure
 
 **Done when:** h1aiadvertising.com is served by Next.js and looks and ranks the same as the static site did.
 

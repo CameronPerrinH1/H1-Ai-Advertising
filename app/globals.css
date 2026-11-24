@@ -1,0 +1,11 @@
+/* Shared by every page. Self-hosted Google Fonts (OFL): no third-party connection, and
+   preloaded in the root layout so text renders in its final font. */
+@font-face{font-family:'DM Sans';src:url('/assets/fonts/dm-sans-latin-var.woff2') format('woff2');font-weight:300 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'DM Serif Display';src:url('/assets/fonts/dm-serif-display-italic-latin.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Sweet Sans Pro';src:url('/assets/fonts/SweetSansPro-Light.woff2') format('woff2'),url('/assets/fonts/SweetSansPro-Light.woff') format('woff');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Sweet Sans Pro';src:url('/assets/fonts/SweetSansPro-Medium.woff2') format('woff2'),url('/assets/fonts/SweetSansPro-Medium.woff') format('woff');font-weight:500;font-style:normal;font-display:swap}
+body{margin:0;background:#0d0a17}
+a{color:#856df7}a:hover{color:#b9a9ff}
+
+/* Page wrapper. overflow-x: clip where supported, hidden where not. */
+.hb-page{width:100%;background:#0d0a17;color:#f0eef8;font-family:'DM Sans','DM Sans Fallback',Helvetica,Arial,sans-serif;overflow-x:hidden;overflow-x:clip}

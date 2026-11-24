@@ -1,0 +1,26 @@
+/* Home page only. */
+/* Subset to the only words these faces draw (the signature and the mockup logo). Changing that text needs a new subset. */
+@font-face{font-family:'WindSong';src:url('/assets/fonts/windsong-500-sig.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url('/assets/fonts/cormorant-garamond-600-solenne.woff2') format('woff2');font-weight:600;font-display:swap}
+summary::-webkit-details-marker{display:none}
+@keyframes hb-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.hb-track{animation:hb-marquee 70s linear infinite}
+.hb-marquee:hover .hb-track,.hb-marquee:focus-within .hb-track{animation-play-state:paused}
+@media (prefers-reduced-motion: reduce){.hb-track{animation:none}.hb-marquee{overflow-x:auto !important}}
+
+/* Skills explorer tabs */
+#sk-list [role=tab]{display:flex;align-items:center;gap:16px;width:100%;min-height:56px;box-sizing:border-box;padding:12px 18px;border-radius:16px;cursor:pointer;font:inherit;text-align:left;background:transparent;border:1px solid transparent;color:#423c54;transition:background-color .3s ease,border-color .3s ease,box-shadow .4s cubic-bezier(.16,1,.3,1),color .2s ease}
+#sk-list [role=tab]:hover{background:#f7f6fa;color:#0d0a17}
+#sk-list [role=tab][aria-selected=true]{background:#f3f0fe;border-color:#5330f9;color:#0d0a17;box-shadow:0 10px 30px rgba(83,48,249,0.14)}
+#sk-list [role=tab]:focus-visible{outline:2px solid #5330f9;outline-offset:2px}
+.sk-n{font-family:'Sweet Sans Pro','Montserrat',Helvetica,Arial,sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.16em;color:#645d78;transition:color .3s ease}
+[aria-selected=true] .sk-n{color:#5330f9}
+.sk-t{flex:1;font-family:'DM Sans','DM Sans Fallback',Helvetica,Arial,sans-serif;font-size:17px;font-weight:600;letter-spacing:-0.005em}
+.sk-a{font-size:16px;color:#5330f9;opacity:0;transform:translateX(-8px);transition:opacity .3s ease,transform .4s cubic-bezier(.16,1,.3,1)}
+[role=tab]:hover .sk-a{opacity:.4;transform:none}
+[aria-selected=true] .sk-a{opacity:1;transform:none}
+/* Chat bubbles play in when the panel is revealed and on every skill change. */
+@media (prefers-reduced-motion: no-preference){
+.hb-js .is-in #sk-msgs>*,.hb-js .is-in #sk-chips{animation:hb-msg .55s cubic-bezier(.16,1,.3,1) both}
+.hb-swap{animation:hb-swap .5s cubic-bezier(.16,1,.3,1) both}
+}
