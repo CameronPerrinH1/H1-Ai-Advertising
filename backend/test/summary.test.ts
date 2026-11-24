@@ -1,3 +1,6 @@
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { genericTextOk } from '../src/summary/validate.ts';
 import { countText, insightsCard, weeklyReport } from '../src/summary/insights.ts';
@@ -20,6 +23,7 @@ function summary(over: Partial<Summary>): Summary {
     topics: [],
     service_categories_discussed: [],
     outcome: 'answered',
+    urgent_kinds: [],
     abandon_point: null,
     unanswered_questions: [],
     requested_services_not_offered: [],
@@ -145,5 +149,20 @@ describe('end-of-chat scoring and review flags (D69)', () => {
     expect(reviewFlags({ ...base, feedback_down: 1, output_check_fallbacks: 1 })).toEqual(['thumbs_down', 'fallback']);
     expect(reviewFlags({ ...base, outcome: 'urgent_redirect', unanswered_questions: ['Do you take Klarna?'] })).toEqual(['unanswered', 'urgent']);
     expect(reviewFlags({ ...base, outcome: 'handoff' })).toEqual(['handoff']);
+    expect(reviewFlags({ ...base, outcome: 'urgent_redirect', urgent_kinds: ['crisis'] })).toEqual(['urgent', 'crisis']);
+    expect(reviewFlags({ ...base, outcome: 'urgent_redirect', urgent_kinds: ['post_treatment'] })).toEqual(['urgent']);
+  });
+
+  it('keeps a yearly count of help messages that summaries never take with them (HB26-1263)', async () => {
+    const file = join(mkdtempSync(join(tmpdir(), 'tally-')), 'tally.json');
+    const repo = new FileSummaryRepo(undefined, file);
+    await repo.countUrgent('2026', ['crisis']);
+    await repo.countUrgent('2026', ['post_treatment', 'crisis']);
+    await repo.countUrgent('2026', []);
+    await repo.countUrgent('2027', ['emergency']);
+    const reread = new FileSummaryRepo(undefined, file); // reads the counts back from disk
+    expect(await reread.urgentTally('2026')).toEqual({ post_treatment: 1, emergency: 0, crisis: 2 });
+    expect(await reread.urgentTally('2027')).toEqual({ post_treatment: 0, emergency: 1, crisis: 0 });
+    expect(await reread.urgentTally('2025')).toEqual({ post_treatment: 0, emergency: 0, crisis: 0 });
   });
 });

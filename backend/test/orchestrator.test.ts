@@ -3,11 +3,13 @@ import type { Message } from '@aws-sdk/client-bedrock-runtime';
 import type { Card } from '@concierge/shared';
 import { dropButtonChips, normalizeHistory, Orchestrator } from '../src/orchestrator.ts';
 import { MemoryOutbox } from '../src/handoff/email.ts';
+import type { ModelClient } from '../src/model/bedrock.ts';
+import { urgentKinds } from '../src/summary/summarizer.ts';
 import { catalog, newSession, scriptedModel, text, toolUse } from './helpers.ts';
 
 const NOW = () => new Date('2026-10-23T22:00:00Z');
 
-function orchestrator(model: ReturnType<typeof scriptedModel>, outbox = new MemoryOutbox()) {
+function orchestrator(model: ModelClient, outbox = new MemoryOutbox()) {
   return new Orchestrator({ catalog, model, outbox, phoneKey: 'test', now: NOW });
 }
 
@@ -44,6 +46,22 @@ describe('conversation loop', () => {
     const { reply } = await orchestrator(model).handleMessage(newSession(), { id: 'm1-xxxxxxxx', text: "I don't want to live anymore", lang: 'en' });
     const urgent = reply.cards.find((c) => c.type === 'urgent');
     expect(urgent?.type === 'urgent' && urgent.kind).toBe('crisis');
+  });
+
+  it('records a crisis referral apart from other urgent help (HB26-1263)', async () => {
+    const model = scriptedModel([{ content: [text("I'm sorry you're going through this.")] }]);
+    const session = newSession();
+    await orchestrator(model).handleMessage(session, { id: 'm1-xxxxxxxx', text: "I don't want to live anymore", lang: 'en' });
+    expect(session.outcomes.has('urgent_redirect')).toBe(true);
+    expect(urgentKinds(session)).toEqual(['crisis']);
+  });
+
+  it('records a crisis referral even when the model call fails', async () => {
+    const model = { async converse() { throw Object.assign(new Error('down'), { name: 'ServiceUnavailable' }); } };
+    const session = newSession();
+    const { reply } = await orchestrator(model).handleMessage(session, { id: 'm1-xxxxxxxx', text: "I don't want to live anymore", lang: 'en' });
+    expect(reply.cards.some((c) => c.type === 'urgent' && c.kind === 'crisis')).toBe(true);
+    expect(urgentKinds(session)).toEqual(['crisis']);
   });
 
   it('handles an empty final message after a tool call and keeps the next turn valid', async () => {

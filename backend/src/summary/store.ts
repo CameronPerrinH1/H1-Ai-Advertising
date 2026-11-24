@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import type { Summary } from './types.ts';
+import type { Summary, UrgentKind, UrgentTally } from './types.ts';
 import { reviewFlags } from './summarizer.ts';
 
 export interface StoredSummary {
@@ -19,6 +19,11 @@ export interface SummaryRepo {
   inMonth(month: string): Promise<Summary[]>;
   unreported(): Promise<StoredSummary[]>;
   markReported(items: StoredSummary[]): Promise<void>;
+  // Yearly counts of help messages shown (D14), kept for as long as the records table exists. They
+  // hold numbers only, never chat content, so they outlive summaries for the yearly report due
+  // each July 1 under Colorado HB26-1263. A session that showed several kinds counts once for each.
+  countUrgent(year: string, kinds: UrgentKind[]): Promise<void>;
+  urgentTally(year: string): Promise<UrgentTally>;
   // Demo client only: start with synthetic summaries so the report has something to show.
   seedDemo(seedFile: string, clientId: string, month: string): Promise<number>;
 }
@@ -33,15 +38,35 @@ export function readSeeds(seedFile: string, clientId: string, month: string): Su
   });
 }
 
+export const emptyTally = (): UrgentTally => ({ post_treatment: 0, emergency: 0, crisis: 0 });
+
 export class FileSummaryRepo implements SummaryRepo {
   private items: StoredSummary[] = [];
+  private tallies: Record<string, UrgentTally> = {};
 
-  constructor(private readonly file?: string) {
+  constructor(
+    private readonly file?: string,
+    private readonly tallyFile?: string,
+  ) {
     if (file && existsSync(file)) this.items = JSON.parse(readFileSync(file, 'utf8')) as StoredSummary[];
+    if (tallyFile && existsSync(tallyFile)) this.tallies = JSON.parse(readFileSync(tallyFile, 'utf8')) as Record<string, UrgentTally>;
   }
 
   static forClient(clientId: string): FileSummaryRepo {
-    return new FileSummaryRepo(join(LOCAL_DATA_DIR, `summaries-${clientId}.json`));
+    return new FileSummaryRepo(join(LOCAL_DATA_DIR, `summaries-${clientId}.json`), join(LOCAL_DATA_DIR, `urgent-tally-${clientId}.json`));
+  }
+
+  async countUrgent(year: string, kinds: UrgentKind[]) {
+    if (!kinds.length) return;
+    const t = (this.tallies[year] ??= emptyTally());
+    for (const k of kinds) t[k] += 1;
+    if (!this.tallyFile) return;
+    mkdirSync(dirname(this.tallyFile), { recursive: true });
+    writeFileSync(this.tallyFile, JSON.stringify(this.tallies, null, 1), { mode: 0o600 });
+  }
+
+  async urgentTally(year: string) {
+    return { ...emptyTally(), ...this.tallies[year] };
   }
 
   async add(summary: Summary, reportedWeekly = false) {
@@ -92,6 +117,7 @@ function withDefaults(s: Partial<Summary>, clientId: string, month: string): Sum
     topics: [],
     service_categories_discussed: [],
     outcome: 'answered',
+    urgent_kinds: [],
     abandon_point: null,
     unanswered_questions: [],
     requested_services_not_offered: [],

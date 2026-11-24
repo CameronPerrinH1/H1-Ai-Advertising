@@ -1,11 +1,14 @@
 // Summaries in the DynamoDB records table (D32). Items are grouped by month (pk "SUMMARY#2026-10",
 // sk the conversation ID) and expire through TTL after the client's summaries_months.
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { BatchWriteCommand, DynamoDBDocumentClient, PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { readSeeds, type StoredSummary, type SummaryRepo } from './store.ts';
-import type { Summary } from './types.ts';
+import { BatchWriteCommand, DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { emptyTally, readSeeds, type StoredSummary, type SummaryRepo } from './store.ts';
+import { URGENT_KINDS, type Summary, type UrgentKind } from './types.ts';
 
 const pk = (month: string) => `SUMMARY#${month}`;
+// One counter item per calendar year (pk "TALLY#2026", sk "urgent"). No expiresAt, so TTL never
+// removes it; it holds counts only.
+const tallyKey = (year: string) => ({ pk: `TALLY#${year}`, sk: 'urgent' });
 
 function previousMonth(month: string): string {
   const [y, m] = month.split('-').map(Number) as [number, number];
@@ -78,6 +81,26 @@ export class DynamoSummaryRepo implements SummaryRepo {
         }),
       );
     }
+  }
+
+  async countUrgent(year: string, kinds: UrgentKind[]) {
+    if (!kinds.length) return;
+    await this.db.send(
+      new UpdateCommand({
+        TableName: this.table,
+        Key: tallyKey(year),
+        UpdateExpression: `ADD ${kinds.map((_, i) => `#k${i} :one${i}`).join(', ')}`,
+        ExpressionAttributeNames: Object.fromEntries(kinds.map((k, i) => [`#k${i}`, k])),
+        ExpressionAttributeValues: Object.fromEntries(kinds.map((_, i) => [`:one${i}`, 1])),
+      }),
+    );
+  }
+
+  async urgentTally(year: string) {
+    const r = await this.db.send(new GetCommand({ TableName: this.table, Key: tallyKey(year) }));
+    const t = emptyTally();
+    for (const k of URGENT_KINDS) if (typeof r.Item?.[k] === 'number') t[k] = r.Item[k] as number;
+    return t;
   }
 
   async seedDemo(seedFile: string, clientId: string, month: string) {

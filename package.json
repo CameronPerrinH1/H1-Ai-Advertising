@@ -13,6 +13,7 @@
     "eval": "pnpm --filter @concierge/evals start",
     "eval:sales": "pnpm --filter @concierge/evals sales",
     "report:weekly": "pnpm --filter @concierge/backend report:weekly",
+    "report:urgent": "pnpm --filter @concierge/backend report:urgent",
     "check": "pnpm typecheck && pnpm test && pnpm --filter @concierge/backend check:logging && pnpm --filter @concierge/backend check:configs && pnpm --filter @concierge/widget build",
     "kill-switch": "pnpm --filter @concierge/backend kill-switch",
     "review": "pnpm --filter @concierge/backend review",

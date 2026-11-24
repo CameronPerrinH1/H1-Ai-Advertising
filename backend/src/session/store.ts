@@ -72,7 +72,7 @@ export interface Session {
   phoneHashes: Set<string>; // lets a deletion request find this session (7.2)
   seenMessageIds: Set<string>;
   promotionsMentioned: Set<string>;
-  outcomes: Set<string>; // link_provided, handoff, request, urgent_redirect
+  outcomes: Set<string>; // link_provided, handoff, request, urgent_redirect, urgent:<kind>
   busy: boolean;
 }
 

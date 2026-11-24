@@ -1,9 +1,9 @@
 // Ends idle sessions and writes the summary for every ended one (build plan 7.3, D32). Locally the
 // server runs this every minute; deployed, a scheduled Lambda runs it every five minutes.
-import type { Catalog } from '../catalog.ts';
+import { type Catalog, localClock } from '../catalog.ts';
 import type { ModelClient } from '../model/bedrock.ts';
 import type { SummaryRepo } from '../summary/store.ts';
-import { summarize } from '../summary/summarizer.ts';
+import { summarize, urgentKinds } from '../summary/summarizer.ts';
 import { log } from '../log.ts';
 import type { ReviewMarks, SessionRepo } from './store.ts';
 
@@ -24,6 +24,16 @@ export async function sweep(deps: { sessions: SessionRepo; summaries: SummaryRep
     } catch (err) {
       // Logged and moved on: one bad session mustn't block every summary behind it.
       log('summary_failed', { session: s.hash.slice(0, 8), error: (err as Error)?.name ?? 'Error' });
+    }
+    // Counted apart from the summary so a failed summary never drops a crisis referral (HB26-1263).
+    const kinds = s.audience === 'guest' ? urgentKinds(s) : [];
+    if (kinds.length) {
+      try {
+        const tz = deps.catalog.config.business.locations[0]!.timezone;
+        await deps.summaries.countUrgent(localClock(tz, new Date(s.createdAt)).date.slice(0, 4), kinds);
+      } catch (err) {
+        log('urgent_tally_failed', { session: s.hash.slice(0, 8), error: (err as Error)?.name ?? 'Error' });
+      }
     }
     await deps.sessions.markSummarized(s, review);
     done += 1;

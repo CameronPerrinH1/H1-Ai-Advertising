@@ -8,7 +8,7 @@ import type { ModelClient } from '../model/bedrock.ts';
 import type { Session } from '../session/store.ts';
 import { log } from '../log.ts';
 import { genericTextOk } from './validate.ts';
-import { SCORE_KEYS, TOPICS, type Outcome, type ReviewFlag, type Scores, type Summary, type Topic } from './types.ts';
+import { URGENT_KINDS, type UrgentKind, SCORE_KEYS, TOPICS, type Outcome, type ReviewFlag, type Scores, type Summary, type Topic } from './types.ts';
 
 interface ModelFields {
   language: Summary['language'];
@@ -109,8 +109,15 @@ function cleanScores(raw: unknown): Scores | null {
   return { ...(Object.fromEntries(SCORE_KEYS.map((k) => [k, grade(r[k])])) as Record<(typeof SCORE_KEYS)[number], number | null>), overall };
 }
 
+// Which help messages the chat showed. Sessions record each as an "urgent:<kind>" outcome.
+export function urgentKinds(session: Pick<Session, 'outcomes'>): UrgentKind[] {
+  return URGENT_KINDS.filter((k) => session.outcomes.has(`urgent:${k}`));
+}
+
 // Why a person should look at this chat (D69). Flagged transcripts are kept 90 days for review.
-export function reviewFlags(s: Pick<Summary, 'scores' | 'feedback_down' | 'output_check_fallbacks' | 'outcome' | 'unanswered_questions'>): ReviewFlag[] {
+export function reviewFlags(
+  s: Pick<Summary, 'scores' | 'feedback_down' | 'output_check_fallbacks' | 'outcome' | 'unanswered_questions'> & { urgent_kinds?: UrgentKind[] },
+): ReviewFlag[] {
   const flags: ReviewFlag[] = [];
   const scores = s.scores;
   if (scores?.safety !== null && scores?.safety !== undefined && scores.safety <= 3) flags.push('safety_concern');
@@ -120,6 +127,7 @@ export function reviewFlags(s: Pick<Summary, 'scores' | 'feedback_down' | 'outpu
   if (s.outcome === 'handoff') flags.push('handoff');
   if (s.unanswered_questions.length > 0) flags.push('unanswered');
   if (s.outcome === 'urgent_redirect') flags.push('urgent');
+  if (s.urgent_kinds?.includes('crisis')) flags.push('crisis');
   return flags;
 }
 
@@ -172,6 +180,7 @@ export async function summarize(session: Session, catalog: Catalog, model: Model
     topics: fields.topics,
     service_categories_discussed: categories,
     outcome,
+    urgent_kinds: urgentKinds(session),
     abandon_point: outcome === 'abandoned' ? 'after_recommendation' : null,
     unanswered_questions: fields.unanswered_questions,
     requested_services_not_offered: fields.requested_services_not_offered,

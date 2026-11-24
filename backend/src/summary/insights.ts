@@ -67,6 +67,7 @@ const FLAG_LABELS: Record<Lang, Record<ReviewFlag, string>> = {
     handoff: 'Handed to staff',
     unanswered: 'Unanswered question',
     urgent: 'Urgent concern',
+    crisis: 'Crisis referral (988)',
   },
   es: {
     safety_concern: 'Problema de seguridad',
@@ -76,6 +77,7 @@ const FLAG_LABELS: Record<Lang, Record<ReviewFlag, string>> = {
     handoff: 'Pasó al personal',
     unanswered: 'Pregunta sin respuesta',
     urgent: 'Inquietud urgente',
+    crisis: 'Derivación por crisis (988)',
   },
 };
 

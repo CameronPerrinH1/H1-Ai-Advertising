@@ -414,6 +414,7 @@ export class Orchestrator {
       if (net && !final.urgent) {
         reply.cards.unshift(urgentCard(net, this.catalog, lang));
         session.outcomes.add('urgent_redirect');
+        session.outcomes.add(`urgent:${net}`);
         log('safety_net', { session: session.hash.slice(0, 8), kind: net });
       }
     } catch (err) {
@@ -423,7 +424,11 @@ export class Orchestrator {
       if (process.env.CONCIERGE_DEBUG === '1') console.error('[debug]', (err as Error)?.message); // log-guard: allow (local debug only; the Lambda handler never sets CONCIERGE_DEBUG)
       reply = this.fallback(lang);
       const net = detectSafetyNet(clean, this.catalog.bundle.urgent.emergency_symptoms);
-      if (net) reply.cards.unshift(urgentCard(net, this.catalog, lang));
+      if (net) {
+        reply.cards.unshift(urgentCard(net, this.catalog, lang));
+        session.outcomes.add('urgent_redirect');
+        session.outcomes.add(`urgent:${net}`);
+      }
       stored = [...turnMessages, { role: 'assistant', content: [{ text: reply.text }] }];
     }
 

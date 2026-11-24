@@ -11,6 +11,7 @@
     "test": "vitest run",
     "typecheck": "tsc -p .",
     "report:weekly": "tsx src/report-weekly.ts",
+    "report:urgent": "tsx src/report-urgent.ts",
     "check:logging": "tsx scripts/check-logging.ts",
     "check:configs": "tsx scripts/validate-configs.ts",
     "kill-switch": "tsx scripts/kill-switch.ts",

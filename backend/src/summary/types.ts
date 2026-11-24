@@ -25,6 +25,12 @@ export type Topic = (typeof TOPICS)[number];
 
 export type Outcome = 'booked' | 'request' | 'link_provided' | 'handoff' | 'urgent_redirect' | 'answered' | 'abandoned';
 
+// Which approved help message a chat showed (D14). Crisis referrals (988) are counted separately for
+// Colorado HB26-1263's yearly report to the Attorney General.
+export const URGENT_KINDS = ['post_treatment', 'emergency', 'crisis'] as const;
+export type UrgentKind = (typeof URGENT_KINDS)[number];
+export type UrgentTally = Record<UrgentKind, number>;
+
 export interface Summary {
   conversation_id: string;
   client_id: string;
@@ -38,6 +44,7 @@ export interface Summary {
   topics: Topic[];
   service_categories_discussed: string[];
   outcome: Outcome;
+  urgent_kinds: UrgentKind[]; // every help message shown, in URGENT_KINDS order; empty if none
   abandon_point: 'after_recommendation' | 'after_availability_shown' | 'during_contact_details' | 'after_booking_error' | null;
   unanswered_questions: string[];
   requested_services_not_offered: string[];
@@ -63,5 +70,5 @@ export const SCORE_KEYS = ['answered', 'next_step', 'objections', 'tone', 'safet
 export type ScoreKey = (typeof SCORE_KEYS)[number];
 export type Scores = Record<ScoreKey, number | null> & { overall: number };
 
-export const REVIEW_FLAGS = ['safety_concern', 'low_score', 'thumbs_down', 'fallback', 'handoff', 'unanswered', 'urgent'] as const;
+export const REVIEW_FLAGS = ['safety_concern', 'low_score', 'thumbs_down', 'fallback', 'handoff', 'unanswered', 'urgent', 'crisis'] as const;
 export type ReviewFlag = (typeof REVIEW_FLAGS)[number];

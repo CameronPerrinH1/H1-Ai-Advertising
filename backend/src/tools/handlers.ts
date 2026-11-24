@@ -429,6 +429,7 @@ const handlers: Record<string, Handler> = {
     const p = parse(schemas.show_urgent_help, input);
     if (!p.ok) return fail(p.error);
     ctx.session.outcomes.add('urgent_redirect');
+    ctx.session.outcomes.add(`urgent:${p.data.kind}`);
     return {
       result: { shown: true, note: "The approved message and phone numbers are shown. Don't repeat the numbers; add one short, kind sentence." },
       cards: [urgentCard(p.data.kind, ctx.catalog, ctx.lang)],
