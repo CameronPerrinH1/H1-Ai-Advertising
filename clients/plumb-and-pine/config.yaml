@@ -220,9 +220,9 @@ concierge:
   disclosure_label:
     en: AI Treatment Coordinator
   chat_notice:
-    version: 2026-11-19.1
-    en: You're chatting with Plumb + Pine's AI assistant. This chat is recorded to
-      help us respond.
+    version: 2026-11-24.1
+    en: You're chatting with Plumb + Pine's AI assistant. It cannot give medical
+      advice. This chat is recorded to help us respond.
 
 branding:
   # From plumbandpine.com (Nov 10): midnight blue (#032E5B, logo and banner) for the bar and text,

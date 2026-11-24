@@ -8,6 +8,7 @@ import type { Lang, PageCopy, PublicConfig } from '@concierge/shared';
 import type { UiStrings } from '../i18n';
 import { ArrowUpIcon, ChevronDownIcon, CloseIcon, EndIcon, ExpandIcon } from '../icons';
 import { Face } from './Face';
+import { NoticeLinks } from './Chrome';
 import { useOneRow } from '../oneRow';
 
 interface BarProps {
@@ -149,10 +150,7 @@ export function Intro({ config, s, lang, copy, suggestions, starting, onStart, o
           </button>
           <p class="askbar-greeting">{copy?.greeting?.[lang] ?? s.askbarHello(config.concierge.name)}</p>
           <p class="askbar-fine">
-            {config.notice.text[lang]}{' '}
-            <a href={config.notice.privacyUrl} target="_blank" rel="noopener noreferrer">
-              {s.privacy}
-            </a>
+            {config.notice.text[lang]} <NoticeLinks config={config} s={s} />
           </p>
         </div>
       </div>

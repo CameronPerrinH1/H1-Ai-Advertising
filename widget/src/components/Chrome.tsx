@@ -66,13 +66,28 @@ export function Header({ config, s, lang, setLang, active, mode, onEnd, onExpand
   );
 }
 
-export function NoticeLine({ config, s, lang }: { config: PublicConfig; s: UiStrings; lang: Lang }) {
+// The links after the chat notice: "Talk to a Human" calls the business, then the privacy policy.
+export function NoticeLinks({ config, s }: { config: PublicConfig; s: UiStrings }) {
+  const tel = config.phone.replace(/[^\d+]/g, '');
   return (
-    <p class="notice-line">
-      {config.notice.text[lang]}{' '}
+    <>
+      {tel && (
+        <>
+          <a href={`tel:${tel}`}>{s.talkToHuman}</a>
+          {' · '}
+        </>
+      )}
       <a href={config.notice.privacyUrl} target="_blank" rel="noopener noreferrer">
         {s.privacy}
       </a>
+    </>
+  );
+}
+
+export function NoticeLine({ config, s, lang }: { config: PublicConfig; s: UiStrings; lang: Lang }) {
+  return (
+    <p class="notice-line">
+      {config.notice.text[lang]} <NoticeLinks config={config} s={s} />
     </p>
   );
 }
@@ -105,10 +120,7 @@ export function Welcome({ config, s, lang, suggestions, starting, onStart }: Wel
       )}
       <div class="notice-box">
         <p>
-          {config.notice.text[lang]}{' '}
-          <a href={config.notice.privacyUrl} target="_blank" rel="noopener noreferrer">
-            {s.privacy}
-          </a>
+          {config.notice.text[lang]} <NoticeLinks config={config} s={s} />
         </p>
       </div>
       {config.promotions.length > 0 && (
