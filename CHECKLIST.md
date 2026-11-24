@@ -30,13 +30,10 @@ The Jotform intake form and the chat's hosting don't change in this plan.
 ## Milestone 0: Setup
 - [x] Clone `CameronPerrinH1/H1-Ai-Advertising` into this folder
 - [x] Write this plan and commit it (2026-11-24)
-- [ ] Create a working branch (for example `nextjs-migration`) so `main` keeps deploying the static site
-- [ ] **Decide:** keep this as a standalone repo, or move it into the Consulting monorepo as `apps/site-advertising`.
-  - Standalone is simpler and deploys on its own. The trade-off is copying the onboarding and DB code rather than sharing `@h1/core`.
-  - Monorepo shares code (`@h1/core`, the intake store, the export that `concierge/` imports), but couples the two sites' deploys and dependencies.
-  - Milestone 3 makes this matter most: the form's export and the chat's import are kept in step by tests on both sides, which is easy in one repo and needs care across two.
-- [ ] **Decide:** which package manager (pnpm matches Consulting)
-- [ ] Get the dashboard design into a readable form. The claude.ai artifact link only renders in a browser, so it can't be read from here. Export it as HTML/JSX or screenshots into `design/dashboard/`.
+- [x] Create a working branch (`nextjs-migration`) so `main` keeps deploying the static site
+- [x] **Decided (2026-11-24): standalone repo.** The protocol form, its intake store and schema, the CLI and `export-playbook` all move here for good. Consulting keeps none of the form code, so nothing is shared or kept in sync. The one seam left is the playbook JSON: `export-playbook` (here) writes it and `pnpm import-playbook` in `concierge/` (which stays in Consulting) reads it. That file format is the contract between the two repos.
+- [x] **Decided: pnpm**, matching Consulting
+- [ ] Export the dashboard design as HTML/JSX or screenshots into `design/dashboard/` (the user is exporting it)
 
 **Done when:** the decisions above are made and the design is in the repo.
 
@@ -96,7 +93,7 @@ Source in `../H1 AI Consulting`:
 - [ ] **Decide:** same intake DB as Consulting, or a separate one (same DB keeps existing spas' answers and approvals; recommended)
 - [ ] **Decide:** keep AWS Bedrock (Claude Haiku) for the AI helpers and Amazon SES for the sign-off email, or switch providers
 - [ ] **Decide:** form access. Keep magic links (CLI-issued) or tie it to the dashboard login from Milestone 2.
-- [ ] **Decide:** where `export-playbook`, the gap detector and the Lumen fixture live afterwards, so `concierge/` (which stays in Consulting) can still import a playbook and its tests still pass
+- [x] **Decided (2026-11-24):** `export-playbook`, the gap detector and the Lumen fixture move here with the form. Before deleting them from Consulting, check which `concierge/` tests use the Lumen fixture and give `concierge/` its own copy of the playbook test data, so its tests don't depend on this repo
 - [ ] Copy the `onboarding/` components, CSS and design tokens into this app, adjusted to the Advertising look
 - [ ] Port the intake store and schema (or depend on `@h1/core` if monorepo) and the `next.config` settings it needs (`serverExternalPackages` for ws, @neondatabase/serverless, pglite)
 - [ ] Port the API routes (state, sections autosave with versioning, sign, link, ai/*)
@@ -123,7 +120,7 @@ Only after Milestone 3 is verified. Do it on a branch in the Consulting repo, th
 - [ ] Delete `apps/site-h1/src/onboarding/`, `apps/site-h1/src/app/onboarding/` and `apps/site-h1/src/app/api/onboarding/`, apart from anything the Milestone 3 decision kept in Consulting (export, gap detector, fixture)
 - [ ] Remove the intake code from `packages/core` and `scripts/intake.ts` if nothing else in Consulting uses them
 - [ ] Remove the now-unused env vars from the Consulting Vercel project, and the onboarding settings in its `next.config`
-- [ ] Update the Consulting docs that point at the form (`concierge/README.md` intake steps, `docs/`), and `../H1 AI Chat Bot/ai-concierge-handoff/09-intake-wizard.md` if it is still used
+- [ ] Update the Consulting docs that point at the form (`concierge/README.md` intake steps, `docs/`), and `../docs/ai-concierge-handoff/09-intake-wizard.md` if it is still used
 - [ ] Consulting CI passes (build, tests, and the `concierge/` playbook tests)
 - [ ] Keep the intake DB. The data stays; only the code moves.
 
