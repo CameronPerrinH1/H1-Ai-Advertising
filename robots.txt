@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://h1aiadvertising.com/sitemap.xml

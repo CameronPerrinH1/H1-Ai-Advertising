@@ -1,0 +1,8 @@
+/* Book page only. */
+/* Reserve the calendar's settled height on the card itself (measured: ~828px phone, ~929px desktop, plus 26px card padding and border).
+   The widget script lays its iframe out of flow at first, so a min-height on the iframe alone doesn't hold the space. */
+.hb-cal-card{min-height:856px}
+@media (min-width:600px){.hb-cal-card{min-height:956px}}
+.hb-textlink{color:#5330f9;font-weight:600;text-decoration:none;align-self:flex-start;background:linear-gradient(#5330f9,#5330f9) 0 100%/0 1px no-repeat;transition:background-size .35s cubic-bezier(.16,1,.3,1),color .2s}
+.hb-textlink:hover{color:#0d0a17;background-size:100% 1px}
+.hb-textlink:focus-visible{outline:2px solid #5330f9;outline-offset:2px}

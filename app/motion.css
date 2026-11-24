@@ -179,10 +179,11 @@ footer a:hover{color:#ffffff !important}
 }
 
 /* Phones: 20px side gutters. Layout padding is inline in the pages, so these
-   overrides match the page containers by their max-width and need !important. */
+   overrides need !important. .hb-wrap marks the page containers (max-width 1320px or
+   1180px); they used to be matched by their style text, which React writes differently. */
 @media (max-width:599px){
-  [style*="max-width: 1320px"],[style*="max-width: 1180px"]{padding-left:20px !important;padding-right:20px !important}
-  [style*="padding: 88px 64px 88px 40px"]{padding:56px 20px !important}
+  .hb-wrap{padding-left:20px !important;padding-right:20px !important}
+  .hb-pad-founder{padding:56px 20px !important}
   .hb-band{padding:36px 24px !important}
   [role=tabpanel]{padding:28px 20px !important}
   .hb-spot{padding:28px 24px !important}
