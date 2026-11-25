@@ -22,7 +22,7 @@ First written 2026-11-20; restructured into milestones 2026-11-24; portals and c
 
 How they connect today:
 - Jotform intake → H1 copies the business facts into the chat's client config (`concierge/clients/<id>/config.yaml`). The gap detector (`apps/site-h1/src/onboarding/gaps.ts`) lists what is missing from a spa's Design form and Jotform export.
-- Protocol form → the answers are stored in the Neon **intake DB** → `pnpm --filter site-h1 export-playbook <spa id> <file>.json` → `pnpm import-playbook` in `concierge/` writes them into the client config.
+- Protocol form (moved here 2026-11-25, Milestone 4) → the answers are stored in the Neon **intake DB** → `pnpm export-playbook <spa id> <file>.json` (this repo) → `pnpm import-playbook` in `concierge/` writes them into the client config.
 - The chat keeps conversations, leads, bookings and monthly summaries in **AWS DynamoDB**, not Neon.
 - The chat reads its client info from YAML files bundled into each deploy, loaded once at startup (`concierge/backend/src/config/load.ts`, `runtime.ts:52`). Milestone 6 changes this to read from Neon.
 
@@ -122,24 +122,25 @@ Source in `../H1 AI Consulting`:
 - `packages/core/src/intake/` (schema, store, connect) and the intake CLI (`scripts/intake.ts`: create-spa, new-link, revoke)
 - The `export-playbook` script that `concierge/` imports from (`concierge/README.md`, "Export the approved answers")
 
-- [ ] **Decide:** same intake DB as Consulting, or a separate one (same DB keeps existing spas' answers and approvals; recommended)
-- [ ] **Decide:** keep AWS Bedrock (Claude Haiku) for the AI helpers and Amazon SES for the sign-off email, or switch providers
-- [ ] **Decide:** form access. Keep magic links (CLI-issued) or tie it to the dashboard login from Milestone 3.
+- [x] **Decided (2026-11-25):** same intake DB as Consulting (the h1-intake Neon project), so existing spas keep their answers and approvals
+- [x] **Decided (2026-11-25):** keep AWS Bedrock (Claude Haiku) for the AI helpers and Amazon SES for the sign-off email (sender stays `onboarding@h1aiconsulting.com`, the SES-verified domain)
+- [x] **Decided (2026-11-25):** keep the private links (magic links, CLI-issued) for now. Tying the form to the portal login comes with Milestone 3 or later; the form becomes a section of the client portal (`docs/portals-and-chat-data.md`).
 - [x] **Decided (2026-11-24):** `export-playbook`, the gap detector and the Lumen fixture move here with the form. The chat is here by then (Milestone 2), so its playbook tests use the same fixture
-- [ ] Copy the `onboarding/` components, CSS and design tokens into this app, adjusted to the Advertising look
-- [ ] Port the intake store and schema (or depend on `@h1/core` if monorepo) and the `next.config` settings it needs (`serverExternalPackages` for ws, @neondatabase/serverless, pglite)
-- [ ] Port the API routes (state, sections autosave with versioning, sign, link, ai/*)
-- [ ] Port the intake CLI (create-spa, new-link, revoke) or replace it with a dashboard action
-- [ ] Port the tests (`answers.test.ts`, `export.test.ts`, `gaps.test.ts`)
+- [x] Copy the `onboarding/` components, CSS and design tokens into this app (2026-11-25, from Consulting `main` at `cf66458`; files copied, not history). Kept the look it had on Consulting, not restyled: `onboarding/ob-base.css` carries Consulting's tokens and base styles scoped to `.ob-root`, and `app/onboarding/layout.tsx` loads its two fonts for that segment only. Screenshots at 1440 and 390 match Consulting's.
+- [ ] Later: restyle to the Advertising look, and replace the H1 AI Consulting branding (page title, logo alt, `hello@h1aiconsulting.com` in the lost-link note) if wanted
+- [x] Port the intake store and schema (`lib/intake/`, migrations in `lib/intake/migrations/`, `drizzle.intake.config.ts`) and the `next.config` settings it needs (`serverExternalPackages` for ws, @neondatabase/serverless, pglite; `.js` → `.ts` extension alias). Dependencies at Consulting's exact versions.
+- [x] Port the API routes (state, sections autosave with versioning, sign, link, ai/*, dev). Their addresses lost the trailing `/` (this site has `trailingSlash: false`).
+- [x] Port the intake CLI: `pnpm intake migrate | create-spa | new-link | revoke`. Links now point at `https://www.h1aiadvertising.com` (`SITE_URL`). Also `pnpm export-playbook` and `pnpm gaps`.
+- [x] Port the tests (`answers.test.ts`, `export.test.ts`, `gaps.test.ts`, plus `lib/intake/intake.test.ts` for row-level security): `pnpm test`, 47 pass. CI: `.github/workflows/site.yml` (types, tests, build).
 - [ ] Link the form to the dashboard (for example the client sees form status and approvals)
-- [ ] Vercel env vars: `INTAKE_DATABASE_URL`, `INTAKE_DATABASE_URL_UNPOOLED`, `INTAKE_AI`, `INTAKE_AI_MODEL`, `INTAKE_AWS_REGION`, AWS keys
+- [ ] Vercel env vars (Production only; names and notes in `.env.example`): `INTAKE_DATABASE_URL`, `INTAKE_DATABASE_URL_UNPOOLED`, `INTAKE_AI`, `INTAKE_AI_MODEL`, `INTAKE_AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. Copy the values from the Consulting Vercel project. Previews get none, so a preview runs the form as an in-browser demo.
 - [ ] Verify end to end on the Advertising site:
-  - [ ] new link opens the form
-  - [ ] autosave, and a conflict from two tabs returns 409
+  - [ ] new link opens the form (passed locally on PGlite 2026-11-25; recheck on production)
+  - [ ] autosave, and a conflict from two tabs returns 409 (passed locally 2026-11-25, plus a request from another origin gets 403; recheck on production)
   - [ ] AI helpers answer
   - [ ] sign-off sends the email
   - [ ] answers and approvals show in the intake DB
-  - [ ] `export-playbook` on a spa filled in here, then `pnpm import-playbook` in `concierge/`, produces a working client config (try it with `CLIENT_ID=<id> pnpm dev`)
+  - [ ] `export-playbook` on a spa filled in here, then `pnpm import-playbook` in `concierge/`, produces a working client config (try it with `CLIENT_ID=<id> pnpm dev`). The demo export (`pnpm export-playbook --demo`) already matches the chat's committed Lumen playbook exactly.
   - [ ] a spa that started the form on Consulting can finish it here without losing answers
 
 **Done when:** every box under "Verify end to end" is ticked, and the next new spa is sent to the Advertising site.

@@ -1,0 +1,31 @@
+# The site's checks, on every push to main and every pull request: types, the protocol form's
+# tests (onboarding/, lib/intake/ — including the database's row-level security, run against an
+# in-process Postgres), and a production build. The chat has its own workflow (concierge.yml).
+name: Site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    name: Site checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Types
+        run: pnpm typecheck
+      - name: Protocol form tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build

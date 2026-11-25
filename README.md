@@ -9,6 +9,13 @@ five packages are listed in `pnpm-workspace.yaml`. The chat deploys to AWS throu
 Vercel; see [`concierge/README.md`](concierge/README.md). The plan for the portals and where the
 chat reads its client information is in [`docs/portals-and-chat-data.md`](docs/portals-and-chat-data.md).
 
+It also serves **the sales and personality protocol form** (the onboarding wizard) at
+`/onboarding`, moved here from H1 AI Consulting on 2026-11-25: the form in `onboarding/`, its
+pages and API routes in `app/onboarding/` and `app/api/onboarding/`, and its storage (the Neon
+intake DB) in `lib/intake/`. It's the only part of the site that runs server code. Settings are
+listed in `.env.example`. Commands: `pnpm intake` (migrate, create-spa, new-link, revoke),
+`pnpm export-playbook`, `pnpm gaps`, and `pnpm test` for its tests.
+
 ## Run it
 
 ```bash

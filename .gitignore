@@ -6,3 +6,6 @@ node_modules
 .next
 next-env.d.ts
 *.tsbuildinfo
+
+# The protocol form's local database (INTAKE_DATABASE_URL=pglite:.data/intake)
+.data
