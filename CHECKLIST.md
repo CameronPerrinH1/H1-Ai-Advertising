@@ -137,7 +137,7 @@ Source in `../H1 AI Consulting`:
 - [ ] Vercel env vars, Advertising project in the **H1 Web Development** team (Production only). Consulting's values are stored as sensitive, so they can't be copied; each comes from its source:
   - [x] `INTAKE_AWS_REGION` = `us-east-1` (2026-11-25)
   - [x] `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`: a second access key for IAM user `h1-intake-bedrock` in H1's AWS account (740212805761), created 2026-11-25 and added straight to Vercel (key ends `UQGI`). Consulting keeps the first key. The user may only call `bedrock:InvokeModel` and `ses:SendEmail`.
-  - [ ] `INTAKE_DATABASE_URL`: the h1-intake Neon project's pooled connection string, from the Neon console (mark it Sensitive)
+  - [x] `INTAKE_DATABASE_URL`: the h1-intake Neon project's pooled connection string (2026-11-25). The Neon password was reset the same day and the new string put in both Vercel projects; both redeployed, and both sites' link check reaches the database.
   - Not needed: `SITE_URL` (this site's address is in `lib/site.ts`), `INTAKE_EMAIL_FROM` (no code reads it), `INTAKE_AI` and `INTAKE_AI_MODEL` (defaults are right)
 - Original list (names and notes in `.env.example`): `INTAKE_DATABASE_URL`, `INTAKE_DATABASE_URL_UNPOOLED`, `INTAKE_AI`, `INTAKE_AI_MODEL`, `INTAKE_AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. Copy the values from the Consulting Vercel project. Previews get none, so a preview runs the form as an in-browser demo.
 - [ ] Verify end to end on the Advertising site:
@@ -203,7 +203,7 @@ H1's AWS account is the source of truth for the chat code (D6, D90). AWS won't u
 ---
 
 ## Open items carried over
-- [ ] Reset the Neon password that was pasted into a chat (from `11-your-action-items.md`)
+- [x] Reset the Neon password that was pasted into a chat (from `11-your-action-items.md`): done 2026-11-25 for h1-intake; both Vercel projects updated
 - [ ] Fill in `[DATE]` on Terms and Privacy, and `[Denver County]` in Terms
 - [ ] Sweet Sans Pro web licence
 - [ ] Plumb + Pine: Jen's AWS account (609344448048) is denied every Claude 5.5 model on Bedrock ("not available for this account", 2026-11-24) even though model access shows as authorized. Open an AWS Support case to enable Haiku 5.5 before her production chat goes live.
