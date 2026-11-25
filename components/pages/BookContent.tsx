@@ -100,15 +100,17 @@ export function BookContent() {
               boxShadow: "0 30px 70px -40px rgba(83,48,249,0.35)",
             }}
           >
+            {/* The booking calendar (HighLevel). It uses HighLevel's own addresses: go.h1aiadvertising.com
+                serves only the funnel pages now, and answers the widget and script paths with a 404. */}
             <iframe
-              src="https://go.h1aiadvertising.com/widget/booking/ODinOKGs8B7E1o8tgiKn"
+              src="https://api.leadconnectorhq.com/widget/booking/ODinOKGs8B7E1o8tgiKn"
               allow="payment"
               title="Book a discovery call with H1 AI Advertising"
               style={{ width: "100%", border: "none", overflow: "hidden", display: "block", borderRadius: "18px" }}
               scrolling="no"
               id="ODinOKGs8B7E1o8tgiKn_1794937038098"
             />
-            <Script src="https://go.h1aiadvertising.com/js/form_embed.js" strategy="afterInteractive" />
+            <Script src="https://link.msgsndr.com/js/form_embed.js" strategy="afterInteractive" />
           </div>
           <aside style={{ flex: "1 1 280px", minWidth: "0", display: "flex", flexDirection: "column", gap: "28px" }}>
             <div suppressHydrationWarning className="hb-reveal" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
