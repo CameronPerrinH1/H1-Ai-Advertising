@@ -1,0 +1,44 @@
+# The AI concierge's checks, on every push to main and every pull request that
+# touches it. Moved from H1 AI Consulting's ci.yml (the `concierge` job) on
+# 2026-11-25, plus the typecheck and unit tests that turbo ran there.
+# The conversation evals call Claude on Bedrock, so they run only by hand:
+# see concierge-evals.yml.
+name: Concierge
+
+on:
+  push:
+    branches: [main]
+    paths: ['concierge/**', 'pnpm-lock.yaml', '.github/workflows/concierge.yml']
+  pull_request:
+    paths: ['concierge/**', 'pnpm-lock.yaml', '.github/workflows/concierge.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  concierge:
+    name: Concierge checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Types
+        run: pnpm chat:typecheck
+      - name: Unit tests
+        run: pnpm chat:test
+      - name: No guest content in logs (D34)
+        run: pnpm --filter @concierge/backend check:logging
+      - name: Every client config is valid
+        run: pnpm --filter @concierge/backend check:configs
+      - name: Widget builds
+        run: pnpm --filter @concierge/widget build
+      # Reported, not blocking, as it was in Consulting. Make it blocking once
+      # the audit is clean.
+      - name: Dependency audit
+        run: pnpm audit --audit-level=high
+        continue-on-error: true

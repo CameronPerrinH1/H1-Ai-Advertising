@@ -1,7 +1,13 @@
 # H1 AI Advertising: MedSpa AI Booking Engine site
 
 Next.js 15 (App Router, React 19, TypeScript), deployed on Vercel. Every page is prerendered
-at build time; the client dashboard (Milestone 3 of `CHECKLIST.md`) is what will need a server.
+at build time; the client and admin portals (Milestone 3 of `CHECKLIST.md`) are what will need a server.
+
+This repo also holds **the AI concierge (the chat)** in `concierge/`, moved here from H1 AI
+Consulting on 2026-11-25. It is a pnpm workspace: the site is the root package and the chat's
+five packages are listed in `pnpm-workspace.yaml`. The chat deploys to AWS through CDK, never to
+Vercel; see [`concierge/README.md`](concierge/README.md). The plan for the portals and where the
+chat reads its client information is in [`docs/portals-and-chat-data.md`](docs/portals-and-chat-data.md).
 
 ## Run it
 
@@ -10,6 +16,10 @@ pnpm install
 pnpm dev         # http://localhost:3000
 pnpm typecheck
 pnpm build && pnpm start
+
+# the chat (see concierge/README.md)
+pnpm chat:dev     # local API, widget and the Glow Med Spa demo site
+pnpm chat:check   # typecheck, tests, logging guard, config check, widget build
 ```
 
 ## Layout
@@ -62,6 +72,8 @@ after editing it.
 ## Deploy
 
 `vercel.json` sets the framework to Next.js, so the Vercel project needs no build settings.
+It installs only the site's own packages (`--filter h1-ai-advertising`), and its `ignoreCommand`
+skips a deploy when a commit changes only `concierge/`, `docs/` or `CHECKLIST.md`.
 Every booking button links to `/book`, which embeds the HighLevel scheduling calendar from
 `api.leadconnectorhq.com`, sized by HighLevel's `form_embed.js` (loaded with `next/script`).
 The custom domain go.h1aiadvertising.com serves only funnel pages, not the calendar.

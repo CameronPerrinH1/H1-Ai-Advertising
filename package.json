@@ -10,7 +10,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "chat:check": "pnpm --dir concierge check",
+    "chat:dev": "pnpm --dir concierge dev",
+    "chat:test": "pnpm --filter \"@concierge/*\" --if-present test",
+    "chat:typecheck": "pnpm --filter \"@concierge/*\" --if-present typecheck"
   },
   "dependencies": {
     "next": "^15.5.29",

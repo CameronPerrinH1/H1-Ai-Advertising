@@ -1,0 +1,10 @@
+# The Next.js site is the root package. The AI concierge (chat widget, API,
+# AWS stack) lives in concierge/; its folder is not itself a package:
+# concierge/package.json only holds shortcuts (see concierge/README.md).
+# The chat deploys to AWS through CDK, never to Vercel.
+packages:
+  - 'concierge/shared'
+  - 'concierge/backend'
+  - 'concierge/widget'
+  - 'concierge/evals'
+  - 'concierge/infra'

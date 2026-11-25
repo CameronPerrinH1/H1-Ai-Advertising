@@ -1,12 +1,12 @@
 # AI Concierge — Pilot v1
 
-A working AI concierge for med spa websites, running locally with a fictional demo spa (Glow Med Spa). It implements the R1 concierge from `../ai-concierge-handoff/01-build-plan.md` plus the pilot's wow features from `../ai-concierge-handoff/07-pilot-v1.md`: a treatment finder, rich visual cards, and a premium full-screen experience.
+A working AI concierge for med spa websites, running locally with a fictional demo spa (Glow Med Spa). It implements the R1 concierge from `../../docs/ai-concierge-handoff/01-build-plan.md` plus the pilot's wow features from `../../docs/ai-concierge-handoff/07-pilot-v1.md`: a treatment finder, rich visual cards, and a premium full-screen experience.
 
-It also has the time-saving features from the pilot plan (Section 1.1): event countdown, prep and aftercare cards, a rough visit estimate, save as image, membership savings, hours and promotions awareness, a first-visit card, staff mode, and the "questions Ava couldn't answer" report. For what to show on a call, see `../ai-concierge-handoff/08-demo-guide.md`.
+It also has the time-saving features from the pilot plan (Section 1.1): event countdown, prep and aftercare cards, a rough visit estimate, save as image, membership savings, hours and promotions awareness, a first-visit card, staff mode, and the "questions Ava couldn't answer" report. For what to show on a call, see `../../docs/ai-concierge-handoff/08-demo-guide.md`.
 
 ## Run it
 
-The concierge lives in the H1 monorepo (moved in on November 6, 2026). Its five packages (`@concierge/shared`, `backend`, `widget`, `evals`, `infra`) are part of the monorepo's pnpm workspace, so `pnpm install` runs once at the repo root, and the root's `pnpm typecheck` and `pnpm test` include them. The commands below run from this `concierge/` folder; its `package.json` only holds shortcuts.
+The concierge lives in the H1 AI Advertising repo (`CameronPerrinH1/H1-Ai-Advertising`), next to the h1aiadvertising.com site. It moved here from the H1 AI Consulting monorepo on November 25, 2026, with its history; before that it was in Consulting from November 6, 2026. Its five packages (`@concierge/shared`, `backend`, `widget`, `evals`, `infra`) are part of this repo's pnpm workspace, so `pnpm install` runs once at the repo root; the root's `pnpm chat:typecheck`, `pnpm chat:test` and `pnpm chat:check` run them. The chat deploys to AWS through CDK, never to Vercel: the site's Vercel install skips these packages, and a change only inside `concierge/` doesn't redeploy the site. The commands below run from this `concierge/` folder; its `package.json` only holds shortcuts.
 
 You need Node 22+, pnpm, and an active AWS login for the company account (sidekick-aws), which the local API uses to call Claude on Bedrock.
 
@@ -38,7 +38,7 @@ pnpm eval:sales                                      # Plumb + Pine sales review
 EVAL_THINKING=off pnpm eval:sales                    # same, thinking off (also EVAL_MODEL, EVAL_EFFORT, EVAL_ONLY, EVAL_REPEAT, EVAL_GRADER=none)
 ```
 
-CI (the monorepo's `.github/workflows/ci.yml`) runs the concierge's typecheck and tests with the rest of the repo, plus a `Concierge guards` job: the logging guard, the client config check, the widget build, and a dependency audit (reported, not yet blocking). The evals run only when started by hand (`concierge-evals.yml`). The logging guard (`backend/scripts/check-logging.ts`) fails the build if a `log()` call could carry guest content or code writes to the console outside the logger (D34).
+CI (`.github/workflows/concierge.yml`, on pushes to `main` and pull requests that touch `concierge/`) runs the typecheck, the unit tests, the logging guard, the client config check, the widget build, and a dependency audit (reported, not yet blocking). The evals run only when started by hand (`.github/workflows/concierge-evals.yml`); its AWS role must trust this repository and `EVAL_ROLE_ARN` must be set here. The logging guard (`backend/scripts/check-logging.ts`) fails the build if a `log()` call could carry guest content or code writes to the console outside the logger (D34).
 
 The sales review (`evals/src/sales/`) plays each conversation through the real orchestrator, checks every reply against the house rules in code (repeats, timeline or "just looking" questions, length, a booking step, free-consult claims), and has Opus 5.5 grade it with a better version of any weak reply. It writes `results.json` and `report.html` to `.eval-results/sales-<time>/`; the report is published as a private Artifact whose notes boxes save to its database for H1 to read back. On November 10, 2026 (24 conversations): Haiku 5.5 with thinking at low effort averaged 3.8/5 with a 3.7 s typical wait; thinking off was faster (2.5 s) but dropped to 3.1/5; Sonnet 5.5 scored 3.5/5 at 3.8 s, and Opus 5.5 3.5/5 at 5.9 s (7 replies replaced by the safe fallback). Haiku with thinking on stays the default.
 
@@ -64,13 +64,13 @@ scripts/    dev.mjs starts the API, widget, and demo site together
 A spa's approved answers from the wizard on H1's site become its Sales Playbook here: voice, terminology, priorities and price display per treatment, pairings, concerns and the treatment finder, products, promotions and events, objection answers, tactics, handoff wording, and the medical director's urgent messages and symptoms.
 
 1. Start the client folder with H1's business facts: copy an existing client to `clients/<id>/` and set the price list (`services.yaml`, `products.yaml`), service details, providers, FAQs, hours, links, branding, and compliance settings.
-2. Export the approved answers (from the repo root): `pnpm --filter site-h1 export-playbook <spa id> <file>.json`. It refuses unless the owner and the medical director approved the answers as they are now; `--draft` exports anyway for a test drive and marks the result unapproved.
+2. Export the approved answers: until the protocol form moves to this repo (CHECKLIST.md, Milestone 4), run this from the H1 AI Consulting repo root: `pnpm --filter site-h1 export-playbook <spa id> <file>.json`. It refuses unless the owner and the medical director approved the answers as they are now; `--draft` exports anyway for a test drive and marks the result unapproved.
 3. Import from this folder: `pnpm import-playbook <file>.json <id>`. It matches treatments and products to the price list by name, fails with a list of what to fix (a treatment or product with no price, a promotion with no percent or dollar discount), and checks the result with the concierge's own loader before writing anything. It prints what to review.
 4. Run `pnpm check` and the evals, and review the change as a pull request.
 
 Re-importing is safe: the import only replaces the parts the wizard owns (see the top of `backend/src/intake/apply.ts`), and the folder keeps `intake-playbook.json`, the playbook exactly as approved.
 
-The demo spa **Lumen Aesthetics** (`clients/lumen-aesthetics/`) is set up this way, from the wizard's fixture (`apps/site-h1/src/onboarding/fixtures/lumen.ts`): `CLIENT_ID=lumen-aesthetics pnpm dev` to chat with it, and `EVAL_SUITE=playbook pnpm eval` for cases that check each playbook choice reaches the guest. Tests on both sides keep the export and the import in step.
+The demo spa **Lumen Aesthetics** (`clients/lumen-aesthetics/`) is set up this way, from the wizard's fixture (`apps/site-h1/src/onboarding/fixtures/lumen.ts` in H1 AI Consulting until Milestone 4 moves it here): `CLIENT_ID=lumen-aesthetics pnpm dev` to chat with it, and `EVAL_SUITE=playbook pnpm eval` for cases that check each playbook choice reaches the guest. Tests on both sides keep the export and the import in step.
 
 New config fields are all optional with defaults that keep earlier configs behaving as before: `sales.pricing`, `do_not_promote`, `pairings`, `growth`, `events`, `tactics`; `voice.emoji`, `exclamation`, `length`, `sign_off`; `handoff.wording`; `business.terminology.providers` and `booking`; `knowledge.concerns_file`; product priority and pairings; and the urgent file's `emergency_symptoms` (which also join the keyword net, D14) and `urgent_symptoms`.
 

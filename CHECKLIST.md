@@ -67,12 +67,14 @@ Current site: `index.html` (6 sections: system, coordinator, skills, results, fa
 ## Milestone 2: Move the chat here from Consulting
 Decided (2026-11-24): the chat's code leaves H1 AI Consulting entirely and lives in this repo. It keeps running on AWS; only the code moves. Checked 2026-11-24: `concierge/` imports nothing from the rest of the Consulting monorepo (only comments mention `apps/site-h1`), so it moves as is.
 
-- [ ] Make this repo a pnpm workspace: the Next.js site at the root, plus `concierge/shared`, `backend`, `widget`, `evals`, `infra` (the same layout Consulting uses)
-- [ ] Bring `concierge/` over with its git history (`git subtree split --prefix=concierge` in Consulting, then pull that branch in here), leaving out `node_modules`, `cdk.out`, `.local-data` and `.eval-results`
-- [ ] Bring over its CI: the `concierge` job from Consulting's `ci.yml` (logging guard, config check, widget build, audit) and `concierge-evals.yml`, plus typecheck and tests for the `@concierge/*` packages
-- [ ] Keep the site's Vercel build from building or bundling the chat (it deploys to AWS through CDK, not Vercel); add an `ignoreCommand` so chat-only changes don't redeploy the site
-- [ ] Update `concierge/README.md`: the "lives in the H1 monorepo" text, CI paths, and the export step (`pnpm --filter site-h1 export-playbook` becomes this repo's command). Its links to `../../docs/ai-concierge-handoff/` still work, since this repo also sits in `H1/`
-- [ ] Verify here: `pnpm install`, `pnpm check` in `concierge/`, `pnpm dev` runs the Glow Med Spa demo, `pnpm --filter @concierge/infra synth -c deployment=glow-med-spa-staging` produces the same templates as from Consulting
+- [x] Make this repo a pnpm workspace: the Next.js site at the root, plus `concierge/shared`, `backend`, `widget`, `evals`, `infra` (the same layout Consulting uses). Root scripts: `chat:dev`, `chat:check`, `chat:test`, `chat:typecheck`. The site's `tsconfig.json` excludes `concierge/`.
+- [x] Bring `concierge/` over with its git history (`git subtree split --prefix=concierge` in Consulting, then pull that branch in here), leaving out `node_modules`, `cdk.out`, `.local-data` and `.eval-results`. Done 2026-11-25 from Consulting `main` at `cf66458` (56 commits; history checked for secrets, none). Every unmerged chat branch in Consulting was already in `main`. The lockfile reuses Consulting's exact versions for the chat packages.
+- [x] Bring over its CI: the `concierge` job from Consulting's `ci.yml` (logging guard, config check, widget build, audit) and `concierge-evals.yml`, plus typecheck and tests for the `@concierge/*` packages (`.github/workflows/concierge.yml`, `concierge-evals.yml`)
+- [ ] Evals in CI: allow this repo in the AWS eval role's trust policy and set the `EVAL_ROLE_ARN` variable on this GitHub repo
+- [x] Keep the site's Vercel build from building or bundling the chat (it deploys to AWS through CDK, not Vercel); add an `ignoreCommand` so chat-only changes don't redeploy the site (`vercel.json`: install filtered to the site, `ignoreCommand` skips `concierge/`, `docs/`, `CHECKLIST.md`)
+- [ ] Check the first Vercel preview of this branch: install, build, and that the `ignoreCommand` behaves
+- [x] Update `concierge/README.md`: the "lives in the H1 monorepo" text, CI paths, and the export step (still run from Consulting until Milestone 4 moves it). Its links to `../../docs/ai-concierge-handoff/` work, since this repo also sits in `H1/`
+- [x] Verify here: `pnpm install`, `pnpm check` in `concierge/`, `pnpm dev` runs the Glow Med Spa demo, `pnpm --filter @concierge/infra synth -c deployment=glow-med-spa-staging` produces the same templates as from Consulting. Checked 2026-11-25: 213 tests pass, 3 configs valid, widget builds, demo starts, site typechecks and builds. The synthesized template is identical except the Lambda asset hash, and the bundled code is identical apart from the folder name it records.
 - [ ] Deploy from here from now on (CDK stack names don't change, so existing stacks update in place)
 
 **Done when:** the chat builds, tests and synthesizes from this repo, and nobody works on it in Consulting any more.
