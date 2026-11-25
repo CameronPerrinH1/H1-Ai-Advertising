@@ -105,11 +105,11 @@ Locally this flips a file in `.local-data/`. For a deployed stack, set `CONCIERG
 ```bash
 aws login
 pnpm --filter @concierge/infra synth -c deployment=glow-med-spa-staging
-pnpm --filter @concierge/infra deploy -c deployment=glow-med-spa-staging -c alarmEmail=<ops address> -c handoffEmail=<verified test address>
+pnpm --filter @concierge/infra run deploy -c deployment=glow-med-spa-staging -c alarmEmail=<ops address> -c handoffEmail=<verified test address>
 pnpm --filter @concierge/infra check:deploy glow-med-spa-staging
 ```
 
-Deployments are listed in `infra/lib/deployments.ts`. A first deploy into an account also needs `npx cdk bootstrap` once. The post-deploy check reads the live settings back (Bedrock invocation logging, API Gateway tracing, table encryption and expiry, the audit trail, CloudFront logging and firewall) and runs a synthetic test chat; a failure blocks the release.
+Use `run deploy`, not `deploy`: `pnpm deploy` is a built-in pnpm command and rejects the `-c` options. Deployments are listed in `infra/lib/deployments.ts`. A first deploy into an account also needs `npx cdk bootstrap` once. The post-deploy check reads the live settings back (Bedrock invocation logging, API Gateway tracing, table encryption and expiry, the audit trail, CloudFront logging and firewall) and runs a synthetic test chat; a failure blocks the release.
 
 To try another spa, add `clients/<id>/` (copy `glow-med-spa`) and start with `CLIENT_ID=<id> pnpm dev`.
 

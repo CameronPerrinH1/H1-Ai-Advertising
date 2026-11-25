@@ -18,8 +18,10 @@ Where things stand: Milestones 1, 2 and 4 are merged (PRs #1, #3, #4). The chat 
 - [ ] **A1 (full version, optional). Live form test with a real link.** Cameron saves `.env.local` with `INTAKE_DATABASE_URL_UNPOOLED=<pooled string>` (the name keeps `pnpm dev` off production). Then: `pnpm intake create-spa` for "H1 Test Spa" (owner: Cameron), and on www.h1aiadvertising.com check the link opens the form, autosave, a second tab gets 409, the AI helpers (name ideas, role-play guest, screenshot reader), sign-off sends the email, approvals show in the database. Then `pnpm intake revoke <id>` and delete `.env.local`.
 - [ ] **A2. Form to chat.** `pnpm export-playbook <test spa> out.json --draft`, then `pnpm import-playbook` in `concierge/` and `CLIENT_ID=<id> pnpm chat:dev`: the chat runs with those answers.
 - [ ] **A3. Continuity.** A spa that started on Consulting: `pnpm intake new-link <its id>` gives an Advertising link that opens with its answers in place (same database).
-- [ ] **A4. Chat deploys from here.** `pnpm --filter @concierge/infra deploy` for `glow-med-spa-staging`, then `check:deploy glow-med-spa-staging` passes. Then Plumb + Pine's stack (still waiting on the Bedrock access case). Set up evals in CI (AWS role trust + `EVAL_ROLE_ARN`).
-- [ ] **A5. Cut over.** New spas get Advertising links. Redirect Consulting's `/onboarding` to `https://www.h1aiadvertising.com/onboarding`.
+- [x] **A4. Chat deploys from here** (2026-11-25): `pnpm --filter @concierge/infra run deploy -c deployment=plumb-and-pine-staging -c handoffEmail=cameron@h1webdev.com` from `main` after PR #4 updated the existing stack in H1's account (code and widget only; no infrastructure changes), and `check:deploy plumb-and-pine-staging` passed 10/10, including a real test chat. Glow Med Spa staging has never been deployed and wasn't needed.
+- [ ] A4b. Plumb + Pine production (Jen's account 609344448048), once the Bedrock access case is solved
+- [ ] A4c. Evals in CI: AWS role trust for this repo + `EVAL_ROLE_ARN`
+- [x] ~~A5. Cut over~~: not needed. Nothing is live yet; the whole project is still in development (Cameron, 2026-11-25), so there's no redirect. When spas are onboarded, they get Advertising links (`pnpm intake create-spa`).
 - [ ] **A6. Clean up Consulting (Milestone 5)** through a PR there: delete the form and `concierge/`, its CI jobs, the old `h1-intake-bedrock` access key and Consulting's intake settings on Vercel.
 
 **Phase A is done when** a real spa goes from link → signed form → exported playbook → running chat entirely from this repo, and Consulting no longer has the code.
@@ -118,7 +120,7 @@ Decided (2026-11-24): the chat's code leaves H1 AI Consulting entirely and lives
 - [ ] Check the first Vercel preview of this branch: install, build, and that the `ignoreCommand` behaves
 - [x] Update `concierge/README.md`: the "lives in the H1 monorepo" text, CI paths, and the export step (still run from Consulting until Milestone 4 moves it). Its links to `../../docs/ai-concierge-handoff/` work, since this repo also sits in `H1/`
 - [x] Verify here: `pnpm install`, `pnpm check` in `concierge/`, `pnpm dev` runs the Glow Med Spa demo, `pnpm --filter @concierge/infra synth -c deployment=glow-med-spa-staging` produces the same templates as from Consulting. Checked 2026-11-25: 213 tests pass, 3 configs valid, widget builds, demo starts, site typechecks and builds. The synthesized template is identical except the Lambda asset hash, and the bundled code is identical apart from the folder name it records.
-- [ ] Deploy from here from now on (CDK stack names don't change, so existing stacks update in place)
+- [x] Deploy from here from now on (CDK stack names don't change, so existing stacks update in place). First deploy from here 2026-11-25: plumb-and-pine-staging, post-deploy check 10/10.
 
 **Done when:** the chat builds, tests and synthesizes from this repo, and nobody works on it in Consulting any more.
 
@@ -198,7 +200,7 @@ Source in `../H1 AI Consulting`:
 Only after Milestone 4 is verified. Do it on a branch in the Consulting repo, through a PR.
 
 - [ ] No spa has an open form link on Consulting (or each one has been reissued on Advertising)
-- [ ] Redirect `/onboarding` on the Consulting site to the Advertising form, so old links and emails still land somewhere
+- [x] ~~Redirect `/onboarding` on the Consulting site~~: not needed, nothing was live (2026-11-25)
 - [ ] Delete `apps/site-h1/src/onboarding/`, `apps/site-h1/src/app/onboarding/` and `apps/site-h1/src/app/api/onboarding/`, and `apps/site-h1/scripts/export-playbook.ts` (all of it now lives here)
 - [ ] Remove the intake code from `packages/core` and `scripts/intake.ts` if nothing else in Consulting uses them
 - [ ] Remove the now-unused env vars from the Consulting Vercel project, and the onboarding settings in its `next.config`
