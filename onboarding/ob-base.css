@@ -1,11 +1,19 @@
 /*
- * What the protocol form inherited from the H1 AI Consulting site, where it was built: that
- * site's design tokens (apps/site-h1/design/tokens.css, copied below as they were on
- * 2026-11-25) and its base element styles (apps/site-h1/src/app/globals.css). Everything is
- * scoped to .ob-root, the wrapper in app/onboarding/layout.tsx, so none of it reaches the
- * marketing pages, and the marketing styles (app/globals.css) don't change the form.
- * onboarding.css then sets the form's own purple palette on .ob, as before.
+ * The protocol form's base styles and design tokens. The form was built on the H1 AI
+ * Consulting site; this file carries the base element styles and motion and spacing tokens it
+ * was built on (copied 2026-11-25), scoped to .ob-root, the wrapper in
+ * app/onboarding/layout.tsx, so none of it reaches the marketing pages.
+ *
+ * Its type follows this site: DM Sans for headings and text (loaded by app/globals.css),
+ * Sweet Sans Pro for small uppercase labels, and DM Serif Display italic for accents.
+ * onboarding.css sets the colours on .ob: the same purple-on-dark palette as this site.
  */
+.ob-root {
+  --font-display-src: 'DM Sans', 'DM Sans Fallback';
+  --font-body-src: 'DM Sans', 'DM Sans Fallback';
+  --font-label: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif;
+  --font-serif-accent: 'DM Serif Display', 'DM Serif Fallback', Georgia, serif;
+}
 
 /* ---- Base element styles, scoped ----
    Wrapped in :where() so they keep the low priority they had as plain element rules there,
@@ -32,7 +40,7 @@
   }
 }
 
-/* ---- Design tokens from H1 AI Consulting, scoped ---- */
+/* ---- Design tokens the form was built on (from the H1 AI Consulting site), scoped ---- */
 /*
  * H1 AI Consulting — design tokens.
  *

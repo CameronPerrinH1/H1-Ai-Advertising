@@ -21,7 +21,7 @@ const welcome: Screen = {
   Render: ({ spa, next }) => (
     <>
       <p className="eyebrow">For {spa.name}</p>
-      <h1>Let’s Design Your Personality Protocol and Sales Playbook</h1>
+      <h1>Let’s Design Your <span className="accent-serif">Personality Protocol and Sales Playbook</span></h1>
       <p className="why">
         Your Personality Protocol is how your AI sounds. Your Sales Playbook is how it guides guests to book.
         Together, they shape how the AI Treatment Coordinator talks with your guests, so it sounds like your best

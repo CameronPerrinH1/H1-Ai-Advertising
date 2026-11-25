@@ -1,8 +1,8 @@
 /*
  * The spa onboarding wizard. Its layout and components come from the
  * "Personality Protocol & Sales Playbook" prototype; its colours, type and
- * accent are this site's (design/tokens.css), so the wizard reads as part of
- * H1 AI Consulting: the dark ground for the header, the light ground for the
+ * accent match the H1 AI Advertising site, so the wizard reads as part of
+ * H1 AI Advertising: the dark ground for the header, the light ground for the
  * form, one purple accent. The prototype's own names are kept as aliases below
  * so the rules read as they did there.
  *
@@ -72,7 +72,7 @@
 .jump-list{position:absolute;z-index:40;top:calc(100% + 8px);left:0;width:min(340px,calc(100vw - 32px));max-height:min(70vh,560px);overflow:auto;background:var(--raised);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 50px rgba(10,16,23,.16);padding:8px;animation:jump-open var(--dur-standard) var(--ease-out) both;transform-origin:top left}
 @keyframes jump-open{from{opacity:0;transform:translateY(-6px) scale(.98)}}
 .jump-part+.jump-part{margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
-.jump-part__h{margin:0;padding:8px 10px 4px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--subtle)}
+.jump-part__h{margin:0;padding:8px 10px 4px;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle)}
 .jump-part ol{list-style:none;margin:0;padding:0}
 .jump-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:12px;background:transparent;font:inherit;font-size:14.5px;color:var(--body);text-align:left;cursor:pointer;transition:background-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
 .jump-item:hover,.jump-item:focus-visible{background:var(--soft);color:var(--text)}
@@ -84,8 +84,10 @@
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .bar{flex:1;min-width:120px;max-width:260px;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--gradient-brand);transition:width .3s ease}
-.eyebrow{font-size:14px;font-weight:600;color:var(--accent-ob);margin:0 0 8px}
-:where(.ob) h1{font-family:var(--font-display);font-weight:600;font-size:44px;line-height:1.05;letter-spacing:-.04em;margin:0 0 14px;text-wrap:balance;max-width:18ch}
+/* Small labels as on the site: Sweet Sans Pro, uppercase, widely spaced. */
+.eyebrow{font-family:var(--font-label);font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.16em;color:var(--accent-ob);margin:0 0 12px}
+:where(.ob) h1{font-family:var(--font-display);font-weight:600;font-size:44px;line-height:1.05;letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance;max-width:18ch}
+:where(.ob) h1 .accent-serif{font-family:var(--font-serif-accent);font-style:italic;font-weight:400;font-size:.98em;letter-spacing:-.02em;color:var(--accent-ob)}
 :where(.ob) h2{font-family:var(--font-display);font-weight:600;font-size:23px;line-height:1.2;letter-spacing:-.02em;margin:0 0 6px}
 :where(.ob) h3{font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:-.01em;margin:0 0 4px}
 .why{font-size:19px;line-height:1.5;color:var(--body);max-width:56ch;margin:0 0 30px}
@@ -510,7 +512,7 @@
 
 /* Service logic: one card per service, grouped by category. */
 .svc-group{max-width:900px;margin:0 0 28px}
-.svc-group__h{font-size:15px;font-weight:600;color:var(--subtle);margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em}
+.svc-group__h{font-family:var(--font-label);font-size:12px;font-weight:500;color:var(--subtle);margin:0 0 10px;text-transform:uppercase;letter-spacing:.14em}
 .svc-group__h span{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:6px;padding:0 6px;border-radius:999px;background:var(--soft);font-size:12px;letter-spacing:0}
 .svc-list{display:flex;flex-direction:column;gap:10px}
 .svc-card{background:var(--raised);border:1px solid var(--line);border-radius:var(--radius-card);padding:18px 20px;transition:border-color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-standard) var(--ease-standard)}

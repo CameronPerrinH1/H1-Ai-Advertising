@@ -200,7 +200,7 @@ function NoLink({ status }: { status: Status }) {
       <header className="hdr">
         <div className="hdr-in">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/onboarding/h1-logo-wordmark-purple.svg" alt="H1 AI Consulting" width={95} height={58} />
+          <img src="/assets/img/h1-ai-advertising-logo.svg" alt="H1 AI Advertising" width={95} height={58} />
           <div className="hdr-title">Personality Protocol &amp; Sales Playbook</div>
         </div>
       </header>
@@ -355,7 +355,7 @@ export function Wizard({ demo }: { demo: Spa }) {
       <header className="hdr">
         <div className="hdr-in">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/onboarding/h1-logo-wordmark-purple.svg" alt="H1 AI Consulting" width={95} height={58} />
+          <img src="/assets/img/h1-ai-advertising-logo.svg" alt="H1 AI Advertising" width={95} height={58} />
           <div className="hdr-title">Personality Protocol &amp; Sales Playbook<small>{spa.name}</small></div>
           <nav className="parts" aria-label="Parts">
             {PARTS.map((n, p) => {

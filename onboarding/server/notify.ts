@@ -8,7 +8,9 @@
  */
 import { SendEmailCommand, SESv2Client } from '@aws-sdk/client-sesv2'
 
-const FROM = 'H1 Onboarding <onboarding@h1aiconsulting.com>'
+/* The sender's display name is H1 AI Advertising; the address stays on h1aiconsulting.com, the
+   domain verified in SES, until h1aiadvertising.com is verified there too. */
+const FROM = 'H1 AI Advertising Onboarding <onboarding@h1aiconsulting.com>'
 const TO = ['erin@h1webdev.com', 'cameron@h1webdev.com']
 
 const g = globalThis as { __h1Ses?: SESv2Client | undefined }
