@@ -59,7 +59,7 @@ Current site: `index.html` (6 sections: system, coordinator, skills, results, fa
 - [x] Visual check against the static site, desktop (1440) and phone (390): every page matches pixel for pixel (2026-11-24). Behaviour matches too: reveals, hero swap, skills explorer, FAQ accordion, header and mobile menu. No console errors or hydration warnings.
   - Found and fixed on the way: two phone rules in `motion.css` matched containers by their style text, which React writes differently; they now use the `hb-wrap` and `hb-pad-founder` classes.
 - [x] Lighthouse (mobile, simulated throttling): home 93–94 (was 97), book 96 (was 99); accessibility, best practices and SEO unchanged. LCP is about 0.5 s later in the simulation because Next.js and React add ~100 KB of JavaScript that shares the slow network with the fonts. Unthrottled, both paint at ~114 ms.
-- [ ] Vercel: `vercel.json` now sets the framework to Next.js. Push the branch for a preview deploy, check it, then merge to `main` to go live
+- [x] Vercel: `vercel.json` now sets the framework to Next.js. Merged to `main` (PR #1); checked 2026-11-25 that www.h1aiadvertising.com serves the Next.js build and the old `.html` addresses redirect (308)
 - [x] Update `README.md` for the new structure
 
 **Done when:** h1aiadvertising.com is served by Next.js and looks and ranks the same as the static site did.
