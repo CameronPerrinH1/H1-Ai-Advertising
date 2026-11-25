@@ -1,0 +1,35 @@
+{
+  "name": "@concierge/infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:widget": "pnpm --filter @concierge/widget build",
+    "synth": "pnpm build:widget && cdk synth",
+    "diff": "pnpm build:widget && cdk diff",
+    "deploy": "pnpm build:widget && cdk deploy",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "check:deploy": "tsx scripts/post-deploy-check.ts"
+  },
+  "dependencies": {
+    "@concierge/backend": "workspace:*",
+    "aws-cdk-lib": "2.272.0",
+    "constructs": "10.8.1"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-api-gateway": "^3.700.0",
+    "@aws-sdk/client-bedrock": "^3.700.0",
+    "@aws-sdk/client-cloudformation": "^3.700.0",
+    "@aws-sdk/client-cloudfront": "^3.700.0",
+    "@aws-sdk/client-cloudtrail": "^3.700.0",
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/client-lambda": "^3.700.0",
+    "@aws-sdk/client-ssm": "^3.700.0",
+    "@types/node": "^22.9.0",
+    "aws-cdk": "2.1145.0",
+    "esbuild": "0.28.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.12"
+  }
+}

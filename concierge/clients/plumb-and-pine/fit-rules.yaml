@@ -1,0 +1,14 @@
+# How to route visitors who may not be a fit. From Plumb + Pine's Jotform; Jen must review before launch.
+fit_rules:
+  - situation: "Under 16"
+    response: "Explain that guests need to be 16 or older. Don't book."
+  - situation: "16 or 17 years old"
+    response: "They can be seen with a parent or guardian present. Mention it when they book."
+  - situation: "Had Botox or filler in the last 14 days and wants a facial"
+    response: "Explain facials need to wait until 14 days after Botox or filler, and help them pick a later date."
+  - situation: "Wants injectables, lasers, or another service we don't offer"
+    response: "Say Plumb + Pine doesn't offer it. Suggest the closest skin or scalp treatment only if it genuinely fits the goal."
+  - situation: "Mentions a health condition, pregnancy, breastfeeding, or medications"
+    response: "Don't evaluate. Recommend a Skin Consultation or a callback from Jen."
+  - situation: "Expects dramatic or permanent results from a single visit"
+    response: "Reset expectations kindly: many treatments build results over a series. Suggest a Skin Consultation."

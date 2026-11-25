@@ -1,0 +1,33 @@
+# The concierge's scripted conversations against Claude on Bedrock. Run by hand
+# (Actions → Concierge evals → Run workflow), with an AWS role set up for this
+# repository in the EVAL_ROLE_ARN variable. Moved from H1 AI Consulting on
+# 2026-11-25: the AWS role's trust policy must allow this repository
+# (CameronPerrinH1/H1-Ai-Advertising), and the variable must be set here.
+name: Concierge evals
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.EVAL_ROLE_ARN }}
+          aws-region: us-east-1
+      - run: pnpm --filter @concierge/evals start
+      - run: pnpm --filter @concierge/evals start
+        env:
+          EVAL_SUITE: playbook

@@ -1,0 +1,39 @@
+{
+  "name": "@concierge/backend",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p .",
+    "report:weekly": "tsx src/report-weekly.ts",
+    "report:urgent": "tsx src/report-urgent.ts",
+    "check:logging": "tsx scripts/check-logging.ts",
+    "check:configs": "tsx scripts/validate-configs.ts",
+    "kill-switch": "tsx scripts/kill-switch.ts",
+    "review": "tsx scripts/review.ts",
+    "import-playbook": "tsx scripts/import-playbook.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.700.0",
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/client-secrets-manager": "^3.700.0",
+    "@aws-sdk/client-sesv2": "^3.700.0",
+    "@aws-sdk/client-ssm": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@concierge/shared": "workspace:*",
+    "libphonenumber-js": "^1.11.14",
+    "yaml": "^2.6.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.12"
+  }
+}

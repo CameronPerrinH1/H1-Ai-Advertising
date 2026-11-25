@@ -1,0 +1,79 @@
+# Link-handoff menu: prices and durations, with the date each was last confirmed with the spa.
+# FICTIONAL demo data.
+services:
+  - id: hydrafacial
+    name: HydraFacial Signature
+    category: facials
+    price: { amount: 199, unit: session, from: false }
+    duration_minutes: 45
+    last_verified: "2026-10-20"
+  - id: hydrafacial-deluxe
+    name: HydraFacial Deluxe
+    category: facials
+    price: { amount: 279, unit: session, from: false }
+    duration_minutes: 60
+    last_verified: "2026-10-20"
+  - id: dermaplaning
+    name: Dermaplaning Facial
+    category: facials
+    price: { amount: 95, unit: session, from: false }
+    duration_minutes: 30
+    last_verified: "2026-10-20"
+  - id: chemical-peel
+    name: Chemical Peel
+    category: peels
+    price: { amount: 150, unit: session, from: false }
+    duration_minutes: 45
+    last_verified: "2026-10-20"
+  - id: microneedling
+    name: Microneedling
+    category: skin-renewal
+    price: { amount: 350, unit: session, from: false }
+    duration_minutes: 75
+    last_verified: "2026-10-20"
+  - id: ipl-photofacial
+    name: IPL Photofacial
+    category: laser
+    price: { amount: 325, unit: session, from: false }
+    duration_minutes: 45
+    last_verified: "2026-10-20"
+  - id: laser-hair-removal
+    name: Laser Hair Removal
+    category: laser
+    price: { amount: 99, unit: area, from: true }
+    duration_minutes: 30
+    last_verified: "2026-10-20"
+  - id: botox
+    name: Botox
+    category: injectables
+    price: { amount: 13, unit: unit, from: false }
+    duration_minutes: 30
+    last_verified: "2026-10-20"
+  - id: dysport
+    name: Dysport
+    category: injectables
+    price: { amount: 4.5, unit: unit, from: false }
+    duration_minutes: 30
+    last_verified: "2026-10-20"
+  - id: lip-filler
+    name: Lip Filler
+    category: injectables
+    price: { amount: 650, unit: syringe, from: false }
+    duration_minutes: 45
+    last_verified: "2026-10-20"
+  - id: injectable-consultation
+    name: Injectable Consultation
+    category: consultations
+    price: { amount: 0, unit: session, from: false }
+    duration_minutes: 20
+    last_verified: "2026-10-20"
+
+add_ons:
+  - id: lymphatic-drainage-add-on
+    name: Lymphatic Drainage Add-on
+    price: { amount: 45, unit: session, from: false }
+    duration_minutes: 15
+  - id: led-light-therapy-add-on
+    name: LED Light Therapy Add-on
+    price: { amount: 35, unit: session, from: false }
+    duration_minutes: 15

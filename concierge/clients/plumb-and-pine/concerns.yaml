@@ -1,0 +1,47 @@
+# Concerns guests describe, and the treatments to lead with. From the intake playbook a34bced50e6f (2026-11-19); edit in the wizard, not here.
+concerns:
+  - name: Acne and breakouts
+    services:
+      - oxygen-facial-glo2
+    otherwise: consult
+  - name: Acne scars
+    services:
+      - microchanneling
+    otherwise: consult
+  - name: Fine lines and wrinkles
+    services:
+      - platinum-hydrafacial
+      - the-ageless-facial
+    otherwise: consult
+  - name: Thin lips
+    services: []
+    otherwise: consult
+  - name: Hair thinning and loss
+    services:
+      - hydrascalp-keravive-full-scalp
+      - hair-restoration-microchanneling
+    otherwise: consult
+  - name: Redness and pigmentation
+    services:
+      - the-ageless-facial
+    otherwise: consult
+  - name: Sun damage and dark spots
+    services:
+      - custom-infusion-facial
+    otherwise: consult
+  - name: Texture and large pores
+    services:
+      - deluxe-hydrafacial
+      - custom-infusion-facial
+    otherwise: consult
+  - name: Dull skin
+    services:
+      - oxygen-facial-glo2
+    otherwise: consult
+  - name: Loose or sagging skin
+    services:
+      - dmk-enzyme-therapy
+    otherwise: consult
+pregnancy:
+  services: []
+  otherwise: consult

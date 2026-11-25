@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Botox at Glow Med Spa (demo)</title>
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <div class="demo-bar">Demo website. Glow Med Spa is a fictional business for testing the AI concierge.</div>
+    <nav>
+      <a class="logo" href="/">Gl<span>o</span>w</a>
+      <div class="nav-links">
+        <a href="/#treatments">Treatments</a>
+        <a href="/botox.html">Botox</a>
+      </div>
+      <a class="btn dark" href="https://book.glowmedspa.example" target="_blank" rel="noopener">Book now</a>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">Injectables</p>
+          <h1>Botox &amp; Dysport</h1>
+          <p class="lead">Soften forehead lines, frown lines, and crow's feet. Every injectable visit starts with a free consultation with Maya, our lead injector.</p>
+          <div class="hero-actions">
+            <button class="btn dark" data-concierge-open data-concierge-question="What's the difference between Botox and Dysport?">Botox or Dysport?</button>
+            <a class="btn light" href="https://book.glowmedspa.example/services/injectable-consultation" target="_blank" rel="noopener">Book a free consultation</a>
+          </div>
+        </div>
+        <img src="http://localhost:5173/media/glow-med-spa/injectables.svg" alt="" style="width: 100%; border-radius: 28px" />
+      </div>
+    </header>
+
+    <section class="concierge-section">
+      <div class="concierge-inner">
+        <p class="eyebrow">Questions?</p>
+        <h2>Ask Ava about injectables</h2>
+        <p class="section-lead">The suggested questions here are tailored to this page.</p>
+        <div data-concierge-inline data-height="620"></div>
+      </div>
+    </section>
+
+    <footer>Glow Med Spa is fictional. 123 Main St, Anytown, OR · (555) 555-0100</footer>
+
+    <script src="http://localhost:5173/loader.js" data-launcher="true" data-launcher-label="Chat with Ava" data-color="#8a5f60" async></script>
+  </body>
+</html>

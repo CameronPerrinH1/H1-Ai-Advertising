@@ -1,0 +1,8 @@
+# Retail products. FICTIONAL demo content.
+products:
+  - name: "Daily Mineral Sunscreen SPF 40"
+    price: 48
+    note: "Our most recommended aftercare product."
+  - name: "Hydrating Serum"
+    price: 72
+    note: "Pairs well with HydraFacials between visits."

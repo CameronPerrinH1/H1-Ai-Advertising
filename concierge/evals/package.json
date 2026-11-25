@@ -1,0 +1,19 @@
+{
+  "name": "@concierge/evals",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/run.ts",
+    "sales": "tsx src/sales/run.ts",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@concierge/backend": "workspace:*",
+    "@concierge/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

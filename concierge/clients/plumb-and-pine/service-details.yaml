@@ -1,0 +1,153 @@
+# Treatment details, keyed by service ID. Written by H1 from Plumb + Pine's own Vagaro descriptions
+# (2026-11-09). Downtime only where her own description states it; the rest are left out until Jen gives them.
+# Jen must review this file before launch (D38). requires_assessment comes from the intake playbook.
+skin-consultation:
+  summary: "A one-on-one skin assessment with Jen to understand your concerns and
+    build a plan."
+  what_to_expect: "Jen looks closely at your skin, talks through your goals and
+    routine, and recommends treatments and home care that fit."
+  good_for: [ first visits, choosing a treatment, building a home care routine ]
+  requires_assessment: false
+sugar-plumb-express-facial:
+  summary: "A 15-minute holiday glow-up: cleanse, exfoliation, a hydrating mask,
+    and a radiance boost."
+  what_to_expect: "Quick enough for a lunch break. Skin looks bright and rested right away."
+  downtime: "None"
+  good_for: [ pre-event glow, dull skin, all skin types ]
+  requires_assessment: true
+  timing: { min_days_before_event: 0, ideal_days_before_event: 1 }
+the-miracle-facial:
+  summary: "A deeply hydrating, glow-boosting facial that softens, calms, and
+    replenishes the skin."
+  what_to_expect: "Gentle exfoliation, a soothing massage, eye sculpting, and a
+    cooling biocellulose mask, finished with antioxidant serums and SPF. A
+    portion of proceeds supports Children's Miracle Network of northern Nevada."
+  good_for: [ dehydration, dull skin, sensitive skin, barrier repair ]
+  requires_assessment: false
+lift-and-restore:
+  summary: "A luxurious lifting facial with Amarte's Korean skincare and the
+    signature SilkTox Mask."
+  what_to_expect: "Deep cleansing, gentle exfoliation, and targeted serums, then
+    the SilkTox Mask, which sets to visibly lift, tighten, and brighten."
+  downtime: "None"
+  results: "Firmer, more sculpted, radiant-looking skin right away"
+  good_for: [ mature skin, loss of firmness, fine lines, dullness, pre-event lift ]
+  requires_assessment: false
+  timing: { min_days_before_event: 0, ideal_days_before_event: 2 }
+custom-infusion-facial:
+  summary: "A gentle nanofusion facial that delivers high-dose actives deep into
+    the skin, with no acid and no downtime."
+  what_to_expect: "Fully customized to your skin. It calms, brightens, and
+    restores radiance, and collagen keeps building for weeks after."
+  downtime: "None"
+  good_for: [ all skin types, dullness, fine lines, sensitive skin ]
+  requires_assessment: false
+the-ageless-facial:
+  summary: "A 90-minute rejuvenation ritual: dermaplaning, a HydraFacial, a
+    lifting and sculpting massage, hydrating masks, and LED."
+  what_to_expect: "Dermaplaning smooths texture, the HydraFacial deep-cleans and
+    hydrates (with extractions as needed), then a relaxing lifting ritual,
+    masks, and LED to calm the skin."
+  prep: "Dermaplaning may not suit every skin, especially first-time guests; Jen
+    will check it's right for you."
+  good_for: [ dull skin, texture, fine lines, a full reset ]
+  requires_assessment: false
+oxygen-facial-glo2:
+  summary: "The 'bubbly' Glo2 facial: Oxfoliation exfoliates while drawing
+    oxygen-rich blood to the surface."
+  what_to_expect: "Targeted serums are infused with ultrasound, then a hands-free
+    lymphatic massage reduces redness and puffiness. Radio frequency can be
+    added to firm and lift, with results building over a series."
+  downtime: "None"
+  prep: "Pause retinoids for 7 days and avoid tanning for 14 days before your
+    appointment."
+  good_for: [ brightening, fine lines, oily skin, redness, puffiness, all skin types ]
+  requires_assessment: false
+dermaplane-facial:
+  summary: "Dermaplaning plus a personalized facial, for smooth, radiant skin."
+  what_to_expect: "Gentle dermaplaning removes dead skin and fine vellus hair,
+    then a facial customized to your concerns with cleansing, exfoliation,
+    masks, and serums."
+  good_for: [ texture, dull skin, peach fuzz, smoother makeup ]
+  requires_assessment: false
+platinum-hydrafacial:
+  summary: "The most complete HydraFacial: cleanse, exfoliate, and hydrate, plus
+    lymphatic drainage, custom boosters, and LED."
+  what_to_expect: "About 60 minutes. Targets fine lines, uneven tone, congestion,
+    and dullness."
+  good_for: [ fine lines, uneven tone, congestion, dull skin ]
+  requires_assessment: false
+  timing: { min_days_before_event: 1, ideal_days_before_event: 3 }
+deluxe-hydrafacial:
+  summary: "A results-driven HydraFacial with deep cleansing, exfoliation, gentle
+    extractions, and intense hydration."
+  what_to_expect: "About 45 minutes, with personalized boosters and LED light
+    therapy for fine lines, dark spots, acne, and uneven tone."
+  good_for: [ fine lines, dark spots, acne, uneven tone, dehydration ]
+  requires_assessment: false
+  timing: { min_days_before_event: 1, ideal_days_before_event: 3 }
+express-hydrafacial:
+  summary: "A quick HydraFacial: deep cleanse, exfoliation, and hydration with the
+    signature vortex technology."
+  what_to_expect: "A lunch-hour glow-up or routine maintenance."
+  good_for: [ maintenance, pre-event glow, congestion ]
+  requires_assessment: false
+  timing: { min_days_before_event: 1, ideal_days_before_event: 2 }
+back-hydrafacial:
+  summary: "A HydraFacial for your back: deep cleansing and exfoliation for acne,
+    clogged pores, and uneven texture."
+  what_to_expect: "Leaves the skin on your back smooth, clear, and hydrated."
+  good_for: [ back acne, clogged pores, texture ]
+  requires_assessment: false
+hair-scalp-consultation:
+  summary: "A detailed look at your hair and scalp to understand thinning,
+    dryness, or flaking."
+  what_to_expect: "Jen examines your hair and scalp and recommends treatments and
+    care that fit."
+  good_for: [ hair thinning, dry scalp, flaking, choosing a scalp treatment ]
+  requires_assessment: false
+hair-restoration-microchanneling:
+  summary: "A non-invasive scalp treatment that supports fuller, healthier-looking
+    hair."
+  what_to_expect: "Microchannels help growth factors and cytokines reach the
+    follicles. Includes red light therapy and a take-home scalp serum."
+  good_for: [ hair thinning, scalp health ]
+  requires_assessment: false
+hydrascalp-keravive-full-scalp:
+  summary: "A scalp facial for the whole scalp that cleanses, exfoliates, and
+    nourishes for healthier-looking hair."
+  what_to_expect: "A peptide complex unclogs follicles, lifts buildup, and boosts
+    circulation. Includes a 30-day take-home scalp serum."
+  good_for: [ hair thinning, dryness, flaking, scalp congestion ]
+  requires_assessment: false
+hydrascalp-keravive-partial-scalp:
+  summary: "The HydraScalp Keravive scalp facial for part of the scalp."
+  what_to_expect: "A peptide complex unclogs follicles, lifts buildup, and boosts
+    circulation. Includes a 30-day take-home scalp serum."
+  good_for: [ hair thinning, dryness, flaking, scalp congestion ]
+  requires_assessment: false
+microchanneling:
+  summary: "Advanced microchanneling that stimulates collagen and elastin to
+    improve texture, firmness, and tone."
+  what_to_expect: "Precise, controlled micro-channels prompt the skin to renew
+    itself. Ideal for fine lines, acne scars, uneven pigmentation, and large
+    pores."
+  good_for: [ fine lines, acne scars, uneven pigmentation, large pores, texture ]
+  requires_assessment: false
+dmk-enzyme-therapy:
+  summary: "A facial unlike any other: an enzyme mask that works with your skin's
+    own biology to firm, plump, and clear."
+  what_to_expect: "The mask sets into a firm layer and works for about 45 minutes
+    while you rest. You'll feel a gentle pulsing as circulation increases.
+    Results build over a series."
+  results: "Often a visible lift after one treatment; healthier, more resilient
+    skin over a series"
+  good_for: [ aging, dehydration, acne, congestion, redness, uneven tone ]
+  requires_assessment: false
+dmk-muscle-banding:
+  summary: "A non-invasive DMK treatment that lifts, tones, and sculpts the facial
+    muscles."
+  what_to_expect: "Specialized banding techniques improve muscle tone, soften fine
+    lines, and define the facial contour."
+  good_for: [ loss of firmness, fine lines, facial contour ]
+  requires_assessment: false
