@@ -134,7 +134,12 @@ Source in `../H1 AI Consulting`:
 - [x] Port the intake CLI: `pnpm intake migrate | create-spa | new-link | revoke`. Links now point at `https://www.h1aiadvertising.com` (`SITE_URL`). Also `pnpm export-playbook` and `pnpm gaps`.
 - [x] Port the tests (`answers.test.ts`, `export.test.ts`, `gaps.test.ts`, plus `lib/intake/intake.test.ts` for row-level security): `pnpm test`, 47 pass. CI: `.github/workflows/site.yml` (types, tests, build).
 - [ ] Link the form to the dashboard (for example the client sees form status and approvals)
-- [ ] Vercel env vars (Production only; names and notes in `.env.example`): `INTAKE_DATABASE_URL`, `INTAKE_DATABASE_URL_UNPOOLED`, `INTAKE_AI`, `INTAKE_AI_MODEL`, `INTAKE_AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. Copy the values from the Consulting Vercel project. Previews get none, so a preview runs the form as an in-browser demo.
+- [ ] Vercel env vars, Advertising project in the **H1 Web Development** team (Production only). Consulting's values are stored as sensitive, so they can't be copied; each comes from its source:
+  - [x] `INTAKE_AWS_REGION` = `us-east-1` (2026-11-25)
+  - [x] `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`: a second access key for IAM user `h1-intake-bedrock` in H1's AWS account (740212805761), created 2026-11-25 and added straight to Vercel (key ends `UQGI`). Consulting keeps the first key. The user may only call `bedrock:InvokeModel` and `ses:SendEmail`.
+  - [ ] `INTAKE_DATABASE_URL`: the h1-intake Neon project's pooled connection string, from the Neon console (mark it Sensitive)
+  - Not needed: `SITE_URL` (this site's address is in `lib/site.ts`), `INTAKE_EMAIL_FROM` (no code reads it), `INTAKE_AI` and `INTAKE_AI_MODEL` (defaults are right)
+- Original list (names and notes in `.env.example`): `INTAKE_DATABASE_URL`, `INTAKE_DATABASE_URL_UNPOOLED`, `INTAKE_AI`, `INTAKE_AI_MODEL`, `INTAKE_AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. Copy the values from the Consulting Vercel project. Previews get none, so a preview runs the form as an in-browser demo.
 - [ ] Verify end to end on the Advertising site:
   - [ ] new link opens the form (passed locally on PGlite 2026-11-25; recheck on production)
   - [ ] autosave, and a conflict from two tabs returns 409 (passed locally 2026-11-25, plus a request from another origin gets 403; recheck on production)
@@ -158,6 +163,7 @@ Only after Milestone 4 is verified. Do it on a branch in the Consulting repo, th
 - [ ] Consulting CI passes (build, tests, and the `concierge/` playbook tests)
 - [ ] Delete `concierge/` from Consulting (after Milestone 2 is verified), and remove it from `pnpm-workspace.yaml`, the `concierge` job in `ci.yml`, `concierge-evals.yml`, and any Consulting docs that mention it
 - [ ] Keep the intake DB. The data stays; only the code moves.
+- [ ] Delete `h1-intake-bedrock`'s first access key (created 2026-11-06, used only by the Consulting Vercel project), and remove that project's intake settings
 
 **Done when:** the protocol form and the chat exist only in this repo, Consulting builds and deploys cleanly without them, and the chat can still import playbooks.
 
