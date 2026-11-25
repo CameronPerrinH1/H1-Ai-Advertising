@@ -1,0 +1,303 @@
+/*
+ * The protocol form's base styles and design tokens. The form was built on the H1 AI
+ * Consulting site; this file carries the base element styles and motion and spacing tokens it
+ * was built on (copied 2026-11-25), scoped to .ob-root, the wrapper in
+ * app/onboarding/layout.tsx, so none of it reaches the marketing pages.
+ *
+ * Its type follows this site: DM Sans for headings and text (loaded by app/globals.css),
+ * Sweet Sans Pro for small uppercase labels, and DM Serif Display italic for accents.
+ * onboarding.css sets the colours on .ob: the same purple-on-dark palette as this site.
+ */
+.ob-root {
+  --font-display-src: 'DM Sans', 'DM Sans Fallback';
+  --font-body-src: 'DM Sans', 'DM Sans Fallback';
+  --font-label: 'Sweet Sans Pro', 'Montserrat', Helvetica, Arial, sans-serif;
+  --font-serif-accent: 'DM Serif Display', 'DM Serif Fallback', Georgia, serif;
+}
+
+/* ---- Base element styles, scoped ----
+   Wrapped in :where() so they keep the low priority they had as plain element rules there,
+   and the form's own class rules (onboarding.css) still win. */
+.ob-root { min-height: 100vh; color-scheme: dark; background: var(--bg-dark); color: var(--text-on-dark);
+  font-family: var(--font-body); font-size: var(--text-body); font-weight: var(--body-weight-regular);
+  line-height: var(--line-body); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
+  interpolate-size: allow-keywords; }
+:where(.ob-root) *, :where(.ob-root) *::before, :where(.ob-root) *::after { box-sizing: border-box; }
+:where(.ob-root) :where(img, video) { max-width: 100%; height: auto; }
+:where(.ob-root) [hidden] { display: none !important; }
+/* The marketing stylesheet colours every link purple (a, a:hover). These tie with those rules
+   and load later, so they win; the form's own link classes still win over both. */
+:where(.ob-root) a, :where(.ob-root) a:hover { color: inherit; }
+:where(.ob-root) :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+:where(.ob-root) :where(h1, h2, h3, h4) { font-family: var(--font-display); font-weight: var(--display-weight);
+  line-height: var(--line-snug); margin: 0; text-wrap: balance; }
+:where(.ob-root) p { margin: 0; }
+:where(.ob-root) .accent { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) {
+  :where(.ob-root) *, :where(.ob-root) *::before, :where(.ob-root) *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Design tokens the form was built on (from the H1 AI Consulting site), scoped ---- */
+/*
+ * H1 AI Consulting — design tokens.
+ *
+ * Values are the site's to own; @h1/kit consumes them and defines none of them
+ * (docs/design-system.md §1). Transcribed from
+ * the design system's tokens (retired with the artboards, 2026-09-22), with two deliberate additions marked below.
+ */
+
+/* Fonts are loaded by next/font in src/app/layout.tsx, NOT by @import here.
+ * An @import puts the font discovery behind a CSS fetch and parse — serialised
+ * round-trips on the critical path. next/font self-hosts the files, preloads
+ * them, and generates size-adjust fallback metrics so the swap causes no layout
+ * shift (docs/design-system.md §4).
+ *
+ * Italic is loaded deliberately (decided 2026-09-17); the source design system
+ * shipped weight axes only, so italics were browser-synthesised. Both families
+ * are variable fonts, so normal + italic is two files each, not seven.
+ */
+.ob-root {
+  /* ── grounds: the two-ground rhythm. Sections alternate; never a third. ── */
+  --bg-dark: #0a1017;
+  --surface-dark: #111a24;
+  --surface-dark-alt: #16222e;
+  --border-dark: #1e2a36;
+  --border-dark-alt: #22303d;
+  /* A shade lighter than --border-dark-alt: a scrollbar thumb that matches the
+     border it sits beside cannot be found. */
+  --scrollbar-thumb: #2a3846;
+
+  --bg-light: #eef2f5;
+  --bg-white: #ffffff;
+  --surface-light-alt: #f6f8fa;
+  --border-light: #dbe3e9;
+  --border-light-alt: #e4eaee;
+
+  /* ── text ramps, per ground ── */
+  --text-on-dark: #eef4f8;
+  --text-on-dark-muted: #9fb0bf;
+  --text-on-dark-faint: #6f8496;
+  --text-on-dark-dim: #5b6e7e;
+
+  --text-on-light: #0a1017;
+  --text-on-light-muted: #4c5a67;
+  /* Body copy inside a card runs a shade warmer than body copy on the page. */
+  --text-on-card: #4c4858;
+  --text-on-light-faint: #5d6b78;
+  --text-on-light-dim: #8b98a4;
+
+  /* ── one accent. No secondary hue anywhere on the site. ── */
+  --accent: #0099ff;
+  --accent-deep: #0067b8;
+  --accent-bright: #00c2ff;
+  /*
+   * The bright end of every gradient in the artboards. Not --accent: #00a2f3
+   * carries more green, so it is perceptibly lighter than #0099ff, and the far
+   * side of a large gradient panel — the closing CTA band especially — read
+   * darker than the design until this was split out. The flat accent stays
+   * #0099ff; only gradients end here.
+   */
+  --accent-lit: #00a2f3;
+
+  --gradient-brand: linear-gradient(105deg, var(--accent-deep), var(--accent-lit));
+  --gradient-border: linear-gradient(105deg, var(--accent-bright), var(--accent-deep));
+
+  /* A glow adds light; it does not darken. The earlier value was a mid blue —
+   * rgba(0, 120, 200, .3) — whose red channel is 0, so over the near-black
+   * ground it pulled red DOWN from 10 to 8 and composited to rgb(8, 40, 64):
+   * a dark, desaturated smudge rather than a glow. This tint is light enough
+   * to raise every channel, so it reads as light rather than as shade, and the
+   * alphas are lower so it reads as less of it.
+   *
+   * Kept as channels so each use can set its own alpha from one colour. */
+  --glow-tint: 125, 212, 255;
+  /* Less offset and more spread than a drop shadow would use. Offset reads as
+   * a thing casting shade; spread reads as a thing giving off light, and on a
+   * near-black ground that difference is most of why the old one looked grey. */
+  --glow-button: 0 6px 28px rgba(var(--glow-tint), 0.22);
+  --glow-button-hover: 0 8px 34px rgba(var(--glow-tint), 0.32);
+  /* The same glow read against a light ground, where a tint lighter than the
+     ground cannot be seen at all. */
+  --glow-button-on-light: 0 12px 30px rgba(0, 120, 200, 0.22);
+  --glow-card: 0 8px 30px rgba(var(--glow-tint), 0.16);
+  --glow-card-strong: 0 10px 40px rgba(var(--glow-tint), 0.2);
+  /* A glow cast by the drawn ring itself rather than by the button, so it
+   * follows the arc as it travels. drop-shadow works off the element's alpha,
+   * and after the mask that alpha IS the 1px ring. Stated in the accent rather
+   * than --glow-tint so it also registers on a light ground. */
+  --glow-ring: drop-shadow(0 0 5px rgba(0, 153, 255, 0.55));
+
+  /* ── type ── */
+  --font-display: var(--font-display-src), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body: var(--font-body-src), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* Italic is a separate family because it is loaded separately; see the note
+     in layout.tsx. `font-style: italic` alone would synthesise a slant. */
+  --font-display-italic: var(--font-display-italic-src), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body-italic: var(--font-body-italic-src), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-signature: var(--font-signature-src), cursive;
+
+  --display-weight: 600;
+  --tracking-hero: -0.045em;
+  --tracking-h2: -0.04em;
+  --tracking-h3: -0.03em;
+
+  /* Fluid scale added by us: the source specifies fixed px for everything but
+   * the hero, which overflows a 400px viewport (design-system.md §2.2).
+   *
+   * The artboards size each h2 individually — 40/42/44/46/50/52 across the nine
+   * homepage sections. Rather than carry six h2 tokens across twelve pages, the
+   * scale keeps one h2 at the measured median (44) with --sm and --lg steps at
+   * the ends of the observed range. Decided 2026-09-17; if the spread turns out
+   * to be deliberate emphasis rather than hand-tweaking in the canvas, this is
+   * the place it becomes six values. */
+  --text-hero: clamp(40px, 7vw, 88px);
+  /* Interior pages open a step below the homepage: 84px against its 88. */
+  --text-hero-page: clamp(38px, 6.6vw, 84px);
+  --text-h1: clamp(34px, 5vw, 52px);
+  --text-h2: clamp(30px, 4.2vw, 44px);
+  --text-h2-sm: clamp(28px, 3.6vw, 41px);
+  --text-h2-lg: clamp(33px, 4.8vw, 51px);
+  --text-h3: clamp(22px, 2.4vw, 26px);
+  --text-h3-sm: clamp(20px, 2.1vw, 23px);
+  --text-h4: clamp(18px, 2vw, 21px);
+  --text-stat-lg: clamp(40px, 6vw, 62px);
+  --text-stat-md: clamp(30px, 4vw, 40px);
+
+  --text-lede: clamp(18px, 2.2vw, 21px);
+  --text-body-lg: clamp(17px, 1.8vw, 18.5px);
+  --text-body: 16.5px;
+  --text-body-sm: 15px;
+  --text-caption: 13px;
+  --text-eyebrow: 14px;
+
+  --body-weight-light: 300;
+  --body-weight-regular: 400;
+  --body-weight-medium: 500;
+  --body-weight-semibold: 600;
+
+  /* Measured off the artboards: the hero h1 sets at 0.98 (88px type on an 86.2px
+   * line), and section h2s at ~1.05 — not the 1.2 an earlier build used for
+   * both. h3 genuinely is ~1.15-1.2. */
+  /* Buttons set their own leading. The artboards leave every pill at
+   * `line-height: normal`, which for Public Sans is about 1.17; inheriting the
+   * body's 1.6 instead makes a 15px label occupy 24px of line box and stands a
+   * 51px pill up at 58, with the padding still at the design's 16px. */
+  --line-button: 1.167;
+
+  --line-tight: 0.98;
+  --line-h2: 1.05;
+  --line-snug: 1.18;
+  --line-body: 1.6;
+  --line-relaxed: 1.7;
+
+  /* ── space ── */
+  --content-max: 1320px;
+  --content-max-narrow: 1180px;
+  --content-max-copy: 1000px;
+
+  --space-1: 8px;  --space-2: 12px; --space-3: 16px;
+  --space-4: 20px; --space-5: 28px; --space-6: 36px;
+  --space-7: 56px; --space-8: 88px; --space-9: 96px;
+
+  --gap-tight: 8px; --gap-sm: 14px; --gap-md: 20px;
+  --gap-lg: 40px;   --gap-xl: 56px;  --gap-2xl: 64px;
+
+  --section-pad-y: clamp(56px, 9vw, 100px);
+  /* The sticky header's height. Anchor jumps are offset by it — see html in
+     site.css — so a linked section starts below the header, not under it. */
+  --header-h: 87px;
+  --section-pad-x: clamp(20px, 4vw, 40px);
+
+  /* ── shape ── */
+  --radius-pill: 999px;
+  --radius-xl: 32px; --radius-lg: 28px; --radius-md: 24px;
+  --radius-sm: 20px; --radius-xs: 12px;
+
+  /* ── motion: 0.2–0.28s, one curve. opacity/colour/background/shadow only.
+   *    No bounce, no scale, no slide-ins (design-system.md §3.2). ── */
+  --dur-fast: 0.2s;
+  --dur-standard: 0.28s;
+  /* The brand rule is "0.2-0.28s ease", and every artboard writes `ease`
+   * literally. An earlier version of this file used cubic-bezier(.4, 0, .2, 1),
+   * which front-loads the change and reads as abrupt against the rest of the
+   * site. `ease` eases in and out; that is the whole difference. */
+  --ease-standard: ease;
+
+  /* ── the alive layer ──────────────────────────────────────────────────
+   * Hovering a call to action should read as something waking up, not as a
+   * value changing. These four are longer than the 0.2-0.28s state-change
+   * scale on purpose: a state change should be over before you notice it,
+   * and a thing coming alive should not. Added 2026-09-18; the reasoning and
+   * the constraints they replace are in design-system.md §3.2.
+   */
+  --dur-draw: 0.38s;       /* the outline ring drawing itself around */
+  /* Closing a bio, in three movements. JS reads these off the element rather
+     than restating them, so the moment it calls close() cannot drift from the
+     moment the last one finishes. */
+  --bio-out-content: 0.12s;  /* the words go first */
+  --bio-out-shrink: 0.20s;   /* then the card closes downward, top pinned */
+  --bio-out-blur: 0.14s;     /* and only then does the page come back */
+  --dur-reveal: 0.34s;     /* the levelling edge crossing a solid button */
+  --dur-orbit: 5s;         /* a gradient border circling, while hovered */
+  --dur-count: 1.7s;       /* a figure resolving from noise */
+  --ease-draw: cubic-bezier(.22, .61, .36, 1);   /* fast away, soft arrival */
+  --ease-wipe: cubic-bezier(.65, 0, .35, 1);     /* an edge crossing a surface */
+
+  /* ── the page transition ──
+   * Navigation is wayfinding and the one sanctioned exception to the 0.28s
+   * ceiling (design-system.md §3.5). The curtain is the ground the hero sits
+   * on, so a page leaves into the colour the next one arrives out of.
+   *
+   * Its lean is smaller than a button's: --wipe-skew is a share of the
+   * element's height, and 14% of a viewport is a far steeper diagonal than 14%
+   * of a pill. */
+  --curtain-ink: var(--bg-dark);
+  --curtain-skew: 8%;
+  --dur-curtain-fall: 0.3s;     /* the dark edge crossing the outgoing page */
+  --curtain-hold: 0.14s;        /* the beat it rests, covering everything */
+  --dur-curtain-clear: 0.52s;   /* dissolving downwards as the page renders */
+  /* When the incoming page's entrances start: once the curtain has landed and
+     held. Must equal fall + hold — the boot script reads this to time the
+     curtain's own release, so the two cannot be set independently. */
+  --curtain-gate: 0.44s;
+
+  /* ── entrances ── */
+  /* 0.45s, down from 0.62s. However early an entrance fires, it still has to
+     finish, and a reader covers a lot of page in the difference — the tail of
+     a slow fade is what reads as "empty space before it triggers". */
+  --dur-enter: 0.45s;      /* one element arriving */
+  --enter-step: 70ms;      /* between one and the next in a stagger */
+  --enter-row: 80ms;       /* between one band of the first screen and the next */
+  /* A beat between arriving at something and it responding. The trigger point
+     does most of the work (see boot-script.ts); this is what turns "it was
+     already moving" into "it moved because I got here". 150ms read as laggy
+     once the trigger moved deeper — the two compound. */
+  --enter-lead-scroll: 60ms;
+  --enter-blob: 0.4s;      /* decorative light, after the content it sits behind */
+  --dur-rule: 0.55s;       /* a divider drawing itself across */
+  --enter-rise: 18px;      /* how far it travels — a settle, never a slide */
+  --ease-out: cubic-bezier(0, 0, .35, 1);        /* away fast, arriving gently */
+  /* Its mirror, for things leaving: starts where it is and gathers speed on
+     the way out. An exit on --ease-out lurches, then crawls the last few
+     pixels, which is what makes a dismissal feel slow however short it is. */
+  --ease-in: cubic-bezier(.65, 0, 1, 1);         /* gathering speed, leaving */
+  --ease-breathe: cubic-bezier(.45, 0, .55, 1);  /* even in and out, no accent */
+
+  /* How far the leading edge of a wipe leans before it levels out, as a share
+   * of the height it is crossing. Positive puts the right side lower. Expressed
+   * this way rather than as an angle so a pill and a full page lean the same
+   * amount instead of the same degrees. */
+  --wipe-skew: 14%;
+
+  /* Two solid colours expressed as gradients, so a gradient can transition TO
+   * them. `background-image: none` is not interpolable from a gradient: the
+   * browser swaps it discretely halfway through, which is visible as a flash.
+   * The artboards do exactly this. */
+  --gradient-white: linear-gradient(105deg, #ffffff, #ffffff);
+  --gradient-ink: linear-gradient(105deg, var(--bg-dark), var(--bg-dark));
+  /* Ink with depth, for a filled control on a coloured ground. */
+  --gradient-ink-raised: linear-gradient(105deg, var(--bg-dark), var(--surface-dark-alt));
+}
