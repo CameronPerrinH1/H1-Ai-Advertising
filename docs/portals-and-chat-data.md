@@ -127,11 +127,44 @@ answers publish straight into the same Neon records.
 - **Whether client edits go live immediately or wait for admin approval.** Suggestion: prices,
   services and anything medical wait for approval (D38, D74); hours and similar can go live
   immediately.
-- **Which Neon database** holds the chat info: the intake DB (already per-spa business content
-  with RLS), the platform DB, or a new one. D85 keeps the intake DB apart from anything else, so
-  check that before choosing.
-- **How a client maps to a login** and which record is "the client" (`intake_spas` row, platform
-  `organization`, or both). Carried over from Milestone 3.
+- ~~Which Neon database~~: decided 2026-11-25, the h1-intake database (D93).
+- ~~How a client maps to a login~~: decided 2026-11-25, the `intake_spas` row is the client; a
+  membership table maps Better Auth users to it (D94).
 - **Where dashboard metrics come from.** Recommended earlier: each chat stack pushes its monthly
   summaries (aggregates only, no transcripts) to a Neon table, so the site never reads a
   client's AWS account. Needs a check against D55 and the client agreement before it ships.
+
+## 8. What the design adds (read 2026-11-25)
+The design is in `../../Designs/Ai Dashboard/` (both subfolders are the same export). It is a
+fuller **client-success portal** than Sections 1–7 assumed. Decided the same day: the client
+record is the `intake_spas` row, everything lives in the h1-intake database (now "the client
+database", D93), and logins are Better Auth email and password, invite-only (D94). Build steps:
+`CHECKLIST.md`, "Game plan", Phases C–E.
+
+### 8.1 Screens
+- **Client portal**: *Onboarding* (3 phases of steps with owner, status and an action link set
+  by H1; current phase; target launch; next step; meetings; final "Approve for Launch"),
+  *Advertising* (a campaign month by month: strategy, budget, creative and copy review links,
+  monthly approval, AI Impact Report PDF), *AI Chat* (coordinator card, update requests,
+  handoff requests, booked appointments), *Profile* (logo and business details). Sidebar
+  links to the Master Client Folder and Creative Review, and the H1 team contact.
+- **Admin portal** (client editor): client list and "+ Add Client"; per client the profile,
+  portal access and invites, step statuses and links, campaign months and report upload, stage
+  status, the update queue and "log an update", and the handoff and booking tables.
+
+### 8.2 How it changes the plan
+- **Chat info changes go through a request queue, not direct editing** (proposed D95). The
+  client asks for a change ("Update HydraFacial pricing"); H1 makes it and marks it live; the
+  client sees what the coordinator now knows. So the first portal doesn't need the
+  versioned chat-info editor. Sections 3–5 still describe where the chat's information goes
+  (Milestone 6); once that exists, "mark live" can publish a new version from inside the admin.
+- **Handoff requests and booked appointments are guest data** (names, phones, emails, chat
+  summaries, full conversations). D55 and D78 keep guest data in the spa's own AWS account and
+  out of H1's systems, so these tables must not be copied into Neon or pass through Vercel.
+  Proposed: the browser loads them directly from the spa's chat API (its `chat.` domain), with
+  a short-lived token the portal issues and the spa's stack checks. Until that's built
+  (Phase E), the tables show the design's empty state. Needs a compliance check first.
+- **Files**: logos and AI Impact Report PDFs need storage. Proposed: Vercel Blob, private, read
+  through the portal. These are business files, never guest data.
+- **Approvals**: "Approve for Launch" and each month's approval are commitments to spend the
+  client's ad budget, so they're recorded like the form's sign-off (who, when, what), D74.

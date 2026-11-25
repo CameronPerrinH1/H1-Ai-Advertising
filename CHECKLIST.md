@@ -26,29 +26,38 @@ Where things stand: Milestones 1, 2 and 4 are merged (PRs #1, #3, #4). The chat 
 
 **Phase A is done when** a real spa goes from link → signed form → exported playbook → running chat entirely from this repo, and Consulting no longer has the code.
 
-### Phase B: Settle the portal decisions (one sitting with Cameron)
-Recommendations are Claude's; Cameron decides. Record each answer in Milestone 3 and in the decision log.
-- [ ] **B1. The client record** = the `intake_spas` row (it already holds the profile, emails, form answers and approvals). Add a `client_id` column linking it to the chat's client (`concierge/clients/<id>`). Don't depend on Consulting's platform database.
-- [ ] **B2. Where the chat info lives** = the h1-intake Neon database, renamed in docs to the **client database**: spas, logins, form answers and chat info, all keyed by spa, under one row-level security model. This revises D85's "wizard only" rule, so it needs Cameron's OK. Alternative: a new Neon database just for portals and chat info.
-- [ ] **B3. Logins** = Better Auth in this app, the same setup Consulting's `apps/platform` uses: email and password, invite-only, no public sign-up. Roles: `admin` (H1 staff, every spa) and `client` (one spa). A membership table maps a user to a spa. The session decides the spa, never the URL.
-- [ ] **B4. Portal v1 scope** = read-only chat info + form status. No metrics yet (they need the DynamoDB → Neon summary push; check D55 first). No editing yet.
-- [ ] **B5. Design.** Export the dashboard design into `design/dashboard/` (Milestone 0). Without it, build the shell plainly in the site's look and restyle when the design arrives.
+### Phase B: Portal decisions (decided 2026-11-25)
+- [x] **B1. The client record** = the `intake_spas` row, plus a `client_id` column linking it to the chat's client (`concierge/clients/<id>`). No dependency on Consulting's platform database.
+- [x] **B2. One client database** = the h1-intake Neon database: spas, logins, form answers, portal data and chat info, all keyed by spa under one row-level security model. Revises D85 (D93).
+- [x] **B3. Logins** = Better Auth in this app (Consulting's `apps/platform` setup): email and password, invite-only. Roles `admin` (H1, every spa) and `client` (one spa); a membership table maps users to spas; the session decides the spa, never the URL.
+- [x] **B4. The design** is in `../Designs/Ai Dashboard/` (the `Client Portal` and `Admin Portal` folders are the same export). View it with `python3 -m http.server` in that folder. Screens: `Artboard-6elj` (client portal, Onboarding tab), `PortalQA-Empty` / `PortalQA-Complete` (first and last states), `PortalAdvertising`, `PortalAIChat`, `PortalProfile`, `H1Admin` (admin client editor). Tokens: `ds/h1ai/tokens.json`. Notes on what it means for the build: `docs/portals-and-chat-data.md`, Section 8.
 
-### Phase C: Foundations (Milestone 3, first half)
-- [ ] **C1. Shared schema.** Move the chat's zod schemas (`concierge/backend/src/config/schema.ts`) into `concierge/shared` (or a new `@concierge/config` package) and import them from both the chat and the site. Chat tests must still pass unchanged.
-- [ ] **C2. Chat-info tables.** One row per spa, section and version: `spa_id`, `section`, `version`, `status` (`draft`/`published`), `data` (jsonb, validated by C1's schema), `content_hash`, `created_by`, `created_at`. Row-level security like the intake tables, with a raw-SQL test that one spa can't read another's.
-- [ ] **C3. Import.** `pnpm chat-info import <client id>` loads a `concierge/clients/<id>` folder as published version 1. Run it for Plumb + Pine and the two demo spas.
-- [ ] **C4. Auth.** Better Auth tables and migration, login page, session helper, protected `/portal` and `/admin` layouts, and an invite command (`pnpm portal invite <email> --admin` or `--spa <id>`). Tests: a client session can't load another spa or any `/admin` page.
-- [ ] **C5. Settings.** `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in Vercel Production; names in `.env.example`.
+**What the design asks for** (replaces the earlier "read-only chat info" scope):
+- **Client portal**, four tabs and a sidebar. *Onboarding*: overall progress, current phase, target launch, 3 phases of steps (owner you/H1/both, status, an action link per step), "Your next step", upcoming meetings, and the final "Approve for Launch" checkbox. *Advertising*: a campaign calendar by month; each month has ad strategy (focus, offer, audience, goal), budget, links to review creative and copy, a monthly client approval, and a downloadable AI Impact Report (PDF). *AI Chat*: the coordinator card (status, "View your coordinator"), **coordinator updates** (the client requests a change in a text box; H1 marks it live), and tables of **handoff requests** and **booked appointments**. *Profile*: logo upload and business details. Sidebar: Master Client Folder and Creative Review links, the H1 team contact, log out.
+- **Admin portal** (client editor): client list with search, filters and stage, "+ Add Client"; per client: logo and profile fields (synced with the client's Profile), **portal access** (invite users, last login), folder and step links, each onboarding step's status, campaign months (+ Add Month, fields, report upload), stage status, the **update queue** (requested, in progress, live), "log an update", and the same handoff and booking tables.
 
-### Phase D: The portals, read-only (Milestone 3, second half)
-- [ ] **D1. Shell** from the design (or the site's look): nav, layout, empty, loading and error states.
-- [ ] **D2. Admin portal** (`/admin`): every spa with its form status, chat-info version and published date; open a spa to read each section and its history.
-- [ ] **D3. Client portal** (`/portal`): the spa's own chat info by section, read-only, plus form status and a button into the form.
-- [ ] **D4. Security pass:** tenant isolation, no secrets in the browser, admin routes refuse client sessions, `noindex` on both portals.
-- [ ] **D5. Go live:** invite Cameron as admin and Jen (Plumb + Pine) as the first client.
+**Still to decide** (recommendations are Claude's; see `docs/portals-and-chat-data.md`, Section 8):
+- [ ] **B5. Handoff requests and booked appointments hold guest data** (names, phones, emails, chat summaries, full conversations). D55 and D78 keep all guest data in each spa's own AWS account, never at H1. Recommended: the portal page loads these tables **straight from the spa's own chat API in the browser** (a short-lived token from the portal, checked by the spa's stack), so guest data never passes through Vercel or Neon. Until built, both tables show the design's empty state ("will appear once the coordinator is live").
+- [ ] **B6. Coordinator updates follow the design's request queue**, not direct editing: the client asks for a change, H1 makes it in the chat config and marks it live. Recommended: build the queue now; the versioned chat-info tables (Milestone 6) come later and give H1 an in-portal editor behind "mark live".
+- [ ] **B7. File storage** for logos and AI Impact Report PDFs. Recommended: Vercel Blob (business files, not guest data), private, served through the portal.
 
-**Phase D is done when** Milestone 3's "Done when" is true: a real client logs in, sees only their own chat info, and an H1 admin sees every client's.
+### Phase C: Foundations
+- [ ] **C1. Schema and migrations** in the client database: `client_id` and stage on `intake_spas`; portal tables for onboarding steps (status, owner, link), campaign months (strategy, budget, links, approval, report file), meetings, folder links, profile fields, the update queue, and the H1 team contact. Row-level security per spa, tested with raw SQL like the intake tables.
+- [ ] **C2. Auth**: Better Auth tables and migration, login page, session helper, protected `/portal` and `/admin` layouts, an invite flow (admin "+ Invite User" sends an email; first admin created with `pnpm portal invite <email> --admin`). Tests: a client session can't load another spa or any `/admin` route.
+- [ ] **C3. Design tokens and shell**: bring `ds/h1ai/tokens.json` in as CSS variables scoped to the portals; build the sidebar, tabs and layout from the design, with empty, loading and error states.
+- [ ] **C4. Settings**: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, file-storage token in Vercel Production; names in `.env.example`.
+
+### Phase D: The portals (Milestone 3)
+- [ ] **D1. Admin client editor** first, since it creates the data: client list, add client, profile and logo, portal access and invites, step statuses and links, campaign months and report upload, stage status, update queue.
+- [ ] **D2. Client portal**: Onboarding, Advertising, AI Chat (coordinator card, update requests; handoff and booking tables as empty states until B5 is built), Profile.
+- [ ] **D3. Launch approvals**: the final "Approve for Launch" and each month's approval record who approved and when (like the form's sign-off, D74).
+- [ ] **D4. Security pass**: tenant isolation, admin routes refuse client sessions, no secrets in the browser, `noindex`, private files only reachable by their spa.
+- [ ] **D5. Go live**: invite Cameron as admin and Jen (Plumb + Pine) as the first client.
+
+**Phase D is done when** a real client logs in, sees only their own portal with real data, and an H1 admin can run every client from the admin editor.
+
+### Phase E: Guest data in the portal (after D)
+- [ ] Build B5: a portal-token endpoint in the chat stack (handoffs, bookings, a conversation view), CORS for the portal's origin, and the tables reading from it. Needs a compliance check (D55) before it ships.
 
 ### After that
 Milestone 6 (the chat reads published info from Neon instead of YAML), Milestone 7 (one release deploys to every client account), then editing in the portals (drafts, then publish). The data model from Phase C is what makes these additions rather than rebuilds.
