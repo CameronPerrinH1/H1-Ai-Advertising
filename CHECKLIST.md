@@ -10,6 +10,48 @@ First written 2026-11-20; restructured into milestones 2026-11-24; portals and c
 
 ---
 
+## Game plan: verify the move, then build the portals (written 2026-11-25)
+Where things stand: Milestones 1, 2 and 4 are merged (PRs #1, #3, #4). The chat and the protocol form live in this repo; the form is live at www.h1aiadvertising.com/onboarding and connected to the intake database. Nothing has been removed from Consulting yet. Work through the phases in order; each ends with a check, so a later phase never builds on something unverified. Phase B can happen while Phase A is in progress.
+
+### Phase A: Prove the move worked (finishes Milestones 2, 4 and 5)
+- [ ] **A1. Live form test with a real link.** Cameron saves `.env.local` with `INTAKE_DATABASE_URL_UNPOOLED=<pooled string>` (the name keeps `pnpm dev` off production). Then: `pnpm intake create-spa` for "H1 Test Spa" (owner: Cameron), and on www.h1aiadvertising.com check the link opens the form, autosave, a second tab gets 409, the AI helpers (name ideas, role-play guest, screenshot reader), sign-off sends the email, approvals show in the database. Then `pnpm intake revoke <id>` and delete `.env.local`.
+- [ ] **A2. Form to chat.** `pnpm export-playbook <test spa> out.json --draft`, then `pnpm import-playbook` in `concierge/` and `CLIENT_ID=<id> pnpm chat:dev`: the chat runs with those answers.
+- [ ] **A3. Continuity.** A spa that started on Consulting: `pnpm intake new-link <its id>` gives an Advertising link that opens with its answers in place (same database).
+- [ ] **A4. Chat deploys from here.** `pnpm --filter @concierge/infra deploy` for `glow-med-spa-staging`, then `check:deploy glow-med-spa-staging` passes. Then Plumb + Pine's stack (still waiting on the Bedrock access case). Set up evals in CI (AWS role trust + `EVAL_ROLE_ARN`).
+- [ ] **A5. Cut over.** New spas get Advertising links. Redirect Consulting's `/onboarding` to `https://www.h1aiadvertising.com/onboarding`.
+- [ ] **A6. Clean up Consulting (Milestone 5)** through a PR there: delete the form and `concierge/`, its CI jobs, the old `h1-intake-bedrock` access key and Consulting's intake settings on Vercel.
+
+**Phase A is done when** a real spa goes from link → signed form → exported playbook → running chat entirely from this repo, and Consulting no longer has the code.
+
+### Phase B: Settle the portal decisions (one sitting with Cameron)
+Recommendations are Claude's; Cameron decides. Record each answer in Milestone 3 and in the decision log.
+- [ ] **B1. The client record** = the `intake_spas` row (it already holds the profile, emails, form answers and approvals). Add a `client_id` column linking it to the chat's client (`concierge/clients/<id>`). Don't depend on Consulting's platform database.
+- [ ] **B2. Where the chat info lives** = the h1-intake Neon database, renamed in docs to the **client database**: spas, logins, form answers and chat info, all keyed by spa, under one row-level security model. This revises D85's "wizard only" rule, so it needs Cameron's OK. Alternative: a new Neon database just for portals and chat info.
+- [ ] **B3. Logins** = Better Auth in this app, the same setup Consulting's `apps/platform` uses: email and password, invite-only, no public sign-up. Roles: `admin` (H1 staff, every spa) and `client` (one spa). A membership table maps a user to a spa. The session decides the spa, never the URL.
+- [ ] **B4. Portal v1 scope** = read-only chat info + form status. No metrics yet (they need the DynamoDB → Neon summary push; check D55 first). No editing yet.
+- [ ] **B5. Design.** Export the dashboard design into `design/dashboard/` (Milestone 0). Without it, build the shell plainly in the site's look and restyle when the design arrives.
+
+### Phase C: Foundations (Milestone 3, first half)
+- [ ] **C1. Shared schema.** Move the chat's zod schemas (`concierge/backend/src/config/schema.ts`) into `concierge/shared` (or a new `@concierge/config` package) and import them from both the chat and the site. Chat tests must still pass unchanged.
+- [ ] **C2. Chat-info tables.** One row per spa, section and version: `spa_id`, `section`, `version`, `status` (`draft`/`published`), `data` (jsonb, validated by C1's schema), `content_hash`, `created_by`, `created_at`. Row-level security like the intake tables, with a raw-SQL test that one spa can't read another's.
+- [ ] **C3. Import.** `pnpm chat-info import <client id>` loads a `concierge/clients/<id>` folder as published version 1. Run it for Plumb + Pine and the two demo spas.
+- [ ] **C4. Auth.** Better Auth tables and migration, login page, session helper, protected `/portal` and `/admin` layouts, and an invite command (`pnpm portal invite <email> --admin` or `--spa <id>`). Tests: a client session can't load another spa or any `/admin` page.
+- [ ] **C5. Settings.** `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in Vercel Production; names in `.env.example`.
+
+### Phase D: The portals, read-only (Milestone 3, second half)
+- [ ] **D1. Shell** from the design (or the site's look): nav, layout, empty, loading and error states.
+- [ ] **D2. Admin portal** (`/admin`): every spa with its form status, chat-info version and published date; open a spa to read each section and its history.
+- [ ] **D3. Client portal** (`/portal`): the spa's own chat info by section, read-only, plus form status and a button into the form.
+- [ ] **D4. Security pass:** tenant isolation, no secrets in the browser, admin routes refuse client sessions, `noindex` on both portals.
+- [ ] **D5. Go live:** invite Cameron as admin and Jen (Plumb + Pine) as the first client.
+
+**Phase D is done when** Milestone 3's "Done when" is true: a real client logs in, sees only their own chat info, and an H1 admin sees every client's.
+
+### After that
+Milestone 6 (the chat reads published info from Neon instead of YAML), Milestone 7 (one release deploys to every client account), then editing in the portals (drafts, then publish). The data model from Phase C is what makes these additions rather than rebuilds.
+
+---
+
 ## The pieces
 
 | Piece | What it is | Built with | Hosted on |
