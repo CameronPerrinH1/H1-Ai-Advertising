@@ -62,8 +62,9 @@ after editing it.
 ## Deploy
 
 `vercel.json` sets the framework to Next.js, so the Vercel project needs no build settings.
-Every booking button links to `/book`, which embeds the scheduling calendar from
-go.h1aiadvertising.com (loaded with `next/script`).
+Every booking button links to `/book`, which embeds the HighLevel scheduling calendar from
+`api.leadconnectorhq.com`, sized by HighLevel's `form_embed.js` (loaded with `next/script`).
+The custom domain go.h1aiadvertising.com serves only funnel pages, not the calendar.
 
 ## Before going live
 - In Vercel, add `h1aiadvertising.com` and redirect `www.h1aiadvertising.com` to it (canonical URLs, sitemap and JSON-LD all use the bare domain).
