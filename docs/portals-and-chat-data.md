@@ -153,7 +153,7 @@ database", D93), and logins are Better Auth email and password, invite-only (D94
   status, the update queue and "log an update", and the handoff and booking tables.
 
 ### 8.2 How it changes the plan
-- **Chat info changes go through a request queue, not direct editing** (proposed D95). The
+- **Chat info changes go through a request queue, not direct editing** (D95). The
   client asks for a change ("Update HydraFacial pricing"); H1 makes it and marks it live; the
   client sees what the coordinator now knows. So the first portal doesn't need the
   versioned chat-info editor. Sections 3–5 still describe where the chat's information goes
@@ -161,10 +161,10 @@ database", D93), and logins are Better Auth email and password, invite-only (D94
 - **Handoff requests and booked appointments are guest data** (names, phones, emails, chat
   summaries, full conversations). D55 and D78 keep guest data in the spa's own AWS account and
   out of H1's systems, so these tables must not be copied into Neon or pass through Vercel.
-  Proposed: the browser loads them directly from the spa's chat API (its `chat.` domain), with
+  Decided: the browser loads them directly from the spa's chat API (its `chat.` domain), with
   a short-lived token the portal issues and the spa's stack checks. Until that's built
   (Phase E), the tables show the design's empty state. Needs a compliance check first.
-- **Files**: logos and AI Impact Report PDFs need storage. Proposed: Vercel Blob, private, read
+- **Files**: logos and AI Impact Report PDFs need storage. Decided: Vercel Blob, private, read
   through the portal. These are business files, never guest data.
 - **Approvals**: "Approve for Launch" and each month's approval are commitments to spend the
   client's ad budget, so they're recorded like the form's sign-off (who, when, what), D74.
