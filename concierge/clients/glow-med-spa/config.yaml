@@ -1,0 +1,224 @@
+# Glow Med Spa: a FICTIONAL business for local development and demos.
+# Content is illustrative only and has not been reviewed by a medical director.
+# No secrets in this file. Shape follows ai-concierge-handoff/templates/client-config.example.yaml.
+client_id: glow-med-spa
+demo: true
+
+business:
+  name: Glow Med Spa
+  phone: "(555) 555-0100"
+  urgent_line: "(555) 555-0199"
+  crisis_line: "988"
+  privacy_policy_url: "https://glowmedspa.example/privacy"
+  consumer_health_privacy_policy_url: null
+  terminology: { clients: guests, services: treatments }
+  locations:
+    - id: loc-main
+      name: Glow Med Spa
+      address: "123 Main St, Anytown, OR 97000"
+      timezone: America/Los_Angeles
+      hours:
+        tue: "09:00-18:00"
+        wed: "09:00-18:00"
+        thu: "09:00-19:00"
+        fri: "09:00-18:00"
+        sat: "09:00-16:00"
+
+booking_mode: link_handoff
+
+booking:
+  platform: unknown
+  direct_links:
+    default: "https://book.glowmedspa.example"
+    services:
+      hydrafacial: "https://book.glowmedspa.example/services/hydrafacial"
+      hydrafacial-deluxe: "https://book.glowmedspa.example/services/hydrafacial-deluxe"
+      chemical-peel: "https://book.glowmedspa.example/services/chemical-peel"
+      dermaplaning: "https://book.glowmedspa.example/services/dermaplaning"
+      microneedling: "https://book.glowmedspa.example/services/microneedling"
+      laser-hair-removal: "https://book.glowmedspa.example/services/laser-hair-removal"
+      ipl-photofacial: "https://book.glowmedspa.example/services/ipl-photofacial"
+      injectable-consultation: "https://book.glowmedspa.example/services/injectable-consultation"
+  self_service_link: "https://book.glowmedspa.example/my-appointments"
+  rules:
+    min_notice_hours: 4
+    max_days_ahead: 90
+    prerequisites:
+      - service: botox
+        requires: injectable-consultation
+      - service: dysport
+        requires: injectable-consultation
+      - service: lip-filler
+        requires: injectable-consultation
+  allowed_phone_countries: [US]
+  limits:
+    max_bookings_per_session: 2
+    max_callbacks_per_session: 2
+
+knowledge:
+  service_details_file: service-details.yaml
+  services_file: services.yaml
+  faqs_file: faqs.yaml
+  products_file: products.yaml
+  providers_file: providers.yaml
+  objections_file: objections.yaml
+  urgent_message_file: urgent-message.yaml
+  policies:
+    cancellation: "Please give 24 hours notice to cancel or reschedule, or a $50 fee applies."
+    late_arrival: "Arrivals 15 or more minutes late may need to reschedule."
+    age_minimum: "Guests must be 18 or older for all treatments."
+    payment: "We accept all major credit cards, HSA/FSA cards where eligible, and Glow gift cards."
+
+sales:
+  featured_services: [hydrafacial, laser-hair-removal]
+  add_on_suggestions:
+    hydrafacial: [lymphatic-drainage-add-on, led-light-therapy-add-on]
+    chemical-peel: [led-light-therapy-add-on]
+    dermaplaning: [led-light-therapy-add-on]
+  promotions:
+    - id: fall-peel-2026
+      description: "20% off chemical peels"
+      services: [chemical-peel]
+      percent_off: 20
+      starts: "2026-10-01"
+      ends: "2026-10-31"
+      terms: "New and returning guests. Cannot be combined with other offers."
+      third_party_funded: false
+    - id: holiday-hydrafacial-2026
+      description: "$30 off the HydraFacial Deluxe"
+      services: [hydrafacial-deluxe]
+      amount_off: 30
+      starts: "2026-11-15"
+      ends: "2026-12-31"
+      terms: "Cannot be combined with other offers."
+      third_party_funded: false
+  fit_rules_file: fit-rules.yaml
+  memberships:
+    - id: glow-membership
+      name: Glow Membership
+      monthly_price: 169
+      includes: { service_id: hydrafacial, per_month: 1 }
+      member_discount_percent: 10
+      terms: "12-month membership. Unused monthly facials roll over for 60 days."
+
+first_visit:
+  arrive_minutes_early: 10
+  parking:
+    en: "Free parking behind the building; enter from Oak Street."
+    es: "Estacionamiento gratuito detrás del edificio; entrada por Oak Street."
+  bring:
+    en: ["A photo ID", "A list of any medications and supplements", "Any questions you'd like to ask"]
+    es: ["Una identificación con foto", "Una lista de medicamentos y suplementos", "Las preguntas que quieras hacer"]
+  intake_form_url: "https://glowmedspa.example/new-guest-form"
+  notes:
+    en: ["Wear something comfortable", "For facials, come with a clean face if you can"]
+    es: ["Usa ropa cómoda", "Para faciales, si puedes, ven con el rostro limpio"]
+
+staff_mode:
+  enabled: true
+  suggested:
+    en:
+      - "Practice a call with a nervous first-timer"
+      - "How should I answer 'Does it hurt?'"
+      - "What's our aftercare for IPL?"
+      - "What couldn't Ava answer this month?"
+    es:
+      - "Practicar una llamada con alguien nervioso"
+      - "¿Cómo respondo a '¿Duele?'?"
+      - "¿Cuál es el cuidado posterior del IPL?"
+      - "¿Qué no pudo responder Ava este mes?"
+
+voice:
+  tone: "Warm, polished, and reassuring, like a favorite front-desk coordinator. Confident, never pushy."
+  dos:
+    - "Use the guest's first name once you know it"
+    - "Keep answers short and let the cards carry the details"
+    - "Be honest about downtime"
+  donts:
+    - "No slang"
+    - "No medical advice"
+    - "No emojis"
+    - "No exclamation marks in more than one sentence per reply"
+  examples_file: voice-examples.md
+
+concierge:
+  name: Ava
+  avatar: { mode: brand_mark }
+  greeting:
+    en: "Hi, I'm Ava, Glow's virtual concierge. I can help you find the right treatment, answer questions, and get you booked. What brings you in?"
+    es: "Hola, soy Ava, la concierge virtual de Glow. Puedo ayudarte a encontrar el tratamiento ideal, responder tus preguntas y ayudarte a reservar. ¿Qué te trae por aquí?"
+  disclosure_label: { en: "Virtual Concierge", es: "Concierge Virtual" }
+  chat_notice:
+    version: "2026-10-23.1"
+    en: "You're chatting with Ava, Glow Med Spa's AI assistant. This chat is recorded to help us respond."
+    es: "Estás conversando con Ava, la asistente de IA de Glow Med Spa. Este chat se graba para ayudarnos a responder."
+
+branding:
+  colors: { primary: "#9A6B6C", secondary: "#F6EFEA", accent: "#2F2A28" }
+  fonts:
+    heading: "'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif"
+    body: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    license: "System fallbacks in local development; self-host licensed files before staff preview (D53)"
+
+display:
+  modes: [inline, fullscreen, launcher]
+  nudge_delay_seconds: 20
+  suggested_questions:
+    default:
+      en:
+        - "Help me find the right treatment"
+        - "What's good for fine lines?"
+        - "Any specials right now?"
+        - "HydraFacial vs. chemical peel?"
+      es:
+        - "Ayúdame a elegir un tratamiento"
+        - "¿Qué recomiendan para las líneas finas?"
+        - "¿Tienen promociones?"
+        - "¿HydraFacial o peeling químico?"
+    pages:
+      /botox.html:
+        en:
+          - "How much is Botox?"
+          - "Botox vs. Dysport?"
+          - "How long does Botox last?"
+          - "Who does injections?"
+        es:
+          - "¿Cuánto cuesta el Botox?"
+          - "¿Botox o Dysport?"
+          - "¿Cuánto dura el Botox?"
+          - "¿Quién aplica las inyecciones?"
+
+handoff:
+  email_from: "concierge@glowmedspa.example"
+  email_to: "front-desk@glowmedspa.example"
+  email_provider_baa_confirmed: true
+  callback_response_time: { en: "within one business day", es: "dentro de un día hábil" }
+  categories: [medical_question, reschedule, cancel, complaint, other]
+  extra_handoff_topics: ["pricing negotiations", "group or bridal party bookings"]
+
+security:
+  allowed_domains: [glowmedspa.example, www.glowmedspa.example, book.glowmedspa.example]
+  widget_subdomain: chat.glowmedspa.example
+
+languages: [en, es]
+
+model:
+  id: us.anthropic.claude-haiku-5-5
+  summarizer_id: us.anthropic.claude-haiku-5-5
+  max_output_tokens: 2048   # includes the model's hidden reasoning; reply length is capped by the output checks
+  use_prompt_cache: true
+
+retention:
+  transcripts_days: 30
+  flagged_transcripts_days: 90
+  summaries_months: 13
+
+compliance_profile:
+  hipaa_covered_entity: false
+  status_questionnaire: { completed_on: null, warranty_signed: false, next_review: null }
+  state: OR
+  state_laws: []
+  agreements: []
+  call_recording_consent: one-party
+  pilot_review_consent: { granted: false, expires: null }
+  medical_director_approval: { approver: null, approved_on: null, content_hash: null }

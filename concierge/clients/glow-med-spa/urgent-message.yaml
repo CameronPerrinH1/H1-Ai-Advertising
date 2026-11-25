@@ -1,0 +1,24 @@
+# Fixed help messages shown by show_urgent_help (D14). Placeholders: {urgent_line}, {crisis_line}, {business_name}.
+# DEMO wording. A real client's medical director must approve this file before launch (D38).
+approved_by: "DEMO: not medically reviewed"
+post_treatment:
+  title:
+    en: "Let's get you help right away"
+    es: "Vamos a conseguirte ayuda de inmediato"
+  body:
+    en: "Please call our urgent line now so a provider can advise you. If you have trouble breathing, vision changes, or severe pain, call 911."
+    es: "Llama ahora a nuestra línea de urgencias para que un proveedor te oriente. Si tienes dificultad para respirar, cambios en la vista o dolor intenso, llama al 911."
+emergency:
+  title:
+    en: "This sounds like an emergency"
+    es: "Esto parece una emergencia"
+  body:
+    en: "Please call 911 now. You can also reach our urgent line after you're safe."
+    es: "Llama al 911 ahora. También puedes comunicarte con nuestra línea de urgencias cuando estés a salvo."
+crisis:
+  title:
+    en: "You don't have to go through this alone"
+    es: "No tienes que pasar por esto a solas"
+  body:
+    en: "You can call or text {crisis_line} any time to reach the Suicide and Crisis Lifeline. If you're in immediate danger, call 911."
+    es: "Puedes llamar o enviar un mensaje de texto al {crisis_line} en cualquier momento para comunicarte con la Línea de Prevención del Suicidio y Crisis. Si estás en peligro inmediato, llama al 911."

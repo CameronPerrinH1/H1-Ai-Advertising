@@ -1,0 +1,442 @@
+# Retail products: prices from H1's price list, the rest from the spa. From the intake playbook a34bced50e6f (2026-11-19); edit in the wizard, not here.
+products:
+  - name: ÂN-Gloss Ceramide Lip Treatment
+    price: 45
+    brand: Anfisa Skin
+    category: Lip care
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: in_store
+  - name: Color Balm
+    price: 42
+    brand: Colorescience
+    category: Makeup and tint
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Skin Zyme
+    price: 83
+    brand: Jan Marini
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Daily Shield Tinted SPF 50
+    price: 46
+    brand: Epionce
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Gentle Foaming Cleanser
+    price: 40
+    brand: Epionce
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Intense Defense Serum
+    price: 165
+    brand: Epionce
+    category: Serums
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Intensive Nourishing Cream
+    price: 132
+    brand: Epionce
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lite Lytic Tx
+    price: 60
+    brand: Epionce
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lytic Gel Cleanser
+    price: 44
+    brand: Epionce
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lytic Plus Tx
+    price: 60
+    brand: Epionce
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lytic Tx
+    price: 60
+    brand: Epionce
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Milky Lotion Cleanser
+    price: 40
+    brand: Epionce
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Purifying Spot Gel
+    price: 46
+    brand: Epionce
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Renewal Eye Cream
+    price: 86
+    brand: Epionce
+    category: Eye care
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Renewal Facial Cream
+    price: 112
+    brand: Epionce
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Renewal Facial Lotion
+    price: 112
+    brand: Epionce
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Renewal Lite Facial Lotion
+    price: 112
+    brand: Epionce
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Face Shield - Glow
+    price: 52
+    brand: Colorescience
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Face Shield FLEX
+    price: 58
+    brand: Colorescience
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lip Shine
+    price: 42
+    brand: Colorescience
+    category: Lip care
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Total Eye Treatment
+    price: 79
+    brand: Colorescience
+    category: Eye care
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Clear Skin Balance
+    price: 44
+    brand: Face Reality
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Clear Skin Restore
+    price: 36
+    brand: Face Reality
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Cran-Peptide Cream
+    price: 33
+    brand: Face Reality
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Daily SPF 30 Lotion
+    price: 36
+    brand: Face Reality
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: HydraCalm Mask
+    price: 42
+    brand: Face Reality
+    category: Masks
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Mineral Matte SPF28
+    price: 36
+    brand: Face Reality
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Travel Moisture Balance Toner
+    price: 14
+    brand: Face Reality
+    category: Toners
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Travel Ultra Gentle Gel Cleanser
+    price: 14
+    brand: Face Reality
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Ultra Gentle Cleanser
+    price: 33
+    brand: Face Reality
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Arctigenin Brightening Treatment
+    price: 175
+    brand: Epicutis
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Cleansing Essentials Set
+    price: 105
+    brand: Epicutis
+    category: Sets and kits
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Epicutis Post Treatment Set
+    price: 75
+    brand: Epicutis
+    category: Sets and kits
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Hyvia Creme
+    price: 195
+    brand: Epicutis
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lipid Body Treatment
+    price: 225
+    brand: Epicutis
+    category: Body care
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lipid Recovery Mask
+    price: 125
+    brand: Epicutis
+    category: Masks
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Lipid Serum
+    price: 250
+    brand: Epicutis
+    category: Serums
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Luxury Skincare Set
+    price: 395
+    brand: Epicutis
+    category: Sets and kits
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Oil Cleanser
+    price: 85
+    brand: Epicutis
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Travel Lipid Body Treatment
+    price: 75
+    brand: Epicutis
+    category: Body care
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Age Intervention Face Cream
+    price: 135
+    brand: Jan Marini
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Antioxidant Daily Face Protectant
+    price: 63
+    brand: Jan Marini
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Bioclear Face Cream
+    price: 103
+    brand: Jan Marini
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Bioglycolic Face Cleanser
+    price: 46
+    brand: Jan Marini
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: C-Esta Face Cream
+    price: 145
+    brand: Jan Marini
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: C-Esta Face Serum
+    price: 145
+    brand: Jan Marini
+    category: Serums
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Clean Zyme 6oz
+    price: 63
+    brand: Jan Marini
+    category: Cleansers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: HYLA3D Face Mask
+    price: 123
+    brand: Jan Marini
+    category: Masks
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Hyla3D Face Serum
+    price: 125
+    brand: Jan Marini
+    category: Serums
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Marini Clear Multi-Acid Corrective Pads
+    price: 100
+    brand: Jan Marini
+    category: Treatments
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Marini Luminate Face Lotion
+    price: 120
+    brand: Jan Marini
+    category: Moisturizers
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Skin Care Management System
+    price: 360
+    brand: Jan Marini
+    category: Sets and kits
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: No-Show Mineral Sunscreen
+    price: 48
+    brand: Colorescience
+    category: Sunscreen
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Hydrobiome Mist
+    price: 75
+    brand: Epicutis
+    category: Toners
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both
+  - name: Antioxidant Peptide Serum
+    price: 56
+    brand: Face Reality
+    category: Serums
+    priority: normal
+    after_services: []
+    helps_with: []
+    sold: both

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Glow Med Spa (demo)</title>
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <div class="demo-bar">Demo website. Glow Med Spa is a fictional business for testing the AI concierge.</div>
+    <nav>
+      <a class="logo" href="/">Gl<span>o</span>w</a>
+      <div class="nav-links">
+        <a href="#treatments">Treatments</a>
+        <a href="/botox.html">Botox</a>
+        <a href="#concierge">Ask Ava</a>
+      </div>
+      <a class="btn dark" href="https://book.glowmedspa.example" target="_blank" rel="noopener">Book now</a>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">Anytown's modern med spa</p>
+          <h1>Skin that glows. Care that listens.</h1>
+          <p class="lead">From your first HydraFacial to a full skin plan, our team helps you find what's right for you, with no pressure and no guesswork.</p>
+          <div class="hero-actions">
+            <button class="btn dark" data-concierge-open>Find my treatment</button>
+            <a class="btn light" href="https://book.glowmedspa.example" target="_blank" rel="noopener">Book online</a>
+          </div>
+        </div>
+        <img src="http://localhost:5173/media/glow-med-spa/facial.svg" alt="" style="width: 100%; border-radius: 28px" />
+      </div>
+    </header>
+
+    <section id="concierge" class="concierge-section">
+      <div class="concierge-inner">
+        <p class="eyebrow">Virtual concierge</p>
+        <h2>Not sure where to start? Ask Ava.</h2>
+        <p class="section-lead">Tell Ava what you'd like to change and when. She'll suggest options, answer questions, and help you book.</p>
+        <div data-concierge-inline data-height="640"></div>
+      </div>
+    </section>
+
+    <section id="treatments">
+      <p class="eyebrow">Treatments</p>
+      <h2>Our most-loved treatments</h2>
+      <p class="section-lead">Every visit starts with a conversation about your goals.</p>
+      <div class="grid">
+        <article class="svc">
+          <img src="http://localhost:5173/media/glow-med-spa/facial.svg" alt="" />
+          <div class="svc-body">
+            <h3>HydraFacial</h3>
+            <p>Deep cleansing and hydration for an instant, no-downtime glow.</p>
+            <button class="ask" data-concierge-open data-concierge-question="Tell me about the HydraFacial">Ask Ava about this</button>
+          </div>
+        </article>
+        <article class="svc">
+          <img src="http://localhost:5173/media/glow-med-spa/peel.svg" alt="" />
+          <div class="svc-body">
+            <h3>Chemical Peel</h3>
+            <p>Even tone and smoother texture as fresh skin comes through.</p>
+            <button class="ask" data-concierge-open data-concierge-question="Do you have any specials on chemical peels?">Ask about this month's special</button>
+          </div>
+        </article>
+        <article class="svc">
+          <img src="http://localhost:5173/media/glow-med-spa/injectables.svg" alt="" />
+          <div class="svc-body">
+            <h3>Botox &amp; Dysport</h3>
+            <p>Soften expression lines with natural-looking results.</p>
+            <a class="ask" href="/botox.html">Learn more</a>
+          </div>
+        </article>
+        <article class="svc">
+          <img src="http://localhost:5173/media/glow-med-spa/laser.svg" alt="" />
+          <div class="svc-body">
+            <h3>Laser Hair Removal</h3>
+            <p>Long-lasting smoothness on almost any area.</p>
+            <button class="ask" data-concierge-open data-concierge-question="How does laser hair removal work and what does it cost?">Ask Ava about this</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>Glow Med Spa is fictional. 123 Main St, Anytown, OR · (555) 555-0100</footer>
+
+    <script
+      src="http://localhost:5173/loader.js"
+      data-launcher="true"
+      data-launcher-label="Chat with Ava"
+      data-color="#8a5f60"
+      async
+    ></script>
+  </body>
+</html>

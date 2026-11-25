@@ -1,0 +1,58 @@
+// Every concierge deployment. Pick one with: pnpm --filter @concierge/infra synth -c deployment=<name>
+// Staging runs in the agency's account with synthetic data; production entries are added per client
+// during onboarding (03), each in the client's own account.
+export interface Deployment {
+  clientId: string;
+  stage: 'staging' | 'production';
+  // The AWS account this deployment belongs in. The app refuses to synth into any other, so a
+  // deploy with the wrong login fails before it touches anything.
+  account?: string;
+  domain?: { name: string; certificateArn: string };
+  alarmEmail?: string; // alarms, and budget alerts when a budget is set (D40)
+  monthlyBudgetUsd?: number;
+  audit: { days: number; mode: 'compliance' | 'governance' };
+  // The Secrets Manager secret with the booking platform's API keys, for live openings
+  // (booking.availability). Created by hand in the deployment's account; only the API reads it.
+  bookingSecretName?: string;
+  // In-chat booking with holds on the spa's calendar (booking.availability.holds): off unless set.
+  // 'preview' runs the whole flow with Confirm greyed out (nothing held or sent); 'test' marks holds
+  // "TEST –" and releases them after 10 minutes, for supervised trials.
+  holds?: 'off' | 'preview' | 'test' | 'on';
+}
+
+export const DEPLOYMENTS: Record<string, Deployment> = {
+  // The fictional demo spa, for the staff preview and sales demos. Short, governance-mode audit
+  // retention so a staging stack can be torn down; production uses 6 years in compliance mode (D54).
+  'glow-med-spa-staging': {
+    clientId: 'glow-med-spa',
+    stage: 'staging',
+    alarmEmail: 'cameron@h1webdev.com',
+    audit: { days: 7, mode: 'governance' },
+  },
+  // Plumb + Pine's test stack in H1's account, before her own account exists. Synthetic chats only
+  // (D29): its handoffs go to a test inbox (-c handoffEmail=…), never to the spa.
+  'plumb-and-pine-staging': {
+    clientId: 'plumb-and-pine',
+    stage: 'staging',
+    alarmEmail: 'cameron@h1webdev.com',
+    monthlyBudgetUsd: 25,
+    audit: { days: 7, mode: 'governance' },
+    // Jen's Vagaro keys (read-only openings; no guest data is sent to Vagaro, so D29 holds).
+    bookingSecretName: 'concierge/plumb-and-pine-staging/vagaro',
+    holds: 'preview', // Cameron, Nov 11: book in the chat, Confirm greyed out until it goes live
+  },
+  // Plumb + Pine's own stack, in Jen's AWS account (Nov 19). Until go-live it runs on a hidden page of
+  // her site: deploy with -c handoffEmail=<H1 inbox> so test handoffs never reach Jen, and without a
+  // domain (the CloudFront address). chat.plumbandpine.com and its certificate are added at go-live.
+  'plumb-and-pine': {
+    clientId: 'plumb-and-pine',
+    stage: 'production',
+    account: '609344448048',
+    alarmEmail: 'cameron@h1webdev.com',
+    monthlyBudgetUsd: 50,
+    audit: { days: 2192, mode: 'compliance' }, // 6 years (D54)
+    // Created by hand in her account, with the same keys as the staging secret.
+    bookingSecretName: 'concierge/plumb-and-pine/vagaro',
+    holds: 'preview', // Confirm greyed out; nothing is held on her calendar until she's live
+  },
+};

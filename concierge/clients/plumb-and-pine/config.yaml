@@ -1,0 +1,384 @@
+# Plumb + Pine (Jen Jeffers, Reno NV). Business facts are H1's, from her Jotform (2026-10-29),
+# website, and Vagaro (2026-11-09). The Sales Playbook parts come from the intake wizard:
+#   pnpm import-playbook <playbook.json> plumb-and-pine
+# Values marked PLACEHOLDER are replaced by that import; values marked CONFIRM need checking before launch.
+# No secrets in this file. Shape follows ai-concierge-handoff/templates/client-config.example.yaml.
+client_id: plumb-and-pine
+
+business:
+  name: Plumb + Pine
+  kind: a skin and scalp studio run by Jen Jeffers, an advanced esthetician (not a
+    med spa)
+  phone: "(775) 300-1096" # the business phone in her Vagaro account (Nov 10); her Jotform gave (775) 409-2640
+  urgent_line: (775) 409-2640
+  crisis_line: "988"
+  privacy_policy_url: "https://www.plumbandpine.com/privacy-policy"
+  consumer_health_privacy_policy_url: null
+  terminology:
+    clients: clients
+    services: treatments
+    providers: estheticians
+    booking: book an appointment
+  locations:
+    - id: loc-main
+      name: Plumb + Pine
+      address: "538 W Plumb Ln, Suite B, Reno, NV 89509"
+      timezone: America/Los_Angeles
+      by_appointment: true
+      hours: {}
+
+booking_mode: link_handoff
+
+booking:
+  platform: vagaro
+  direct_links:
+    default: https://www.vagaro.com/plumandpine/services
+    services: {}
+    providers: {}
+  self_service_link: "https://www.vagaro.com/plumandpine"
+  # Never show booking-page links: every booking happens in the chat (Cameron, Nov 11).
+  links: false
+  rules:
+    min_notice_hours: 24
+    max_days_ahead: 180
+    prerequisites:
+      - service: sugar-plumb-express-facial
+        requires: skin-consultation
+    # Jen, Nov 19 (by phone): appointments are before Botox or filler, or at least 14 days after,
+    # so the chat asks before every booking; a "yes" keeps the appointment 14+ days out.
+    screening:
+      - id: botox-filler
+        question: Have you had Botox or filler in the last 14 days?
+        why: Jen books appointments before Botox or filler, or at least 14 days after
+        wait_days_after_yes: 14
+    # Jen, Nov 19: said every time a facial is booked. CONFIRM: facials = everything but the
+    # consultations and the hair and scalp treatments.
+    reminders:
+      - text: Please stop using any vitamin A or retinol products at least 72 hours before your appointment.
+        services:
+          - sugar-plumb-express-facial
+          - the-miracle-facial
+          - lift-and-restore
+          - custom-infusion-facial
+          - the-ageless-facial
+          - oxygen-facial-glo2
+          - dermaplane-facial
+          - platinum-hydrafacial
+          - deluxe-hydrafacial
+          - express-hydrafacial
+          - back-hydrafacial
+          - microchanneling
+          - dmk-enzyme-therapy
+          - dmk-muscle-banding
+  allowed_phone_countries: [ US ]
+  # Live openings from Jen's Vagaro account (read only; the API keys are in AWS Secrets Manager, named
+  # per deployment in infra/lib/deployments.ts). Ids from the Vagaro API, 2026-11-10.
+  availability:
+    source: vagaro
+    business_id: "GQvcTaX8Jf8neKWNBYKkBA=="
+    # Holds (Nov 11): a time the guest picks and confirms is blocked on Jen's calendar until she
+    # makes the appointment; released after release_after_hours. The deployment must also allow them.
+    holds:
+      enabled: true
+      release_after_hours: 24
+    provider_ids:
+      jen-jeffers: "L~m7GercQGrImXF0FAHLhA=="
+    service_ids:
+      skin-consultation: "K3X3j7UJFM9k36bb328CKA=="
+      sugar-plumb-express-facial: "XCrbtmKe1qweEXzZ3yo6kA=="
+      the-miracle-facial: "EtRu~gkH4LkDqNRWKKIjeg=="
+      lift-and-restore: "3nqN8yzGTluSJavpXX8LzA=="
+      custom-infusion-facial: "V4kRaBgiw0PryNrQ6dTI8g=="
+      the-ageless-facial: "71r3-84IiSt7WlzRj-Ga2w=="
+      oxygen-facial-glo2: "OqRefXvT70~4dd6viMXYQg=="
+      dermaplane-facial: "Akkttf9WDRoh2BQQq35rWA=="
+      platinum-hydrafacial: "76fp2VdOSI7MzO0RsJSYLA=="
+      deluxe-hydrafacial: "s3Zg6IgUEFumF2t9oh92Nw=="
+      express-hydrafacial: "ozOTcpVsLrSx6P62889AkA=="
+      back-hydrafacial: "JBP0mLbOZP6T3LCdfTqNfw=="
+      hair-scalp-consultation: "HErFAVsG3LLcBVoKZajOfg=="
+      hair-restoration-microchanneling: "aXNzlTTKAW-CXVO99gDsGw=="
+      hydrascalp-keravive-full-scalp: "Mc2wQb6Ek0KN6dI1FuAyGw=="
+      hydrascalp-keravive-partial-scalp: "ZeDqITp-r5vpX7sK3itjbQ=="
+      microchanneling: "idpwQQclGjtFFqa6KSkIlQ=="
+      dmk-enzyme-therapy: "zlMSljdaN-hcymD9dLfAIA=="
+      dmk-muscle-banding: "Ft0DwWoFrczV-hpxlcZPzg=="
+  limits:
+    max_bookings_per_session: 2
+    max_callbacks_per_session: 2
+
+knowledge:
+  service_details_file: service-details.yaml
+  services_file: services.yaml
+  faqs_file: faqs.yaml
+  products_file: products.yaml
+  providers_file: providers.yaml
+  objections_file: objections.yaml
+  urgent_message_file: urgent-message.yaml
+  concerns_file: concerns.yaml
+  policies:
+    hours: "By appointment only, with no walk-ins; days and times vary. There's no
+      front desk: Jen lets guests in for their appointment."
+    cancellation: "Cancel at least 24 hours ahead and there's no charge. Same-day
+      cancellations are charged 100% of the service to the card on file."
+    no_show: "No-shows are charged 100% of the missed service by invoice or the card
+      on file, and the balance must be paid before future appointments."
+    late_arrival: "Guests running late should let Jen know. Arriving more than 15
+      minutes late may mean rescheduling."
+    refunds: "No refunds on services or products. Unopened products can be returned
+      within 10 days of purchase."
+    age_minimum: "Guests must be 16 or older. Guests under 18 can be treated with a
+      parent or guardian present."
+    payment: "Cash, credit and debit cards, HSA and FSA cards, and Apple Pay or
+      Google Pay. No financing, gift cards, or memberships."
+    deposit: "No deposit is needed to book. Bookings need 24 hours notice and can be
+      made up to 6 months ahead."
+    before_facials: "No Botox or filler within 14 days before a facial."
+    urgent_line: The urgent line is answered 24/7.
+
+# Jen, Nov 19: every product is sold in the studio only, and a guest has a Skin Consultation before
+# buying any product. The chat says so, then offers to schedule the consultation.
+retail:
+  in_store_only: true
+  consult_to_buy: skin-consultation
+
+sales:
+  featured_services: []
+  fit_rules_file: fit-rules.yaml
+  memberships: []
+  do_not_promote:
+    - hydrascalp-keravive-full-scalp
+    - dmk-muscle-banding
+  pricing:
+    default: exact
+    services: {}
+  # TEST pairings for trying the upsell on staging (Nov 10). Jen's form answers replace them on import.
+  pairings: {}
+  add_on_suggestions: {}
+  growth:
+    packages: []
+    differentiators:
+      - Years in business
+      - Comfort-first approach
+      - Transparent pricing
+      - Personalized plans
+    in_their_words: Science-backed, personalized skincare from Jen Jeffers, a
+      licensed cosmetologist and advanced esthetician. Every treatment is built
+      around what your skin needs that day, with a focus on scalp restoration
+      and age-management facials for perimenopause and menopause.
+  events: []
+  promotions: []
+  tactics:
+    promotions: when_relevant
+    offer_contact: after_first_answer
+    suggest_booking: after_educating
+    urgency: real_deadlines_only
+
+first_visit:
+  arrive_minutes_early: 5 # CONFIRM
+  parking: "Easy parking at the Plumgate Shopping Center, near Starbucks and
+    across the lot from Butcher Boy. There's no front desk; Jen will let you
+    in."
+  bring:
+    - "A list of your current prescriptions"
+    - "A list of the skincare products you use at home"
+  notes:
+    - "Stop using any vitamin A or retinol products at least 72 hours before a facial"
+    - "Book your appointment before Botox or filler, or at least 14 days after"
+
+voice:
+  tone: 'Warm and relaxed, while still clear and professional. For example: "Great
+    question! Most clients feel a quick pinch, and treatment only takes a few
+    minutes. Our estheticians can use ice or numbing for extra comfort. Would
+    you like help to book an appointment?"'
+  dos:
+    - Use brand names, like Botox, when guests do.
+    - Leave guests feeling like talking to a friend, cared for, welcomed.
+  donts:
+    - Never guarantee results
+    - Never say “painless” or “no pain”
+    - Never mention competitor names
+    - Never make FDA claims for uses a product isn’t approved for
+    - Never say “cheap” or “discount”
+    - Never say anything that sounds like a diagnosis
+    - Never ask a patient’s medical history
+  examples_file: voice-examples.md
+  emoji: occasionally
+  exclamation: sparingly
+  length: detail
+  sign_off: We can’t wait to see you!
+
+concierge:
+  # PLACEHOLDER apart from chat_notice
+  name: Sophie
+  avatar:
+    mode: illustrated
+    id: sparkle
+  greeting:
+    en: Welcome to Plumb + Pine! 😊 I’m Sophie, your AI Treatment Coordinator. Ask
+      me anything about our treatments, pricing, or booking.
+  disclosure_label:
+    en: AI Treatment Coordinator
+  chat_notice:
+    version: 2026-11-24.1
+    en: You're chatting with Plumb + Pine's AI assistant. It cannot give medical
+      advice. This chat is recorded to help us respond.
+
+branding:
+  # From plumbandpine.com (Nov 10): midnight blue (#032E5B, logo and banner) for the bar and text,
+  # gold (#AE7F54, logo lettering) for buttons and the guest's bubbles, cream (#F7F6F3) for soft
+  # surfaces. Her site uses Neutra Text (commercial); the chat uses Avenir, its closest system
+  # font, until her license is confirmed to cover chat.plumbandpine.com (D53: no hosted fonts).
+  colors: { primary: "#AE7F54", secondary: "#F7F6F3", accent: "#032E5B" }
+  fonts:
+    heading: "'Neutra Text', 'Avenir Next', Avenir, 'Century Gothic', -apple-system,
+      'Segoe UI', sans-serif"
+    body: "'Avenir Next', Avenir, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, sans-serif"
+    license: "System fonts only (Avenir where available); Neutra Text needs Jen's
+      web license to cover the chat domain (D53)"
+
+display:
+  modes: [ askbar, fullscreen, inline ]
+  nudge_delay_seconds: 20
+  # The ask bar on each page of plumbandpine.com: its greeting, box hint and "Asking about" topic.
+  # Paths are exact, or a prefix ending in "*". {name} is the coordinator's name.
+  pages:
+    "/":
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or
+        scalp, and I'll point you to the right treatment."
+      placeholder: "Ask about facials, scalp care, pricing…"
+    "/jen-home":
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or
+        scalp, and I'll point you to the right treatment."
+      placeholder: "Ask about facials, scalp care, pricing…"
+    "/home-chat":
+      # unlisted preview page on her live site (Nov 10), pointed at the staging stack
+      greeting: "Hi, I'm {name}. Tell me what you'd like to change about your skin or
+        scalp, and I'll point you to the right treatment."
+      placeholder: "Ask about facials, scalp care, pricing…"
+    "/services*":
+      greeting: "Have a question about a treatment? I can explain what it does, what
+        it costs, and how to book."
+      placeholder: "Ask about a treatment…"
+      topic: "treatments"
+    "/treatments/hydrafacial-treatments":
+      topic: "HydraFacial"
+      placeholder: "Ask about HydraFacial…"
+    "/treatments/microchanneling-treatments":
+      topic: "Microchanneling"
+      placeholder: "Ask about microchanneling…"
+    "/treatments/glo2facial":
+      topic: "the Glo2 Facial"
+      placeholder: "Ask about the Glo2 Facial…"
+    "/treatments/hair-rejuvenation":
+      topic: "scalp and hair"
+      placeholder: "Ask about scalp treatments…"
+    "/treatments/danne-montague-king":
+      topic: "DMK"
+      placeholder: "Ask about DMK treatments…"
+    "/treatments*":
+      greeting: "Have a question about this treatment? I can explain what it does,
+        what it costs, and how to book."
+      placeholder: "Ask about this treatment…"
+      topic: "treatments"
+    "/about*":
+      greeting: "Curious about Jen? Ask about her training, her approach, or what to
+        expect at your visit."
+      placeholder: "Ask about Jen, her training, her approach…"
+      topic: "Jen"
+  suggested_questions:
+    default:
+      en:
+        - What's right for my skin?
+        - What helps with thinning hair?
+        - What should I know before my first visit?
+    pages:
+      "/services*":
+        en:
+          [
+            "Which facial is right for me?",
+            "What's the difference between the HydraFacials?",
+            "What's the most affordable option?"
+          ]
+      "/treatments*":
+        en:
+          [
+            "Is this right for my skin?",
+            "How much does it cost?",
+            "Can I book online?"
+          ]
+      "/about*":
+        en:
+          [
+            "Who is Jen?",
+            "What does Jen specialize in?",
+            "What should I know before my first visit?"
+          ]
+
+handoff:
+  email_from: "concierge@h1aiconsulting.com" # CONFIRM: the sending address H1 sets up
+  email_to: "plumbandpine@gmail.com"
+  email_to_exception:
+    # D87: off her domain, approved by H1
+    address: plumbandpine@gmail.com
+    approved_by: Cameron Perrin, H1
+    approved_on: 2026-11-09
+    reason: Solo owner with no email on her own domain; the address is from her
+      Jotform.
+  email_provider_baa_confirmed: false
+  callback_response_time: { en: "within 2 business days" }
+  categories: [ reschedule, cancel, complaint, other ]
+  extra_handoff_topics: [ "group bookings" ]
+  wording:
+    cant_answer: That’s a great one for our team. Can I have someone reach out to you?
+    medical: That’s a great question for one of our estheticians, and I want to make
+      sure you get the right answer. Can I have someone from our clinical team
+      follow up within {response_time}?
+    not_offered: We don’t offer that here, but I’d love to connect you with our team
+      to find the best fit for your goals. Would you like them to follow up?
+    consult_required: We always begin with a consult for this one, so your
+      esthetician can make sure it’s the right fit. Would you like me to help
+      you book an appointment?
+    callback: Absolutely. Share your number and a good time below, and our team will
+      call within {response_time}.
+    complaint: Thank you for telling us. This deserves a real person’s attention, so
+      I’m sharing it with our team now. Expect to hear back within
+      {response_time}.
+
+security:
+  allowed_domains:
+    - plumbandpine.com
+    - www.plumbandpine.com
+  widget_subdomain: chat.plumbandpine.com # CONFIRM
+
+languages:
+  - en
+
+model:
+  id: us.anthropic.claude-haiku-5-5
+  summarizer_id: us.anthropic.claude-haiku-5-5
+  max_output_tokens: 2048 # includes the model's hidden reasoning; reply length is capped by the output checks
+  use_prompt_cache: true
+
+retention:
+  transcripts_days: 30
+  flagged_transcripts_days: 90
+  summaries_months: 13
+
+compliance_profile:
+  hipaa_covered_entity: false # CONFIRM with Jen
+  status_questionnaire: { completed_on: null, warranty_signed: false, next_review: null }
+  state: NV
+  state_laws: []
+  agreements: []
+  call_recording_consent: one-party # CONFIRM for Nevada
+  pilot_review_consent: { granted: false, expires: null }
+  medical_director_approval:
+    approver: Jennifer, owner
+    approved_on: 2026-11-13
+    content_hash: a34bced50e6f5a52cd8d0ff2ac4f44668b0bf8f6c8587a5339c337bccbc2d22b
+  owner_approval:
+    approver: Jennifer, owner
+    approved_on: 2026-11-13
+    content_hash: a34bced50e6f5a52cd8d0ff2ac4f44668b0bf8f6c8587a5339c337bccbc2d22b
