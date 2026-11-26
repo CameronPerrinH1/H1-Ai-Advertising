@@ -1,5 +1,7 @@
 # H1 AI Advertising: the plan
 
+> **RETIRED 2026-11-25 (D96).** H1 is moving to assisted living with a fresh project and one shared system in H1's AWS account. This plan is kept as a backup (tag `medspa-archive-2026-11-25`). Read `../docs/assisted-living-pivot.md` first.
+
 Eight milestones, done in order (6 and 7 were added 2026-11-25). Each one ends with something working and deployable.
 Lines marked **Decide** are choices to settle before that step starts. Tick boxes as you go and
 commit this file with the work, so the plan and the code stay in step.
